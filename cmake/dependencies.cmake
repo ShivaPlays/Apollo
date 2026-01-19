@@ -137,9 +137,6 @@ endif()
 # ------------------------------
 # OpenAL-Soft
 # ------------------------------
-# ------------------------------
-# OpenAL-Soft
-# ------------------------------
 find_package(OpenAL QUIET)
 if(NOT OpenAL_FOUND)
     message(STATUS "OpenAL not found, fetching with FetchContent...")
