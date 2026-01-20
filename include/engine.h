@@ -136,4 +136,6 @@ namespace age
 		bool m_started;
 		bool m_exit_requested;
 	};
+
+	typedef engine application;
 }
