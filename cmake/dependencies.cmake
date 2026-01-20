@@ -137,9 +137,6 @@ endif()
 # ------------------------------
 # OpenAL-Soft
 # ------------------------------
-# ------------------------------
-# OpenAL-Soft
-# ------------------------------
 find_package(OpenAL QUIET)
 if(NOT OpenAL_FOUND)
     message(STATUS "OpenAL not found, fetching with FetchContent...")
@@ -169,8 +166,8 @@ endif()
 # ------------------------------
 # SDL3
 # ------------------------------
-#find_package(SDL3 QUIET)
-#if(NOT SDL3_FOUND)
+find_package(SDL3 QUIET)
+if(NOT SDL3_FOUND)
     message(STATUS "SDL3 not found, fetching with FetchContent...")
     
     fetch_hide_from_ide(
@@ -180,7 +177,7 @@ endif()
     )
 
     set(SDL3_TARGET SDL3-static)  # or SDL3-static if appropriate
-#else()
-#    message(STATUS "Using system-installed SDL3")
-#    set(SDL3_TARGET SDL3::SDL3)
-#endif()
+else()
+    message(STATUS "Using system-installed SDL3")
+    set(SDL3_TARGET SDL3::SDL3)
+endif()
