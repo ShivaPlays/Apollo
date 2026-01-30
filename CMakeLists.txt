@@ -141,7 +141,7 @@ if (WIN32)
 
     add_custom_command(TARGET ${EXE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${_openal_location}"
+            $<TARGET_FILE:OpenAL::OpenAL>
             $<TARGET_FILE_DIR:${EXE_NAME}>
             COMMENT "Copying OpenAL DLL to output directory"
     )
