@@ -12,20 +12,22 @@ function(fetch_hide_from_ide name)
             ${name}
             GIT_REPOSITORY ${FH_GIT_REPOSITORY}
             GIT_TAG ${FH_GIT_TAG}
+            SYSTEM
             CMAKE_ARGS ${FH_CMAKE_ARGS}
     )
 
     FetchContent_GetProperties(${name})
     if(NOT ${name}_POPULATED)
-        # --- NEW: Force all targets created by this dependency into a folder ---
+        # Store what the folder was before we started
         set(PREV_FOLDER ${CMAKE_FOLDER})
-        set(CMAKE_FOLDER "External/${name}") # Groups them by library name
+
+        # Group this specific dependency
+        set(CMAKE_FOLDER "External/${name}")
 
         FetchContent_MakeAvailable(${name})
 
-        # Restore the previous folder setting
-        set(CMAKE_FOLDER ${PREV_FOLDER} PARENT_SCOPE)
-        # -----------------------------------------------------------------------
+        # Restore the folder to exactly what it was before this function ran
+        set(CMAKE_FOLDER "${PREV_FOLDER}" PARENT_SCOPE)
 
         if(TARGET ${name})
             set_target_properties(${name} PROPERTIES EXCLUDE_FROM_ALL TRUE)
