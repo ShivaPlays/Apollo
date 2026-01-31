@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.10...3.16)                # Require CMake 3.10 
 set(LIB_NAME Apollo)
 set(EXE_NAME DemoApp)
 
+# Enable folder grouping in IDEs like Visual Studio
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 project(${LIB_NAME} VERSION 0.1 LANGUAGES C CXX)    # Project name, version, and language
 
 set(CMAKE_CXX_STANDARD 17)                          # Use C++17

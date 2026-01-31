@@ -15,11 +15,18 @@ function(fetch_hide_from_ide name)
             CMAKE_ARGS ${FH_CMAKE_ARGS}
     )
 
-    # Use modern FetchContent_MakeAvailable instead of deprecated Populate
     FetchContent_GetProperties(${name})
     if(NOT ${name}_POPULATED)
+        # --- NEW: Force all targets created by this dependency into a folder ---
+        set(PREV_FOLDER ${CMAKE_FOLDER})
+        set(CMAKE_FOLDER "External/${name}") # Groups them by library name
+
         FetchContent_MakeAvailable(${name})
-        # Optional: hide from IDE/project tree
+
+        # Restore the previous folder setting
+        set(CMAKE_FOLDER ${PREV_FOLDER} PARENT_SCOPE)
+        # -----------------------------------------------------------------------
+
         if(TARGET ${name})
             set_target_properties(${name} PROPERTIES EXCLUDE_FROM_ALL TRUE)
         endif()
