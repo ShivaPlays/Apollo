@@ -137,7 +137,7 @@ target_include_directories(${EXE_NAME} PRIVATE
 # --- Copy OpenAL DLL after build (Windows only)
 if (WIN32)
     # Figure out where the OpenAL DLL ended up
-    get_target_property(_openal_location OpenAL::OpenAL LOCATION)
+    # get_target_property(_openal_location OpenAL::OpenAL LOCATION)
 
     add_custom_command(TARGET ${EXE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
