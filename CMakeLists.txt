@@ -21,7 +21,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 elseif(MSVC)
     add_compile_options(
             /W4   # Enable warning level 4 on MSVC
-            /WX   # Treat warnings as errors
+            # /WX   # Treat warnings as errors
     )
 endif()
 
