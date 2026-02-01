@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10...3.16)                # Require CMake 3.10 to 3.16
+cmake_minimum_required(VERSION 3.25)                # Require CMake 3.25
 
 set(LIB_NAME Apollo)
 set(EXE_NAME DemoApp)
@@ -20,9 +20,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 elseif(MSVC)
     add_compile_options(
-            /W4   # Enable warning level 4 on MSVC
-            # /WX   # Treat warnings as errors
+            /W4        # Enable warning level 4
+            /wd4244    # Disable: 'conversion' from 'double' to 'float', possible loss of data
+            /wd4267    # Disable: 'conversion' from 'size_t' to 'int', possible loss of data
+            /wd4996    # Disable: POSIX name/unsafe function warnings (common in Ogg/Vorbis)
     )
+    # Ensure /WX is not added back by any property
+    add_compile_options(/WX-)
 endif()
 
 # Add your library target
