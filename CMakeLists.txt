@@ -141,15 +141,25 @@ target_include_directories(${EXE_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# --- Copy OpenAL DLL after build (Windows only)
+# --- Visual Studio Specific Configuration ---
+if(MSVC)
+    # 1. Set the Working Directory so assets are found when pressing F5
+    set_target_properties(${EXE_NAME} PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+endif()
+
+# --- Copy DLLs after build (Windows only)
 if (WIN32)
     # Figure out where the OpenAL DLL ended up
     # get_target_property(_openal_location OpenAL::OpenAL LOCATION)
 
+    # Swap your custom command for this to catch ALL needed DLLs automatically
     add_custom_command(TARGET ${EXE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:OpenAL::OpenAL>
+            $<TARGET_RUNTIME_DLLS:${EXE_NAME}>
             $<TARGET_FILE_DIR:${EXE_NAME}>
-            COMMENT "Copying OpenAL DLL to output directory"
+            COMMAND_EXPAND_LISTS
+            COMMENT "Copying runtime dependencies (DLLs) to output directory"
     )
 endif()
