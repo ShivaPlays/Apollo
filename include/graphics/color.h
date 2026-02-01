@@ -9,11 +9,11 @@ namespace age
 		constexpr color()
 		{}
 
-		constexpr color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
-			: r{ red }
-			, g{ green }
-			, b{ blue }
-			, a{ alpha }
+		constexpr color(uint8_t p_red, uint8_t p_green, uint8_t p_blue, uint8_t p_alpha = 255)
+			: r{ p_red }
+			, g{ p_green }
+			, b{ p_blue }
+			, a{ p_alpha }
 		{}
 
 		uint8_t r{ 0 };
