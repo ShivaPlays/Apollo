@@ -97,7 +97,7 @@ age::engine::app_result test_app::on_user_create()
     age::assetistream is{ "./test_data/laser.wav", std::ios::binary | std::ios::ate };
     auto file_size = is.tellg();
     is.seekg(0);
-    std::vector<std::byte> file_data{ file_size };
+    std::vector<std::byte> file_data{ static_cast<size_t>(file_size) };
     is.read(reinterpret_cast<char*>(&file_data[0]), file_size);
 
     age::memistream ms{ &file_data[0], file_data.size() };

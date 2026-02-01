@@ -31,48 +31,99 @@ endif()
 
 # Add your library target
 add_library(${LIB_NAME} STATIC
+    include/audio/priv/ogg_stream.h
     src/audio/priv/ogg_stream.cpp
+    include/audio/audio_device.h
     src/audio/audio_device.cpp
+    include/audio/audio_format.h
     src/audio/audio_format.cpp
+    include/audio/audio_resource.h
     src/audio/audio_resource.cpp
+    include/audio/listener.h
     src/audio/listener.cpp
+    include/audio/music.h
     src/audio/music.cpp
+    include/audio/sound.h
     src/audio/sound.cpp
+    include/audio/sound_buffer.h
     src/audio/sound_buffer.cpp
+    include/audio/sound_file_wave.h
     src/audio/sound_file_wave.cpp
+    include/audio/sound_interface.h
     src/audio/sound_interface.cpp
+    include/audio/sound_properties.h
+    include/audio/sound_queue_buffer.h
     src/audio/sound_queue_buffer.cpp
+    include/audio/sound_source.h
     src/audio/sound_source.cpp
+    include/audio/sound_stream.h
     src/audio/sound_stream.cpp
+    include/audio/sound_stream_factory.h
     src/audio/sound_stream_factory.cpp
+    include/graphics/angle.h
+    include/graphics/blend_mode.h
     src/graphics/blend_mode.cpp
+    include/graphics/circle_shape.h
     src/graphics/circle_shape.cpp
+    include/graphics/color.h
     src/graphics/color.cpp
+    include/graphics/context.h
     src/graphics/context.cpp
+    include/graphics/drawable.h
+    include/graphics/font.h
     src/graphics/font.cpp
+    include/graphics/image.h
     src/graphics/image.cpp
+    include/graphics/rect.h
+    include/graphics/rectangle_shape.h
     src/graphics/rectangle_shape.cpp
+    include/graphics/render_states.h
     src/graphics/render_states.cpp
+    include/graphics/render_target.h
     src/graphics/render_target.cpp
+    include/graphics/render_window.h
     src/graphics/render_window.cpp
+    include/graphics/shader.h
     src/graphics/shader.cpp
+    include/graphics/shader_program.h
     src/graphics/shader_program.cpp
+    include/graphics/shape_2d.h
     src/graphics/shape_2d.cpp
+    include/graphics/sprite.h
     src/graphics/sprite.cpp
+    include/graphics/text.h
     src/graphics/text.cpp
+    include/graphics/texture.h
     src/graphics/texture.cpp
+    include/graphics/transformable_2d.h
     src/graphics/transformable_2d.cpp
+    include/graphics/uniform_buffer_object.h
     src/graphics/uniform_buffer_object.cpp
+    include/graphics/vertex_2d.h
+    include/graphics/vertex_array_object.h
     src/graphics/vertex_array_object.cpp
+    include/graphics/vertex_buffer_object.h
     src/graphics/vertex_buffer_object.cpp
+    include/graphics/view_2d.h
     src/graphics/view_2d.cpp
+    include/graphics/view_3d.h
     src/graphics/view_3d.cpp
+    include/system/assetstream.h
     src/system/assetstream.cpp
+    include/system/background_worker.h
     src/system/background_worker.cpp
+    include/system/clock.h
     src/system/clock.cpp
+    include/system/memstream.h
     src/system/memstream.cpp
+    include/system/platform.h
+    include/system/time.h
+    include/system/transient_context_lock.h
     src/system/transient_context_lock.cpp
+    include/utility/utility.h
     src/utility/utility.cpp
+    include/apollo_main.h
+    include/engine.h
     src/engine.cpp
     extlibs/libs/glad/src/glad.c
 )
@@ -93,68 +144,51 @@ target_include_directories(${LIB_NAME}
         $<INSTALL_INTERFACE:include>
 )
 
-# Link other libraries (e.g. freetype, SDL2).
-# Dependencies are handled in file cmake/dependencies.cmake
+# Link other libraries
 include(cmake/dependencies.cmake)
 target_link_libraries(${LIB_NAME}
         PRIVATE
-            ${OpenGL_GL_LIBRARY}
-            ${FREETYPE_TARGET}
-            ${GLAD_TARGET}
-            ${OGG_TARGET}
-            ${VORBIS_TARGET}
-            ${VORBISFILE_TARGET}
-            ${OPENAL_TARGET}
+        ${OpenGL_GL_LIBRARY}
+        ${FREETYPE_TARGET}
+        ${GLAD_TARGET}
+        ${OGG_TARGET}
+        ${VORBIS_TARGET}
+        ${VORBISFILE_TARGET}
+        ${OPENAL_TARGET}
         PUBLIC
-            ${SDL3_TARGET}
+        ${SDL3_TARGET}
 )
 
-# Also create the DemoApp
+# Create the DemoApp
 add_executable(${EXE_NAME}
         examples/demo_app/main.cpp
         examples/demo_app/test_app.cpp
 )
 
-set_target_properties(${EXE_NAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-)
-
+# Standard Threading
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-if(WIN32)
-    # On Windows, enable static linking options (needed for static runtime libs)
-    target_link_options(${EXE_NAME} PRIVATE -static -static-libgcc -static-libstdc++)
-else()
-    # On non-Windows (e.g. Linux), do not use static linking to avoid linker errors
-    message(STATUS "Skipping static linking options on non-Windows platform")
-endif()
-
+# Link everything to the App
 target_link_libraries(${EXE_NAME}
         PRIVATE
         ${LIB_NAME}
         ${SDL3_TARGET}
         Threads::Threads
 )
-target_include_directories(${EXE_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
 
 # --- Visual Studio Specific Configuration ---
 if(MSVC)
-    # 1. Set the Working Directory so assets are found when pressing F5
+    # Set the Working Directory so assets are found when pressing F5
     set_target_properties(${EXE_NAME} PROPERTIES
             VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     )
 endif()
 
-# --- Copy DLLs after build (Windows only)
+# --- Copy DLLs after build (Windows only) ---
 if (WIN32)
-    # Figure out where the OpenAL DLL ended up
-    # get_target_property(_openal_location OpenAL::OpenAL LOCATION)
-
-    # Swap your custom command for this to catch ALL needed DLLs automatically
+    # This grabs the SDL3.dll, OpenAL.dll, and the Runtime DLLs
+    # and puts them in your build folder so the game can actually start!
     add_custom_command(TARGET ${EXE_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_RUNTIME_DLLS:${EXE_NAME}>
