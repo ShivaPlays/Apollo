@@ -190,12 +190,12 @@ namespace age
 
 	void circle_shape::update_fill_color()
 	{
-		for (auto& v : m_vertices) v.color = m_fill_color;
+		for (auto& v : m_vertices) v.vertex_color = m_fill_color;
 	}
 
 	void circle_shape::update_outline_color()
 	{
-		for (auto& v : m_outline_vertices) v.color = m_outline_color;
+		for (auto& v : m_outline_vertices) v.vertex_color = m_outline_color;
 	}
 
 	void circle_shape::scale_for_outline()

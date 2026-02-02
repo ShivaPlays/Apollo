@@ -9,30 +9,30 @@ namespace age
 	{
 		vertex_2d()
 			: position{}
-			, color{ 255, 255, 255 }
+			, vertex_color{ 255, 255, 255 }
 			, tex_coords{}
 		{}
 
 		vertex_2d(glm::vec2 p_position)
 			: position{ p_position }
-			, color{ 255, 255, 255 }
+			, vertex_color{ 255, 255, 255 }
 			, tex_coords{}
 		{}
 
 		vertex_2d(glm::vec2 p_position, glm::vec2 p_tex_coords)
 			: position{ p_position }
-			, color{ 255, 255, 255 }
+			, vertex_color{ 255, 255, 255 }
 			, tex_coords{ p_tex_coords }
 		{}
 
 		vertex_2d(glm::vec2 p_position, color p_color, glm::vec2 p_tex_coords)
 			: position{ p_position }
-			, color{ p_color }
+			, vertex_color{ p_color }
 			, tex_coords{ p_tex_coords }
 		{}
 
 		glm::vec2 position;
-		color color;
+		color vertex_color;
 		glm::vec2 tex_coords;
 	};
 }

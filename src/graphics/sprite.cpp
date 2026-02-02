@@ -19,15 +19,15 @@ namespace age
 
 	void sprite::set_color(const color& value)
 	{
-		if (value != m_vertices[0].color)
+		if (value != m_vertices[0].vertex_color)
 		{
-			for (auto& v : m_vertices) v.color = value;
+			for (auto& v : m_vertices) v.vertex_color = value;
 		}
 	}
 
 	const color& sprite::get_color() const
 	{
-		return m_vertices[0].color;
+		return m_vertices[0].vertex_color;
 	}
 
 	void sprite::set_texture(const texture& value)

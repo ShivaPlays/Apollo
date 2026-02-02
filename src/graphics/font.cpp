@@ -410,7 +410,7 @@ namespace age
 
 	const texture& font::get_texture(uint32_t character_size) const
 	{
-		return load_page(character_size).texture;
+		return load_page(character_size).page_texture;
 	}
 
 	void font::set_smooth(bool value)
@@ -419,7 +419,7 @@ namespace age
 		{
 			for (auto& [key, page] : m_pages)
 			{
-				page.texture.set_smooth(value);
+				page.page_texture.set_smooth(value);
 			}
 
 			m_smooth = value;
@@ -593,7 +593,7 @@ namespace age
 			uint32_t y = static_cast<unsigned int>(result.texture_rect.top) - padding;
 			uint32_t w = static_cast<unsigned int>(result.texture_rect.width) + 2 * padding;
 			uint32_t h = static_cast<unsigned int>(result.texture_rect.height) + 2 * padding;
-			cur_page.texture.update(m_pixel_buffer.data(), uint_rect{ glm::u32vec2{x,y}, glm::u32vec2{w,h} });
+			cur_page.page_texture.update(m_pixel_buffer.data(), uint_rect{ glm::u32vec2{x,y}, glm::u32vec2{w,h} });
 		}
 
 		// Delete the FT glyph is done by glyph_handle
@@ -618,7 +618,7 @@ namespace age
 				continue;
 
 			// Check if there's enough horizontal space left in the row
-			if (size.x > page.texture.get_size().x - r.width)
+			if (size.x > page.page_texture.get_size().x - r.width)
 				continue;
 
 			// Make sure that this new row is the best found so far
@@ -632,7 +632,7 @@ namespace age
 		if (!matching_row)
 		{
 			uint32_t row_height = size.y + size.y / 10;
-			auto texture_size = page.texture.get_size();
+			auto texture_size = page.page_texture.get_size();
 
 			bool texture_needs_resizing = false;
 
@@ -665,12 +665,12 @@ namespace age
 				}
 
 				new_texture.set_smooth(m_smooth);
-				new_texture.update(page.texture);
+				new_texture.update(page.page_texture);
 				/*
 				* Move assigment should do actually
 				page.texture.swap(newTexture);
 				*/
-				page.texture = std::move(new_texture);
+				page.page_texture = std::move(new_texture);
 			}
 
 			// We can now create the new row
@@ -755,7 +755,7 @@ namespace age
 			for (uint32_t y = 0; y < 2; ++y)
 				tex_image.set_pixel(glm::u32vec2{ x, y }, color{ 255, 255, 255, 255 });
 
-		texture.load(tex_image);
-		texture.set_smooth(smooth);
+		page_texture.load(tex_image);
+		page_texture.set_smooth(smooth);
 	}
 }

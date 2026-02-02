@@ -84,7 +84,7 @@ namespace age
 			explicit page(bool smooth);
 
 			std::unordered_map<uint64_t, glyph> glyphs;
-			texture texture;
+			texture page_texture;
 			uint32_t next_row;
 			std::vector<row> rows;
 		};

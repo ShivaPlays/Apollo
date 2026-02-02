@@ -191,7 +191,7 @@ namespace age
 			if (!m_geometry_needs_update)
 			{
 				for (auto& v : m_vertices)
-					v.color = m_fill_color;
+					v.vertex_color = m_fill_color;
 			}
 		}
 	}
@@ -210,7 +210,7 @@ namespace age
 			if (!m_geometry_needs_update)
 			{
 				for (auto& v : m_outline_vertices)
-					v.color = m_outline_color;
+					v.vertex_color = m_outline_color;
 			}
 		}
 	}

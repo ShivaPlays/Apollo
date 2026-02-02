@@ -93,22 +93,22 @@ namespace age
 
 	void rectangle_shape::set_fill_color(const color& value)
 	{
-		for (auto& v : m_vertices) v.color = value;
+		for (auto& v : m_vertices) v.vertex_color = value;
 	}
 
 	const color& rectangle_shape::get_fill_color() const
 	{
-		return m_vertices[0].color;
+		return m_vertices[0].vertex_color;
 	}
 
 	void rectangle_shape::set_outline_color(const color& value)
 	{
-		for (auto& v : m_outline_vertices) v.color = value;
+		for (auto& v : m_outline_vertices) v.vertex_color = value;
 	}
 
 	const color& rectangle_shape::get_outline_color() const
 	{
-		return m_outline_vertices[0].color;
+		return m_outline_vertices[0].vertex_color;
 	}
 
 	void rectangle_shape::draw(render_target& target, const render_states& states) const
