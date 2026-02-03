@@ -378,9 +378,13 @@ namespace age
 							current_source->queue_buffer(processed_buffer);
 
 							//If there should have been a buffer underrun, just resume playing the source
-							if (current_source->get_state() == sound_state::stopped)
+							if (m_requested_state == sound_state::playing && current_source->get_state() == sound_state::stopped)
 							{
-								current_source->play();
+								// Only play if we have a healthy cushion (e.g., at least 2 buffers)
+								if (current_source->get_num_queued_buffers() == NUM_BUFFERS)
+								{
+									current_source->play();
+								}
 							}
 						}
 					}
