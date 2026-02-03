@@ -320,6 +320,12 @@ namespace age
 				uint32_t processed_buffers = 0;
 				{
 					std::lock_guard source_lock{ m_source_mutex };
+
+					if (m_requested_state == sound_state::stopped)
+					{
+						stop_source();
+						return;
+					}
 					processed_buffers = current_source->get_num_processed_buffers();
 				}
 
@@ -363,17 +369,19 @@ namespace age
 
 					{
 						std::lock_guard source_lock{ m_source_mutex };
-						auto processed_buffer = current_source->unqueue_buffer();
+						if (current_source->get_num_queued_buffers() > 0) {
+							auto processed_buffer = current_source->unqueue_buffer();
 
-						sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
-						processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
+							sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
+							processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
 
-						current_source->queue_buffer(processed_buffer);
+							current_source->queue_buffer(processed_buffer);
 
-						//If there should have been a buffer underrun, just resume playing the source
-						if (current_source->get_state() == sound_state::stopped)
-						{
-							current_source->play();
+							//If there should have been a buffer underrun, just resume playing the source
+							if (current_source->get_state() == sound_state::stopped)
+							{
+								current_source->play();
+							}
 						}
 					}
 				}
