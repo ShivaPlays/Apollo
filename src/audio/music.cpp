@@ -12,127 +12,112 @@
 namespace age
 {
 	music::music()
-		: m_requested_state{ sound_state::stopped }
+		: m_requested_stream{ nullptr }
+		, m_internal_state{ sound_state::stopped }
+		, m_alive{ true }
 	{
+		m_command_queue.reserve(8);
 		m_samples_buffer.resize(BUFFER_SAMPLES);
 		sound_interface::set_relative_to_listener(true);
+
+		m_background_worker.add_job([this](){ worker_loop(); });
 	}
 
 	music::~music()
 	{
+		m_alive = false;
 		music::stop();
 	}
 
 	void music::play(bool looped)
 	{
-		switch (m_requested_state)
-		{
-			case sound_state::stopped:
-			{
-				//First lets get a sound_source for permanent use
-				std::lock_guard source_lock{ m_source_mutex };
+		m_internal_state = sound_state::playing;
 
-				auto new_source = audio_device::get().get_free_source(true);
-				if (nullptr == new_source)
-					return;
-
-				new_source->clear_buffers();
-				attach_source(new_source);
-
-				m_requested_state = sound_state::playing;
-				m_background_worker.add_job([this, looped]() -> void { buffer_play_and_stream(looped); });
-			}
-			break;
-
-			case sound_state::paused:
-			{
-				m_requested_state = sound_state::playing;
-				m_buffer_cv.notify_one();
-
-				std::lock_guard source_lock{ m_source_mutex };
-
-				auto current_source = get_attached_source();
-				if (!current_source)
-					return;
-
-				current_source->play();
-			}
-			break;
-
-			default:
-			{
-				//playing when the source is currently playing. What shall happen? Start new?
-			}
-			break;
-		}
+		std::lock_guard lock{ m_command_mutex };
+		m_command_queue.emplace_back(music_command{music_command::type::play, looped});
+		m_command_cv.notify_one();
 	}
 
 	void music::stop()
 	{
-		std::lock_guard source_lock{ m_source_mutex };
-		auto current_source = get_attached_source();
-		if (!current_source)
-			return;
+		{
+			std::lock_guard lock{ m_source_mutex };
+			if (auto current_source = get_attached_source())
+			{
+				m_internal_state = sound_state::stopped;
+				current_source->stop();
+			}
+		}
 
-		current_source->stop();
-
-		m_requested_state = sound_state::stopped;
-		m_buffer_cv.notify_one();
+		std::lock_guard lock{ m_command_mutex };
+		m_command_queue.emplace_back(music_command{music_command::type::stop});
+		m_command_cv.notify_one();
 	}
 
 	void music::pause()
 	{
-		m_requested_state = sound_state::paused;
-		m_buffer_cv.notify_one();
+		{
+			std::lock_guard lock{ m_source_mutex };
+			if (auto current_source = get_attached_source())
+			{
+				m_internal_state = sound_state::paused;
+				current_source->pause();
+			}
+		}
 
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_source = get_attached_source();
-		if (!current_source)
-			return;
-
-		current_source->pause();
+		std::lock_guard lock{ m_command_mutex };
+		m_command_queue.emplace_back(music_command{music_command::type::pause});
+		m_command_cv.notify_one();
 	}
 
 	void music::open(std::string_view fn)
 	{
-		std::lock_guard stream_lock{ m_stream_mutex };
+		stop();
 
-		m_istream = std::make_unique<assetistream>(fn.data(), std::ios::binary);
+		music_command cmd;
+		cmd.cmd_type = music_command::type::open;
+		auto& path_arr = cmd.data.emplace<std::array<char, 256>>();
+		path_arr.fill(0);
+		fn.copy(path_arr.data(), path_arr.size() - 1);
 
-		open_from_stream(*m_istream);
+		std::lock_guard lock{ m_command_mutex };
+
+		m_command_queue.push_back(std::move(cmd));
+		m_command_cv.notify_one();
 	}
 
 	void music::open(std::istream& is)
 	{
-		std::lock_guard stream_lock{ m_stream_mutex };
+		stop();
 
-		m_istream.reset();
+		std::lock_guard lock{ m_command_mutex };
 
-		open_from_stream(is);
+		m_command_queue.emplace_back(music_command{music_command::type::open, &is});
+		m_command_cv.notify_one();
 	}
 
 	void music::open(std::unique_ptr<std::istream> is)
 	{
-		std::lock_guard stream_lock{ m_stream_mutex };
+		stop();
 
-		m_istream = std::move(is);
+		std::lock_guard lock{ m_command_mutex };
 
-		open_from_stream(*m_istream);
+		m_command_queue.emplace_back(music_command{music_command::type::open, std::move(is)});
+		m_command_cv.notify_one();
 	}
 
 	void music::open(std::byte data[], size_t size)
 	{
-		std::lock_guard stream_lock{ m_stream_mutex };
+		stop();
 
-		m_istream = std::make_unique<memistream>(data, size);
-
-		open_from_stream(*m_istream);
+		std::lock_guard lock{ m_command_mutex };
+		m_command_queue.emplace_back(music_command{music_command::type::open, std::pair{data, size}});
+		m_command_cv.notify_one();
 	}
 
 	sound_state music::get_state() const
 	{
-		return m_requested_state;
+		return m_internal_state;
 	}
 
 	void music::update_position(const glm::vec3& value)
@@ -228,166 +213,216 @@ namespace age
 		m_sound_stream_info = m_sound_stream->open(is);
 	}
 
-	void music::buffer_play_and_stream(bool looped)
+	void music::worker_loop()
 	{
-		if (!m_sound_stream_info.sample_count) return;
+		bool play_requested = false;
+		bool play_looped = false;
 
-		auto current_source = get_attached_source();
-		if (!current_source)
-			return;
-
-		auto stop_source = [this, current_source]() -> void
+		while (m_alive)
 		{
-			current_source->stop();
-			current_source->clear_buffers();
+			music_command cmd{};
+			bool has_work = false;
 
-			detach_source();
-			audio_device::get().make_source_available(current_source);
-		};
-
-		{
-			std::lock_guard source_lock{ m_source_mutex };
-
-			update_source(*current_source, false);
-
-
-			//Buffer some data and start playing the music
-			//first fill the buffers
-			size_t filled_buffers = 0;
-			for (auto& buffer : m_buffers)
 			{
-				//Lock the stream
-				std::lock_guard stream_lock{ m_stream_mutex };
+				std::unique_lock lock{ m_command_mutex };
 
-				switch (m_requested_state)
+				if (play_requested)
 				{
-				case sound_state::stopped:
-					{
-						stop_source();
-
-						return;
-					}
-					break;
-				default:
-					{
-
-					}
-					break;
+					// Wait for a NEW command, but only for 50ms.
+					// If 50ms pass without a command, it returns 'false' and we continue to refill.
+					m_command_cv.wait_for(lock, std::chrono::milliseconds(50), [this]()->bool { return !m_command_queue.empty(); });
+				}
+				else
+				{
+					// If not playing, wait indefinitely for a command.
+					m_command_cv.wait(lock, [this]()->bool { return !m_command_queue.empty(); });
 				}
 
-				sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
-				size_t bytes_read = m_sound_stream->read(&m_samples_buffer[0], m_samples_buffer.size());
-
-				if (!bytes_read) break;
-				buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
-
-				current_source->queue_buffer(buffer);
-
-				++filled_buffers;
+				if (!m_command_queue.empty())
+				{
+					cmd = std::move(m_command_queue.front());
+					m_command_queue.erase(m_command_queue.begin());
+					has_work = true;
+				}
 			}
 
-			//no buffers filled, no music to play
-			if (!filled_buffers) return;
-		}
-
-		{
+			if (has_work)
 			{
-				std::lock_guard source_lock{ m_source_mutex };
-				current_source->play();
-			}
+				play_requested = false;
 
-			std::mutex wait_mutex;
-
-			while (true)
-			{
-				//ToDo: For the waiting duration, multiply the pitch into the amount of milliseconds to wait
-				std::unique_lock wait_lock{ wait_mutex };
-				m_buffer_cv.wait_for(wait_lock, std::chrono::milliseconds{ 50 }, [this]() -> bool { return m_requested_state == sound_state::stopped; });
-				m_buffer_cv.wait(wait_lock, [this]() -> bool { return m_requested_state != sound_state::paused; });
-				switch (m_requested_state)
+				switch (cmd.cmd_type)
 				{
-					case sound_state::stopped:
+					case music_command::type::open:
 					{
-						stop_source();
-						return;
+						if (auto* path_arr = std::get_if<std::array<char, 256>>(&cmd.data))
+						{
+							std::string_view path{path_arr->data()};
+							m_active_istream = std::make_unique<assetistream>(path.data(), std::ios::binary);
+							m_requested_stream = nullptr;
+						}
+						else if (auto* stream_ptr = std::get_if<std::istream*>(&cmd.data))
+						{
+							m_active_istream.reset();
+							m_requested_stream = *stream_ptr;
+						}
+						else if (auto* unique_stream = std::get_if<std::unique_ptr<std::istream>>(&cmd.data))
+						{
+							m_active_istream = std::move(*unique_stream);
+							m_requested_stream = nullptr;
+						}
+						else if (auto* raw = std::get_if<std::pair<std::byte*, size_t>>(&cmd.data))
+						{
+							m_active_istream = std::make_unique<memistream>(raw->first, raw->second);
+							m_requested_stream = nullptr;
+						}
+						else
+						{
+							m_active_istream.reset();
+							m_requested_stream = nullptr;
+						}
+
+						if (std::istream* target = m_active_istream ? m_active_istream.get() : m_requested_stream)
+						{
+							m_sound_stream_info = sound_stream::info{};
+							m_sound_stream = sound_stream_factory::create_from_stream(*target);
+
+							if (!m_sound_stream) continue;
+
+							m_sound_stream_info = m_sound_stream->open(*target);
+						}
 					}
 					break;
 
-					default:
-					{}
-				}
-
-				uint32_t processed_buffers = 0;
-				{
-					std::lock_guard source_lock{ m_source_mutex };
-
-					if (m_requested_state == sound_state::stopped)
+					case music_command::type::play:
 					{
-						stop_source();
-						return;
-					}
-					processed_buffers = current_source->get_num_processed_buffers();
-				}
+						//Play was called without any data calling open first. So there is no data to stream
+						if (!m_active_istream && !m_requested_stream)
+						{
+							m_internal_state = sound_state::stopped;
+							continue;
+						}
 
+						//There is an easy way for us determine if we are resuming a music or if we need to buffer data
+						//When we have an attached source, the buffering has already been done, and we can just play.
+						//If there is no attaches source we need to get one and buffer some data first
+						auto current_source = get_attached_source();
+						if (!current_source)
+						{
+							current_source = audio_device::get().get_free_source(true);
+							//If nor source is available, this means there are already many sounds playing and we can just stop here
+							if (!current_source)
+							{
+								m_internal_state = sound_state::stopped;
+								continue;
+							}
+
+							current_source->clear_buffers();
+							attach_source(current_source);
+
+							//Okay we got a sound_source, lets buffer some data
+							for (auto& buffer : m_buffers)
+							{
+								size_t read = m_sound_stream->read(&m_samples_buffer[0], m_samples_buffer.size());
+								if (read == 0) { break; }
+
+								sound_buffer::format format = (m_sound_stream_info.channel_count == 1) ?
+									sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
+								buffer.buffer_data(format, &m_samples_buffer[0], read, m_sound_stream_info.sample_rate);
+								current_source->queue_buffer(buffer);
+							}
+						}
+						
+						if (current_source->get_state() != sound_state::playing)
+						{
+							update_source(*current_source, false);
+							current_source->play();
+						}
+						play_requested = true;
+
+						if (auto looped = std::get_if<bool>(&cmd.data)) play_looped = *looped;
+					}
+					break;
+
+					case music_command::type::stop:
+					{
+						m_internal_state = sound_state::stopped;
+						//If we have a source it was already stopped in the stop function, so all we need to here is to clean up and free the source
+
+						std::unique_lock lock{ m_source_mutex };
+						auto current_source = get_attached_source();
+						if (!current_source) continue;
+
+						//current_source->stop();
+						current_source->clear_buffers();
+						detach_source();
+						audio_device::get().make_source_available(current_source);
+					}
+					break;
+
+					case music_command::type::pause:
+					{
+						m_internal_state = sound_state::paused;
+					}
+					break;
+
+					default: break;
+				}
+			}
+			else if (play_requested)
+			{
+				auto current_source = get_attached_source();
+				if (!current_source) continue;
+
+				bool no_more_data = false;
+
+				//If no command has arrived and play_requested is true then lets continue buffering the source
+				auto processed_buffers = current_source->get_num_processed_buffers();
 				while (processed_buffers--)
 				{
-					std::lock_guard stream_lock{ m_stream_mutex };
-
-					if (m_requested_state == sound_state::stopped)
-					{
-						stop_source();
-						return;
-					}
-
 					size_t bytes_read = m_sound_stream->read(&m_samples_buffer[0], m_samples_buffer.size());
 
 					//When there are fewer bytes read than requested, the stream has finished.
 					//When looped the file actually needs to be read again from the beginning and the buffer can be filled a bit more
 					if (bytes_read < m_samples_buffer.size())
 					{
-						if (!looped)
+						//When not looping and no more bytes read, we are finished here. If not lets read a bit more until the stream is finished
+						if (!play_looped)
 						{
-							//nice loop until the last buffer stops playing
-							while (true)
+							if (bytes_read == 0)
 							{
-								m_buffer_cv.wait_for(wait_lock, std::chrono::milliseconds{ 100 }, [this]() -> bool { return m_requested_state == sound_state::stopped; });
-
-								std::lock_guard source_lock{ m_source_mutex };
-								if (current_source->get_state() == sound_state::stopped)
-								{
-									stop_source();
-									return;
-								}
+								no_more_data = true;
+								break;
 							}
 						}
-
-						//Here we are when we want to loop. We just reset the strean and start a new
-						m_sound_stream->reset();
-						size_t difference = m_samples_buffer.size() - bytes_read;
-						bytes_read += m_sound_stream->read(&m_samples_buffer[bytes_read], difference);
-					}
-
-					{
-						std::lock_guard source_lock{ m_source_mutex };
-						if (current_source->get_num_queued_buffers() > 0) {
-							auto processed_buffer = current_source->unqueue_buffer();
-
-							sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
-							processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
-
-							current_source->queue_buffer(processed_buffer);
-
-							//If there should have been a buffer underrun, just resume playing the source
-							if (m_requested_state == sound_state::playing && current_source->get_state() == sound_state::stopped)
-							{
-								// Only play if we have a healthy cushion (e.g., at least 2 buffers)
-								if (current_source->get_num_queued_buffers() == NUM_BUFFERS)
-								{
-									current_source->play();
-								}
-							}
+						else
+						{
+							//Here we are when we want to loop. We just reset the stream and start a new
+							m_sound_stream->reset();
+							size_t difference = m_samples_buffer.size() - bytes_read;
+							bytes_read += m_sound_stream->read(&m_samples_buffer[bytes_read], difference);
 						}
 					}
+
+					auto processed_buffer = current_source->unqueue_buffer();
+					sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
+					processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
+
+					current_source->queue_buffer(processed_buffer);
+				}
+
+				if (current_source->get_state() == sound_state::stopped && current_source->get_num_queued_buffers() > 0)
+				{
+					std::cout << "Music: buffer_queue underrun: Recovering!\n";
+					current_source->play();
+				}
+
+				if (!play_looped && no_more_data && current_source->get_state() == sound_state::stopped)
+				{
+					//When we reach here, we actually want to clean up and set the state to stopped.
+					//We can do that easily by just adding a command
+					std::unique_lock lock{ m_command_mutex };
+					m_command_queue.emplace_back(music_command{music_command::type::stop, false});
+					m_command_cv.notify_one();
 				}
 			}
 		}
