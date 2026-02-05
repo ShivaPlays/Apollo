@@ -59,7 +59,7 @@ namespace age
 
 	}
 
-	std::streambuf::pos_type seekpos(std::strambuf::pos_type pos, std::ios_base::openmode which)
+	std::streambuf::pos_type seekpos(std::streambuf::pos_type pos, std::ios_base::openmode which)
 	{
 
 	}

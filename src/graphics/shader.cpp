@@ -23,7 +23,7 @@ namespace age
 	{
 		const GLchar* data = shader_source.data();
 
-		GL_CALL(glShaderSource(m_handle, 1, &data, NULL));
+		GL_CALL(glShaderSource(m_handle, 1, &data, nullptr));
 		GL_CALL(glCompileShader(m_handle));
 
 		GLint success;
@@ -33,7 +33,7 @@ namespace age
 			static constexpr size_t logSize = 512;
 			char infoLog[logSize];
 
-			GL_CALL(glGetShaderInfoLog(m_handle, logSize, NULL, infoLog));
+			GL_CALL(glGetShaderInfoLog(m_handle, logSize, nullptr, infoLog));
 			throw std::runtime_error{ std::string{ "ERROR::SHADER::COMPILATION_FAILED\n" } + infoLog };
 		};
 
@@ -44,8 +44,8 @@ namespace age
 			static constexpr size_t logSize = 512;
 			char infoLog[logSize];
 
-			GL_CALL(glGetShaderInfoLog(m_handle, logSize, NULL, infoLog));
-			SDL_Log(infoLog);
+			GL_CALL(glGetShaderInfoLog(m_handle, logSize, nullptr, infoLog));
+			SDL_Log("%s", infoLog);
 		}
 	}
 

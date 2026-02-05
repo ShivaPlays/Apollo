@@ -39,12 +39,19 @@ endfunction()
 # ------------------------------
 # OpenGL
 # ------------------------------
-# Resolve 'FindOpenGL' ambiguity warning on Linux.
-# CMP0072 policy set to 'NEW' tells CMake to prefer the modern
-# GLVND (Vendor-Neutral Dispatch) libraries over the legacy 'libGL.so'.
-cmake_policy(SET CMP0072 NEW)
-find_package(OpenGL REQUIRED)
-set(OpenGL_GL_LIBRARY OpenGL::GL)
+if(NOT ANDROID)
+    # Resolve 'FindOpenGL' ambiguity warning on Linux.
+    # CMP0072 policy set to 'NEW' tells CMake to prefer the modern
+    # GLVND (Vendor-Neutral Dispatch) libraries over the legacy 'libGL.so'.
+
+    cmake_policy(SET CMP0072 NEW)
+    find_package(OpenGL REQUIRED)
+    set(OpenGL_GL_LIBRARY OpenGL::GL)
+else()
+    # On Android, we link GLES and EGL directly later
+    message(STATUS "Android detected: skipping Desktop OpenGL search")
+endif()
+
 
 # HarfBuzz (Required for FreeType to pass its dependency check)
 # ------------------------------
@@ -186,7 +193,12 @@ if(NOT SDL3_FOUND)
     )
 
     set(SDL3_TARGET SDL3-static)  # or SDL3-static if appropriate
+
 else()
     message(STATUS "Using system-installed SDL3")
     set(SDL3_TARGET SDL3::SDL3)
+endif()
+
+if(TARGET ${SDL3_TARGET} AND NOT TARGET SDL3::SDL3)
+    add_library(SDL3::SDL3 ALIAS ${SDL3_TARGET})
 endif()

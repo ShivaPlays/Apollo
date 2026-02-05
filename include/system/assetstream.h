@@ -24,8 +24,8 @@ namespace age
 
 	protected:
 		virtual std::streambuf::int_type underflow() override;
-		virtual std::streambuf::pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = ios_base::in | ios_base::out) override;
-		virtual std::streambuf::pos_type seekpos(std::strambuf::pos_type pos, std::ios_base::openmode which = ios_base::in | ios_base::out) override;
+		virtual std::streambuf::pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) override;
+		virtual std::streambuf::pos_type seekpos(std::streambuf::pos_type pos, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) override;
 
 	private:
 		std::array<char, 1024> m_buffer{};
