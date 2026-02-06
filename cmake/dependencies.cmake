@@ -31,6 +31,7 @@ function(fetch_hide_from_ide name)
 
         if(TARGET ${name})
             set_target_properties(${name} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+            set_property(TARGET ${name} PROPERTY FOLDER "External/${name}")
         endif()
     endif()
 endfunction()
@@ -198,7 +199,7 @@ if(NOT SDL3_FOUND)
     fetch_hide_from_ide(
             sdl3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-            GIT_TAG release-3.2.26  # latest 3.2.26 patch version
+            GIT_TAG release-3.4.0  # latest 3.4.0 patch version
     )
 
     set(SDL3_TARGET SDL3::SDL3)
