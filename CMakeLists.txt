@@ -29,6 +29,9 @@ elseif(MSVC)
     add_compile_options(/WX-)
 endif()
 
+# We do this early so the targets (like SDL3::SDL3) exist for later checks.
+include(cmake/dependencies.cmake)
+
 # Add your library target
 add_library(${LIB_NAME} STATIC
     include/audio/priv/ogg_stream.h
@@ -128,7 +131,7 @@ add_library(${LIB_NAME} STATIC
     extlibs/libs/glad/src/glad.c
 )
 
-# Also set explictily for project
+# Also set explicitly for project
 set_target_properties(${LIB_NAME} PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
@@ -145,7 +148,6 @@ target_include_directories(${LIB_NAME}
 )
 
 # Link other libraries
-include(cmake/dependencies.cmake)
 target_link_libraries(${LIB_NAME}
         PRIVATE
         ${OpenGL_GL_LIBRARY}
@@ -157,43 +159,48 @@ target_link_libraries(${LIB_NAME}
         ${OPENAL_TARGET}
         PUBLIC
         ${SDL3_TARGET}
+        #SDL3::SDL3
 )
 
-# Create the DemoApp
-add_executable(${EXE_NAME}
-        examples/demo_app/main.cpp
-        examples/demo_app/test_app.cpp
-)
-
-# Standard Threading
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-# Link everything to the App
-target_link_libraries(${EXE_NAME}
-        PRIVATE
-        ${LIB_NAME}
-        ${SDL3_TARGET}
-        Threads::Threads
-)
-
-# --- Visual Studio Specific Configuration ---
-if(MSVC)
-    # Set the Working Directory so assets are found when pressing F5
-    set_target_properties(${EXE_NAME} PROPERTIES
-            VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    )
+# Android-specific linking
+if(ANDROID)
+    target_link_libraries(${LIB_NAME} PRIVATE GLESv2 EGL android log)
 endif()
 
-# --- Copy DLLs after build (Windows only) ---
-if (WIN32)
-    # This grabs the SDL3.dll, OpenAL.dll, and the Runtime DLLs
-    # and puts them in your build folder so the game can actually start!
-    add_custom_command(TARGET ${EXE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${EXE_NAME}>
-            $<TARGET_FILE_DIR:${EXE_NAME}>
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying runtime dependencies (DLLs) to output directory"
+# Create the DemoApp
+if(NOT ANDROID)
+    # Create the DemoApp only for Desktop
+    add_executable(${EXE_NAME}
+            examples/demo_app/main.cpp
+            examples/demo_app/test_app.cpp
     )
+
+    # Standard Threading
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+
+    # Link everything to the App
+    target_link_libraries(${EXE_NAME}
+            PRIVATE
+            ${LIB_NAME}
+            ${SDL3_TARGET}
+            Threads::Threads
+    )
+
+    # Visual Studio Specifics
+    if(MSVC)
+        set_target_properties(${EXE_NAME} PROPERTIES
+                VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+    endif()
+
+    # Windows DLL Copying
+    if (WIN32)
+        add_custom_command(TARGET ${EXE_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${EXE_NAME}>
+                $<TARGET_FILE_DIR:${EXE_NAME}>
+                COMMAND_EXPAND_LISTS
+        )
+    endif()
 endif()

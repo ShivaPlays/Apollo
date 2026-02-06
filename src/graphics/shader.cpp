@@ -21,9 +21,25 @@ namespace age
 
 	void shader::compile(std::string_view shader_source)
 	{
+        const GLchar* header = "\0";
 		const GLchar* data = shader_source.data();
 
-		GL_CALL(glShaderSource(m_handle, 1, &data, nullptr));
+        auto auto_version_length = AUTO_VERSION.length();
+
+        if (shader_source.size() >= auto_version_length &&
+            shader_source.compare(0, auto_version_length, AUTO_VERSION) == 0)
+        {
+            auto new_header = OGL_HEADER;
+#ifdef SDL_PLATFORM_ANDROID
+            new_header = EGL_HEADER;
+#endif
+            header = new_header.data();
+            data = &shader_source.at(auto_version_length);
+        }
+
+        const GLchar* sources[2] = {header, data};
+
+		GL_CALL(glShaderSource(m_handle, 2, sources, nullptr));
 		GL_CALL(glCompileShader(m_handle));
 
 		GLint success;

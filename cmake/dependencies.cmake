@@ -185,20 +185,25 @@ endif()
 find_package(SDL3 QUIET)
 if(NOT SDL3_FOUND)
     message(STATUS "SDL3 not found, fetching with FetchContent...")
-    
+
+    # Define your platform-specific flags
+    if(ANDROID)
+        set(SDL_SHARED ON)
+        set(SDL_STATIC OFF)
+    else()
+        set(SDL_SHARED OFF)
+        set(SDL_STATIC ON)
+    endif()
+
     fetch_hide_from_ide(
             sdl3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
             GIT_TAG release-3.2.26  # latest 3.2.26 patch version
     )
 
-    set(SDL3_TARGET SDL3-static)  # or SDL3-static if appropriate
+    set(SDL3_TARGET SDL3::SDL3)
 
 else()
     message(STATUS "Using system-installed SDL3")
     set(SDL3_TARGET SDL3::SDL3)
-endif()
-
-if(TARGET ${SDL3_TARGET} AND NOT TARGET SDL3::SDL3)
-    add_library(SDL3::SDL3 ALIAS ${SDL3_TARGET})
 endif()

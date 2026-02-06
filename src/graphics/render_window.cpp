@@ -21,7 +21,7 @@ namespace age
 			std::stringstream warning;
 			warning << "Warning: Unable to set Doublebuffer! SDL Error: " << SDL_GetError();
 
-			SDL_LogWarn(SDL_LOG_CATEGORY_RENDER, warning.str().c_str());
+			SDL_LogWarn(SDL_LOG_CATEGORY_RENDER, "%s", warning.str().c_str());
 		}
 
 		//m_windowhandle.reset(SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 64, 64, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL));

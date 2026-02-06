@@ -116,8 +116,8 @@ namespace age
 	void engine::init_defaults()
 	{
 		std::string_view vertex_shader_source =
-			"#version 330 core\n"
-			"precision mediump float;\n"
+			"#auto_version\n"
+			"precision highp float;\n"
 			"layout (std140) uniform viewprojection_matrix\n"
 			"{\n"
 			"	mat4 vp_m;\n"
@@ -144,7 +144,7 @@ namespace age
 			"}";
 
 		std::string_view fragment_shader_source =
-			"#version 330 core\n"
+			"#auto_version\n"
 			"precision mediump float;\n"
 			"uniform sampler2D u_texture;\n"
 			"in vec4 v_color;\n"
@@ -152,8 +152,8 @@ namespace age
 			"out vec4 frag_color;\n"
 			"void main()\n"
 			"{\n"
-			"	vec4 texel = texture2D(u_texture, v_uv);\n"
-			"	if(texel.a == 0.0) discard;\n"
+			"	vec4 texel = texture(u_texture, v_uv);\n"
+			"	//if(texel.a == 0.0) discard;\n"
 			"	frag_color = v_color * texel;\n"
 			"}";
 

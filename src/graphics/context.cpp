@@ -103,14 +103,17 @@ namespace age
 
     void context::create(const render_window& window, bool shared)
     {
+#ifdef SDL_PLATFORM_ANDROID
+        // Ask for OpenGL ES 3.0
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#else
         //Use OpenGL 4.3
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-        //OpenGL ES profile - only a subset of the base OpenGL functionality is available
-        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-
+#endif
         m_render_window = &window;
         auto internal_window_handle = m_render_window->get_internal_handle();
 

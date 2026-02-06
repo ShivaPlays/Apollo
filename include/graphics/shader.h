@@ -29,6 +29,10 @@ namespace age
 
 	private:
 
+        static constexpr std::string_view AUTO_VERSION = "#auto_version";
+        static constexpr std::string_view OGL_HEADER = "#version 430 core";
+        static constexpr std::string_view EGL_HEADER = "#version 300 es";
+
 		static uint32_t convert_type(shader_type type_to_convert);
 		static void delete_handle(uint32_t handle);
 
