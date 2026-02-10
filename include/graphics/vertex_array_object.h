@@ -11,14 +11,14 @@ namespace age
 	public:
 		vertex_array_object();
 	public:
-		void bind() const;
+		bool bind();
 		void release() const;
 
+		void invalidate();
+		static void reset_cache();
 	protected:
 
 	private:
-		inline static uint32_t m_current_bound_array;
-
 		uint32_t get_handle() const { return m_handle; }
 
 		static uint32_t create_handle();

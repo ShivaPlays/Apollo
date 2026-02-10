@@ -8,15 +8,12 @@
 
 #include <glad/glad.h>
 
+#include "graphics/render_states_cache.h"
 #include "engine.h"
 #include "utility/gl_check.h"
 
 namespace age
 {
-	texture::texture()
-		: m_handle{ gen_handle() }
-	{}
-
 	texture::texture(const texture& other)
 		: m_handle{ gen_handle() }
 	{
@@ -28,21 +25,23 @@ namespace age
 		return *this;
 	}
 
-	void texture::bind() const
+	bool texture::bind() const
 	{
 		auto handle = get_handle();
 
-		if (handle != m_current_bound_texture)
+		if (handle != g_render_state.texture)
 		{
 			GL_CALL(glBindTexture(GL_TEXTURE_2D, handle));
-			
+
 			const glm::u32vec2& size = get_size();
 
 			glm::mat4 tex_matrix = glm::scale(glm::mat4{ 1.0f }, glm::vec3(1.0f / static_cast<float>(size.x), 1.0f / static_cast<float>(size.y), 1.0f));
 			age::engine::get_instance()->get_texture_matrix_ubo().buffer_data(sizeof(glm::mat4), &tex_matrix);
-			
-			m_current_bound_texture = handle;
+
+			g_render_state.texture = handle;
 		}
+
+		return handle != 0;
 	}
 
 	void texture::create(const glm::u32vec2& size)
@@ -65,33 +64,36 @@ namespace age
 			throw std::runtime_error{ message.str() };
 		}
 
-		m_size = size;
-	
-		bind();
+		if (!m_handle) m_handle = gen_handle();
 
-		GL_CALL(glTexImage2D(
-			GL_TEXTURE_2D, 
-			0,
-			GL_RGBA,
-			static_cast<GLsizei>(m_size.x),
-			static_cast<GLsizei>(m_size.y),
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			nullptr));
+		if (bind())
+		{
+			m_size = size;
 
-		GL_CALL(glTexParameteri(
-			GL_TEXTURE_2D,
-			GL_TEXTURE_WRAP_S,
-			m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+			GL_CALL(glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RGBA,
+				static_cast<GLsizei>(m_size.x),
+				static_cast<GLsizei>(m_size.y),
+				0,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				nullptr));
 
-		GL_CALL(glTexParameteri(
-			GL_TEXTURE_2D,
-			GL_TEXTURE_WRAP_T,
-			m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+			GL_CALL(glTexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_WRAP_S,
+				m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
 
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+			GL_CALL(glTexParameteri(
+				GL_TEXTURE_2D,
+				GL_TEXTURE_WRAP_T,
+				m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+		}
 
 		m_has_mipmap = false;
 	}
@@ -144,12 +146,13 @@ namespace age
 		create(glm::u32vec2{ static_cast<uint32_t>(rectangle.width), static_cast<uint32_t>(rectangle.height) });
 
 		auto pixels = img.get_pixel_ptr() + 4 * (rectangle.left + (width * rectangle.top));
-		bind();
-
-		for (int32_t i = 0; i < rectangle.height; ++i)
+		if (bind())
 		{
-			GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, rectangle.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
-			pixels += 4 * width;
+			for (int32_t i = 0; i < rectangle.height; ++i)
+			{
+				GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, rectangle.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
+				pixels += 4 * width;
+			}
 
 			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
 			m_has_mipmap = false;
@@ -171,20 +174,21 @@ namespace age
 
 		if (pixels)
 		{
-			bind();
+			if (bind())
+			{
+				GL_CALL(glTexSubImage2D(GL_TEXTURE_2D,
+					0,
+					static_cast<GLint>(area.left),
+					static_cast<GLint>(area.top),
+					static_cast<GLsizei>(area.width),
+					static_cast<GLsizei>(area.height),
+					GL_RGBA,
+					GL_UNSIGNED_BYTE,
+					pixels));
 
-			GL_CALL(glTexSubImage2D(GL_TEXTURE_2D,
-				0,
-				static_cast<GLint>(area.left),
-				static_cast<GLint>(area.top),
-				static_cast<GLsizei>(area.width),
-				static_cast<GLsizei>(area.height),
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				pixels));
-
-			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
-			m_has_mipmap = false;
+				GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+				m_has_mipmap = false;
+			}
 
 			//If there should be multithreading one day a glFlush will be necessary
 			//glFlush();
@@ -222,8 +226,10 @@ namespace age
 
 	void texture::update(const render_window& window, const glm::u32vec2& dest)
 	{
-		bind();
-		//ToDo: Finish me
+		if (bind())
+		{
+			//ToDo: Finish me
+		}
 	}
 
 	const glm::u32vec2& texture::get_size() const
@@ -249,6 +255,23 @@ namespace age
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, get_handle(), 0));
 			GL_CALL(glReadPixels(0, 0, m_size.x, m_size.y, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]));
 
+			// This puts a marker in the GPU command stream right after the ReadPixels command.
+			GLsync sync_fence = GL_CALL(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+
+			if (sync_fence)
+			{
+				// GL_SYNC_FLUSH_COMMANDS_BIT ensures the GPU starts working on the queue immediately.
+				// We set a timeout of 1 second (1,000,000,000 nanoseconds).
+				GLenum wait_status = GL_CALL(glClientWaitSync(sync_fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000));
+
+				if (wait_status == GL_WAIT_FAILED)
+				{
+					// Handle error: The GPU or driver crashed
+				}
+
+				GL_CALL(glDeleteSync(sync_fence));
+			}
+
 			GL_CALL(glDeleteFramebuffers(1, &framebuffer));
 			GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, previous_frame_buffer));
 
@@ -264,17 +287,19 @@ namespace age
 		{
 			m_smooth = value;
 
-			bind();
-			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
-			if (m_has_mipmap)
+			if (bind())
 			{
-				GL_CALL(glTexParameteri(GL_TEXTURE_2D,
-					GL_TEXTURE_MIN_FILTER,
-					m_smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR));
-			}
-			else
-			{
-				GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+				GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+				if (m_has_mipmap)
+				{
+					GL_CALL(glTexParameteri(GL_TEXTURE_2D,
+						GL_TEXTURE_MIN_FILTER,
+						m_smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR));
+				}
+				else
+				{
+					GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+				}
 			}
 		}
 	}
@@ -296,15 +321,18 @@ namespace age
 
 	void texture::set_repeat(bool value)
 	{
-		bind();
+		m_repeat = value;
 
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D,
-			GL_TEXTURE_WRAP_S,
-			m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+		if (bind())
+		{
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D,
+				GL_TEXTURE_WRAP_S,
+				m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
 
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D,
-			GL_TEXTURE_WRAP_T,
-			m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D,
+				GL_TEXTURE_WRAP_T,
+				m_repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+		}
 	}
 
 	bool texture::get_repeat() const
@@ -314,22 +342,25 @@ namespace age
 
 	void texture::generate_mipmap()
 	{
-		bind();
+		if (bind())
+		{
+			GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 
-		GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D,
-			GL_TEXTURE_MIN_FILTER,
-			m_smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR));
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D,
+				GL_TEXTURE_MIN_FILTER,
+				m_smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR));
+		}
 
 		m_has_mipmap = true;
 	}
 
 	void texture::invalidate_mipmap()
 	{
-		bind();
+		if (bind())
+		{
+			GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
+		}
 
-		GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_smooth ? GL_LINEAR : GL_NEAREST));
 		m_has_mipmap = false;
 	}
 
@@ -338,19 +369,28 @@ namespace age
 		return get_handle();
 	}
 
-	void texture::bind(const texture* tex)
+	void texture::invalidate()
+	{
+		delete_handle(get_handle());
+
+		m_handle = 0;
+		m_size = glm::uvec2{ 1, 1 };
+	}
+
+	bool texture::bind(const texture* tex)
 	{
 		if (tex)
 		{
-			tex->bind();
-			return;
+			return tex->bind();
 		}
 
-		if (m_current_bound_texture != 0)
+		if (g_render_state.texture != 0)
 		{
 			GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-			m_current_bound_texture = 0;
+			g_render_state.texture = 0;
 		}
+
+		return g_render_state.texture != 0;
 	}
 
 	uint32_t texture::get_maximum_size()
@@ -371,6 +411,11 @@ namespace age
 		return result;
 	}
 
+	void texture::reset_cache()
+	{
+		g_render_state.texture = 0;
+	}
+
 	uint32_t texture::gen_handle()
 	{
 		GLuint handle;
@@ -381,6 +426,7 @@ namespace age
 
 	void texture::delete_handle(uint32_t handle)
 	{
-		GL_CALL(glDeleteTextures(1, &handle));
+		if (handle && !engine::is_device_reset()) GL_CALL(glDeleteTextures(1, &handle));
+		if (handle == g_render_state.texture) g_render_state.texture = 0;
 	}
 }

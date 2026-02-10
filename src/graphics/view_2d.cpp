@@ -102,27 +102,6 @@ namespace age
 		// Recompute the matrix if needed
 		if (!m_transform_updated)
 		{
-			//Remove following comment when everything works
-			/*
-			// Rotation components
-			float angle = m_rotation * (3.14159265358979323846f / 180.0f);
-			float cosine = std::cos(angle);
-			float sine = std::sin(angle);
-			float tx = -m_center.x * cosine - m_center.y * sine + m_center.x;
-			float ty = m_center.x * sine - m_center.y * cosine + m_center.y;
-
-			// Projection components
-			float a = 2.0f / m_size.x;
-			float b = -2.0f / m_size.y;
-			float c = -a * m_center.x;
-			float d = -b * m_center.y;
-		
-			// Rebuild the projection matrix
-			m_transform = glm::mat3(a * cosine, a * sine, a * tx + c,
-				-b * sine, b * cosine, b * ty + d,
-				0.0f, 0.0f, 1.0f);
-			*/
-		
 			m_transform = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
 			m_transform = glm::translate(m_transform, glm::vec3{ m_center.x, m_center.y, 0.0f });
 			m_transform = glm::rotate(m_transform, glm::radians(m_rotation), glm::vec3{ 0.0f,0.0f,1.0f });

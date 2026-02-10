@@ -28,23 +28,22 @@ namespace age
 		vertex_buffer_object(target target);
 
 	public:
-		inline void set_target(target value) noexcept { m_target = value; }
-		inline target get_target() const noexcept{ return m_target; }
+		void set_target(target value) noexcept { m_target = value; }
+		target get_target() const noexcept{ return m_target; }
 
-		void bind() const;
+		bool bind() const;
 		
 		void buffer_data(const void* data, size_t size_in_bytes, usage usage);
 		void update_data(const void* data, size_t size_in_bytes, usage usage);
 		void buffer_sub_data(const void* data, size_t offset, size_t size_in_bytes);
 
+		void invalidate();
+		static void reset_cache();
 	protected:
 
 	private:
 		static uint32_t convert_target(target target_to_convert);
 		static uint32_t convert_usage(usage usage_to_convert);
-
-		inline static std::array<uint32_t, static_cast<uint32_t>(target::num_elements)> m_current_bound_buffer{0};
-		//inline static uint32_t m_current_bound_buffer[target::num_elements];
 
 		uint32_t get_handle() const { return m_handle; }
 

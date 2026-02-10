@@ -25,6 +25,8 @@ namespace age
 		shader_type get_type() const { return m_type; }
 		void compile(std::string_view shader_source);
 
+		void invalidate();
+
 	protected:
 
 	private:

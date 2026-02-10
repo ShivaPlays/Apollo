@@ -103,6 +103,16 @@ namespace age
 		m_exit_requested = true;
 	}
 
+	void engine::set_mouse_touch_events(bool value)
+	{
+		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, value ? "1" : "0");
+	}
+
+	bool engine::get_mouse_touch_events()
+	{
+		return SDL_GetHintBoolean(SDL_HINT_TOUCH_MOUSE_EVENTS, true);
+	}
+
 	int32_t engine::init_lib(uint32_t flags)
 	{
 		return SDL_Init(flags);
@@ -111,6 +121,12 @@ namespace age
 	void engine::quit_lib()
 	{
 		SDL_Quit();
+	}
+
+	void engine::reset_render_cache()
+	{
+		texture::reset_cache();
+		shader_program::reset_cache();
 	}
 
 	void engine::init_defaults()

@@ -16,7 +16,8 @@ namespace age
 	public:
 		friend class render_target;
 
-		texture();
+		texture() = default;
+
 		texture(const texture& other);
 		texture(texture&& other) = default;
 
@@ -26,7 +27,7 @@ namespace age
 		~texture() = default;
 
 	public:
-		void bind() const;
+		bool bind() const;
 		
 		void create(const glm::u32vec2& size);
 
@@ -61,21 +62,22 @@ namespace age
 
 		uint32_t get_id() const;
 
-		static void bind(const texture* tex);
+		void invalidate();
+
+		static bool bind(const texture* tex);
 		static uint32_t get_maximum_size();
+
+		static void reset_cache();
+
 	protected:
 
 	private:
-
-		//ToDo: I want to have 1 context per thread, this seems the best solution to share the states between threads
-		inline static thread_local uint32_t m_current_bound_texture;
-
 		static uint32_t gen_handle();
 		static void delete_handle(uint32_t handle);
 
 		uint32_t get_handle() const { return m_handle; }
 
-		glm::uvec2 m_size;
+		glm::uvec2 m_size{1, 1}; //We use 1, 1 as standard size so that math calculations work
 
 		unique_handle<uint32_t, delete_handle> m_handle;
 		bool m_smooth = false;

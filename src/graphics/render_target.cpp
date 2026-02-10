@@ -7,6 +7,7 @@
 #include "graphics/render_states.h"
 #include "graphics/texture.h"
 #include "graphics/drawable.h"
+#include "graphics/render_states_cache.h"
 
 #include "utility/gl_check.h"
 
@@ -95,21 +96,53 @@ namespace age
 		return pixel;
 	}
 
+	glm::vec2 render_target::map_normalized_to_coords(const glm::vec2 &point) const
+	{
+		return map_pixel_to_coords(map_normalized_to_pixel(point));
+	}
+
+	glm::vec2 render_target::map_normalized_to_pixel(const glm::vec2& point) const
+	{
+		auto viewport = float_rect{ m_viewport };
+
+		glm::vec2 pixel_pos;
+		pixel_pos.x = point.x * viewport.width + viewport.left;
+		pixel_pos.y = point.y * viewport.height + viewport.top;
+
+		return pixel_pos;
+	}
+
 	void render_target::apply_view(const view_2d& value)
 	{
 		// Set the viewport
 		m_viewport = get_viewport(value);
-		int top = static_cast<int>(get_size().y) - (m_viewport.top + m_viewport.height);
-		GL_CALL(glViewport(m_viewport.left, top, m_viewport.width, m_viewport.height));
-
-		// Set the projection matrix
 		m_projection_matrix = value.get_transform();
-
-		engine::get_instance()->get_vp_matrix_ubo().buffer_sub_data(0, sizeof(glm::mat4), &m_projection_matrix);
-
+		m_projection_needs_update = true;
 		m_view_size = value.get_size();
 
-		m_projection_needs_update = true;
+		restore_view();
+	}
+
+	void render_target::restore_view()
+	{
+		// 1. Sync Viewport
+		// We calculate the OpenGL-style bottom-left 'top' using the current target's height
+		int gl_y = static_cast<int>(get_size().y) - (m_viewport.top + m_viewport.height);
+		int_rect current_view_rect{ {m_viewport.left, gl_y}, {m_viewport.width, m_viewport.height} };
+
+		if (current_view_rect != g_render_state.view)
+		{
+			GL_CALL(glViewport(current_view_rect.left, current_view_rect.top,
+							   current_view_rect.width, current_view_rect.height));
+			g_render_state.view = current_view_rect;
+		}
+
+		// 2. Sync Projection Matrix (UBO)
+		if (m_projection_matrix != g_render_state.projection_matrix)
+		{
+			engine::get_instance()->get_vp_matrix_ubo().buffer_sub_data(0, sizeof(glm::mat4), &m_projection_matrix);
+			g_render_state.projection_matrix = m_projection_matrix;
+		}
 	}
 
 	const glm::vec2& render_target::get_view_size() const
@@ -156,14 +189,14 @@ namespace age
 
 		states.get_texture().bind();
 
-		engine::get_instance()->get_default_vertex_buffer_object().update_data(vertices, num_vertices * sizeof(vertex_2d), age::vertex_buffer_object::usage::stream_draw);
+		engine::get_instance()->get_default_vertex_buffer_object().update_data(vertices, num_vertices * sizeof(vertex_2d), vertex_buffer_object::usage::stream_draw);
 
 		apply_blend_mode(states.get_blend_mode());
 	}
 
 	void render_target::prepare_draw(const vertex_2d vertices[], size_t num_vertices, const uint32_t indices[], size_t num_indices, const render_states& states)
 	{
-		engine::get_instance()->get_default_element_buffer_object().update_data(indices, num_indices * sizeof(uint32_t), age::vertex_buffer_object::usage::stream_draw);
+		engine::get_instance()->get_default_element_buffer_object().update_data(indices, num_indices * sizeof(uint32_t), vertex_buffer_object::usage::stream_draw);
 
 		prepare_draw(vertices, num_vertices, states);
 	}

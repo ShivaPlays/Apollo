@@ -9,7 +9,8 @@
 #include <string_view>
 #include <stdexcept>
 
-#include <utility/gl_check.h>
+#include "graphics/render_states_cache.h"
+#include "utility/gl_check.h"
 
 namespace age
 {
@@ -62,7 +63,7 @@ namespace age
 		if (flags & SDL_WINDOW_BORDERLESS)
 			SDL_SetWindowBordered(handle, false);
 		if (flags & SDL_WINDOW_RESIZABLE)
-			SDL_SetWindowResizable(handle, false);
+			SDL_SetWindowResizable(handle, true);
 		if (flags & SDL_WINDOW_MINIMIZED)
 			SDL_MinimizeWindow(handle);
 		if (flags & SDL_WINDOW_MAXIMIZED)
@@ -81,6 +82,16 @@ namespace age
 		apply_view(view);
 	}
 
+	void render_window::prepare_draw()
+	{
+		if (g_render_state.framebuffer != 0)
+		{
+			GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+			g_render_state.framebuffer = 0;
+			restore_view();
+		}
+	}
+
 	const context& render_window::get_context() const
 	{
 		return m_context;
@@ -96,8 +107,21 @@ namespace age
 		return m_windowhandle.get();
 	}
 
+	void render_window::draw(const vertex_2d vertices[], size_t num_vertices, const uint32_t indices[], size_t num_indices, const render_states &states)
+	{
+		prepare_draw();
+		render_target::draw(vertices, num_vertices, indices, num_indices, states);
+	}
+
+	void render_window::draw(const vertex_2d vertices[], size_t num_vertices, primitive_type type, const render_states& states)
+	{
+		prepare_draw();
+		render_target::draw(vertices, num_vertices, type, states);
+	}
+
 	void render_window::clear()
 	{
+		prepare_draw();
 		GL_CALL(glClear(m_clear_flags));
 	}
 
@@ -116,8 +140,18 @@ namespace age
 		return glm::u32vec2{ static_cast<uint32_t>(w), static_cast<uint32_t>(h) };
 	}
 
+	int_rect render_window::get_safe_area() const
+	{
+		SDL_Rect area;
+		SDL_GetWindowSafeArea(static_cast<SDL_Window*>(get_internal_handle()), &area);
+
+		return int_rect{{area.x, area.y}, {area.w, area.h}};
+	}
+
 	void render_window::destroy_window_lib(void* window)
 	{
 		SDL_DestroyWindow(static_cast<SDL_Window*>(window));
 	}
+
+
 }

@@ -163,6 +163,7 @@ age::engine::app_result test_app::on_update()
     get_render_window().draw(m_rect_vertices.data(), m_vertices.size(), m_indizes.data(), m_indizes.size(), age::render_states{engine::get_instance()->get_default_shader_program(), m_test_texture, m_rect_matrix});
     get_render_window().draw(m_test_text, age::render_states{});
     get_render_window().draw(m_fps_text, age::render_states{});
+
     //get_render_window().draw(m_test_rectangle_shape, age::render_states{});
     //get_render_window().draw(m_test_circle_shape, age::render_states{});
     //get_render_window().draw(m_text_test_vertices.data(), m_text_test_vertices.size(), age::primitive_type::triangles, age::render_states{engine::get_instance()->get_default_shader_program(), m_test_font_texture, glm::scale(glm::mat4{1.0}, glm::vec3{0.01f, 0.01f, 1.0f})});

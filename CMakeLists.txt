@@ -61,6 +61,7 @@ add_library(${LIB_NAME} STATIC
     include/graphics/rect.h
     include/graphics/rectangle_shape.h src/graphics/rectangle_shape.cpp
     include/graphics/render_states.h src/graphics/render_states.cpp
+    include/graphics/render_states_cache.h
     include/graphics/render_target.h src/graphics/render_target.cpp
     include/graphics/render_window.h src/graphics/render_window.cpp
     include/graphics/shader.h src/graphics/shader.cpp
@@ -83,11 +84,15 @@ add_library(${LIB_NAME} STATIC
     include/system/platform.h
     include/system/time.h
     include/system/transient_context_lock.h src/system/transient_context_lock.cpp
+    include/utility/al_check.h
+    include/utility/endian.h
+    include/utility/fixed_string.h
+    include/utility/gl_check.h
     include/utility/utility.h src/utility/utility.cpp
+
     include/apollo_main.h
     include/engine.h src/engine.cpp
     extlibs/libs/glad/src/glad.c
-
 )
 
 # Also set explicitly for project

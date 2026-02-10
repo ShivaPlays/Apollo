@@ -39,15 +39,18 @@ namespace age
 
 		glm::vec2 map_pixel_to_coords(const glm::vec2& point) const;
 		glm::vec2 map_coords_to_pixel(const glm::vec2& point) const;
+		glm::vec2 map_normalized_to_coords(const glm::vec2& point) const;
+		glm::vec2 map_normalized_to_pixel(const glm::vec2& point) const;
 		
 		virtual glm::u32vec2 get_size() const = 0;
 
 		void apply_view(const view_2d& view);
+		void restore_view();
 		const glm::vec2& get_view_size() const;
 
-		void draw(const drawable& drawable_object, const render_states& states);
-		void draw(const vertex_2d vertices[], size_t num_vertices, const uint32_t indices[], size_t num_indices, const render_states& states);
-		void draw(const vertex_2d vertices[], size_t num_vertices, primitive_type type, const render_states& states);
+		virtual void draw(const drawable& drawable_object, const render_states& states);
+		virtual void draw(const vertex_2d vertices[], size_t num_vertices, const uint32_t indices[], size_t num_indices, const render_states& states);
+		virtual void draw(const vertex_2d vertices[], size_t num_vertices, primitive_type type, const render_states& states);
 
 	protected:
 		void init();
