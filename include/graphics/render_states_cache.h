@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <glm/mat4x4.hpp>
 
 #include "graphics/rect.h"
