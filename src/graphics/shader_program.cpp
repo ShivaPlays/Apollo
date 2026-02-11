@@ -1,6 +1,6 @@
 #include "graphics/shader_program.h"
 
-#include <glad/glad.h>
+#include "utility/gl_loader.h"
 
 #include <stdexcept>
 #include <string>

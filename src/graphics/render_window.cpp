@@ -1,7 +1,7 @@
 #include "graphics/render_window.h"
 
 #include <SDL3/SDL.h>
-#include <glad/glad.h>
+#include "utility/gl_loader.h"
 //#include <SDL3/SDL_opengl.h>
 
 #include <string>
@@ -43,10 +43,13 @@ namespace age
 			SDL_LogWarn(SDL_LOG_CATEGORY_RENDER, "Warning: Unable to set VSync! SDL Error: %s", SDL_GetError());
 		}
 
-		if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+#ifndef SDL_PLATFORM_ANDROID
+		if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+		{
 			// Failed to initialize glad
 			throw std::runtime_error{std::string{ "Failed to initialize GLAD" }};
 		}
+#endif
 
 		init();
 	}

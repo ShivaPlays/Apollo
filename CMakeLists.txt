@@ -88,12 +88,15 @@ add_library(${LIB_NAME} STATIC
     include/utility/endian.h
     include/utility/fixed_string.h
     include/utility/gl_check.h
+    include/utility/gl_loader.h
     include/utility/utility.h src/utility/utility.cpp
-
     include/apollo_main.h
     include/engine.h src/engine.cpp
-    extlibs/libs/glad/src/glad.c
 )
+
+if(NOT ANDROID)
+    target_sources(${LIB_NAME} PRIVATE extlibs/libs/glad/src/glad.c)
+endif()
 
 # Also set explicitly for project
 set_target_properties(${LIB_NAME} PROPERTIES
@@ -116,7 +119,6 @@ target_link_libraries(${LIB_NAME}
         PRIVATE
         ${OpenGL_GL_LIBRARY}
         ${FREETYPE_TARGET}
-        ${GLAD_TARGET}
         ${OGG_TARGET}
         ${VORBIS_TARGET}
         ${VORBISFILE_TARGET}
@@ -128,7 +130,9 @@ target_link_libraries(${LIB_NAME}
 
 # Android-specific linking
 if(ANDROID)
-    target_link_libraries(${LIB_NAME} PRIVATE GLESv2 EGL android log)
+    target_link_libraries(${LIB_NAME} PRIVATE android log)
+else()
+    target_link_libraries(${LIB_NAME} PRIVATE ${GLAD_TARGET})
 endif()
 
 # Create the DemoApp

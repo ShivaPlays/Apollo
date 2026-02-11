@@ -1,6 +1,6 @@
 #include "graphics/vertex_array_object.h"
 
-#include <glad/glad.h>
+#include "utility/gl_loader.h"
 
 #include "graphics/render_states_cache.h"
 #include "utility/gl_check.h"

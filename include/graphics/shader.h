@@ -15,7 +15,6 @@ namespace age
 		enum class shader_type
 		{
 			vertex,
-			geometry,
 			fragment
 		};
 

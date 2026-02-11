@@ -50,7 +50,8 @@ if(NOT ANDROID)
     set(OpenGL_GL_LIBRARY OpenGL::GL)
 else()
     # On Android, we link GLES and EGL directly later
-    message(STATUS "Android detected: skipping Desktop OpenGL search")
+    set(OpenGL_GL_LIBRARY GLESv3 EGL)
+    message(STATUS "Android detected: Setting OpenGL_GL_LIBRARY to GLESv3")
 endif()
 
 

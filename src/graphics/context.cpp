@@ -4,9 +4,9 @@
 #include <string>
 #include <SDL3/SDL.h>
 #include <stdexcept>
-#include <glad/glad.h>
 
 #include "graphics/render_window.h"
+#include "utility/gl_loader.h"
 
 namespace age
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#if defined(ANDROID) || defined(__ANDROID__)
 #include <SDL3/SDL.h>
+#ifdef SDL_PLATFORM_ANDROID
 #include <streambuf>
 #include <istream>
 #include <string_view>
@@ -16,7 +16,7 @@ namespace age
         explicit asset_streambuf();
         virtual ~asset_streambuf() override;
 
-        bool open(std::string_view fn);
+        bool open(const char* fn);
         void close();
 
         // Check if the file is currently open
@@ -48,9 +48,16 @@ namespace age
     public:
         assetistream();
         explicit assetistream(std::string_view fn, std::ios_base::openmode mode = std::ios_base::in);
+        explicit assetistream(const char* fn, std::ios_base::openmode mode = std::ios_base::in);
+        explicit assetistream(const std::string& fn, std::ios_base::openmode mode = std::ios_base::in);
         virtual ~assetistream() override;
 
+    public:
+
         void open(std::string_view fn);
+        void open(const char* fn);
+        void open(const std::string& fn);
+
         bool is_open() const;
         void close();
 

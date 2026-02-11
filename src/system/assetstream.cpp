@@ -2,7 +2,10 @@
 
 #include <SDL3/SDL.h>
 
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef SDL_PLATFORM_ANDROID
+
+#include "utility/fixed_string.h"
+
 namespace age
 {
     asset_streambuf::asset_streambuf()
@@ -17,17 +20,16 @@ namespace age
         close();
     }
 
-    bool asset_streambuf::open(std::string_view fn)
+    bool asset_streambuf::open(const char* fn)
     {
         close();
 
         // Use SDL_IOFromFile for standard assets/files
-        // .data() converts the string_view to a null-terminated const char*
-        m_io = SDL_IOFromFile(fn.data(), "rb");
+        m_io = SDL_IOFromFile(fn, "rb");
 
         if (!m_io)
         {
-            SDL_Log("Failed to open asset: %s, Error: %s", fn.data(), SDL_GetError());
+            SDL_Log("Failed to open asset: %s, Error: %s", fn, SDL_GetError());
             return false;
         }
 
@@ -101,10 +103,38 @@ namespace age
         open(fn);
     }
 
+    assetistream::assetistream(const char* fn, std::ios_base::openmode mode)
+            : std::istream(&m_streambuf)
+    {
+        open(fn);
+    }
+
+    assetistream::assetistream(const std::string& fn, std::ios_base::openmode mode)
+            : std::istream(&m_streambuf)
+    {
+        open(fn);
+    }
+
     assetistream::~assetistream()
     {}
 
     void assetistream::open(std::string_view fn)
+    {
+        constexpr size_t STRING_SIZE = 256;
+
+        if(fn.size() > STRING_SIZE - 1)
+        {
+            open(std::string{fn}.c_str());
+        }
+        else
+        {
+            //We ensure that the string is \0 terminated
+            fixed_string<STRING_SIZE> fn_str{fn};
+            open(fn_str.data());
+        }
+    }
+
+    void assetistream::open(const char *fn)
     {
         if (!m_streambuf.open(fn))
         {
@@ -114,6 +144,11 @@ namespace age
         {
             clear(); // Clear error bits if successful
         }
+    }
+
+    void assetistream::open(const std::string& fn)
+    {
+        open(fn.c_str());
     }
 
     bool assetistream::is_open() const

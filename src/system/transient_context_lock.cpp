@@ -5,10 +5,10 @@
 #include <SDL3/SDL.h>
 #include <stdexcept>
 #include <string>
-#include <glad/glad.h>
 
 #include "engine.h"
 #include "graphics/render_window.h"
+#include "utility/gl_loader.h"
 
 namespace age
 {

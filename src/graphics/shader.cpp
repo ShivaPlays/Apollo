@@ -1,6 +1,6 @@
 #include "graphics/shader.h"
 
-#include <glad/glad.h>
+#include "utility/gl_loader.h"
 
 #include <stdexcept>
 #include <SDL3/SDL.h>
@@ -79,9 +79,6 @@ namespace age
 		{
 		case shader_type::fragment:
 			return GL_FRAGMENT_SHADER;
-
-		case shader_type::geometry:
-			return GL_GEOMETRY_SHADER;
 
 		case shader_type::vertex:
 			return GL_VERTEX_SHADER;

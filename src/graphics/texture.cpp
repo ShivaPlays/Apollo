@@ -6,11 +6,10 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <glad/glad.h>
-
 #include "graphics/render_states_cache.h"
 #include "engine.h"
 #include "utility/gl_check.h"
+#include "utility/gl_loader.h"
 
 namespace age
 {
@@ -271,6 +270,7 @@ namespace age
 
 				GL_CALL(glDeleteSync(sync_fence));
 			}
+
 
 			GL_CALL(glDeleteFramebuffers(1, &framebuffer));
 			GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, previous_frame_buffer));

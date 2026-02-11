@@ -4,7 +4,6 @@
 #define GL_GLEXT_PROTOTYPES 1
 
 #include <SDL3/SDL.h>
-#include <glad/glad.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -12,6 +11,7 @@
 #include <array>
 
 #include "utility/gl_check.h"
+#include "utility/gl_loader.h"
 
 namespace age
 {

@@ -1,9 +1,9 @@
 #include "graphics/uniform_buffer_object.h"
 
-#include <glad/glad.h>
 
 #include "graphics/render_states_cache.h"
 #include "utility/gl_check.h"
+#include "utility/gl_loader.h"
 #include "engine.h"
 
 namespace age

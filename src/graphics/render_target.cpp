@@ -2,14 +2,13 @@
 
 #include <array>
 
-#include <glad/glad.h>
-
 #include "graphics/render_states.h"
 #include "graphics/texture.h"
 #include "graphics/drawable.h"
 #include "graphics/render_states_cache.h"
 
 #include "utility/gl_check.h"
+#include "utility/gl_loader.h"
 
 namespace age
 {
