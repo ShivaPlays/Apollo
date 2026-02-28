@@ -39,7 +39,7 @@ namespace age
 
 		music();
 		music(const music& other) = delete;
-		music(music&& other) noexcept = default;
+		music(music&& other) noexcept = delete;
 
 		music& operator = (const music& other) = delete;
 		music& operator = (music&& other) noexcept = delete;

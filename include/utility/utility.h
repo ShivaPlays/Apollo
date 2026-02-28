@@ -69,16 +69,15 @@ namespace age
 		}
 
 		unique_handle(unique_handle&& other) noexcept
-			: m_handle{ std::move(other.m_handle) }
-		{
-			other.m_handle = invalid_value;
-		}
+			: m_handle{ std::exchange(other.m_handle, invalid_value) }
+		{}
 
 		unique_handle& operator = (unique_handle&& other) noexcept
 		{
-			reset(std::move(other.m_handle));
-
-			other.m_handle = invalid_value;
+			if (this != &other)
+			{
+				reset(std::exchange(other.m_handle, invalid_value));
+			}
 
 			return *this;
 		}

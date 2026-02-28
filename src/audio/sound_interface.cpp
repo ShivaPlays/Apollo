@@ -60,6 +60,7 @@ namespace age
 		source.set_min_distance(m_properties.min_distance);
 		source.set_attenuation(m_properties.attenuation);
 		source.set_relative_to_listener(m_properties.relative_to_listener);
+		if (audio_device::get().is_direct_channels_available()) source.set_direct_channels(m_properties.direct_channels);
 		source.set_looping(looped);
 	}
 
@@ -175,6 +176,25 @@ namespace age
 	bool sound_interface::get_relative_to_listener() const
 	{
 		return m_properties.relative_to_listener;
+	}
+
+	void sound_interface::set_direct_channels(bool value)
+	{
+		m_properties.direct_channels = value;
+	}
+
+	void sound_interface::update_direct_channels(bool value)
+	{
+		if (m_properties.relative_to_listener != value)
+		{
+			set_direct_channels(value);
+			if (m_attached_source && audio_device::get().is_direct_channels_available()) m_attached_source->set_direct_channels(value);
+		}
+	}
+
+	bool sound_interface::get_direct_channels() const
+	{
+		return m_properties.direct_channels;
 	}
 
 	bool sound_interface::get_looping() const

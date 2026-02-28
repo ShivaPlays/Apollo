@@ -44,10 +44,17 @@ namespace age
 		sound_source* get_free_source(bool for_permanent_use = false) const;
 		void make_source_available(const sound_source* value) const;
 
+		void pause();
+		void resume();
+
+		bool is_connected() const;
+		bool reopen();
+
 		void stop_all_sounds();
 		void remove_buffer_from_active_sources(const sound_buffer& buffer);
 
 		bool is_initialised() const;
+		bool is_direct_channels_available() const;
 	protected:
 
 	private:
@@ -70,8 +77,14 @@ namespace age
 
 		void setup_sources();
 
+		std::string m_device_name;
+
 		void* m_device;
 		void* m_context;
+
+		void* m_alcDevicePauseSOFT_ptr;
+		void* m_alcDeviceResumeSOFT_ptr;
+		void* m_alcReopenDeviceSOFT_ptr;
 
 		std::vector<sound_source> m_sound_sources;
 		//ToDo: Replace the std::queue with a std::list and use myList.splice(myList.end(), myList, myList.begin()); to bring the first element to the end
@@ -84,5 +97,7 @@ namespace age
 
 
 		bool m_is_initialised;
+		bool m_is_direct_channles_available;
+		bool m_source_spatialize_available;
 	};
 }

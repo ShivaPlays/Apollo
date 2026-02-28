@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cstring>
 
+#include "alext.h"
 #include "audio/sound.h"
 
 #include "utility/al_check.h"
@@ -16,7 +17,12 @@ namespace age
 	audio_device::audio_device()
 		: m_device{ nullptr }
 		, m_context{ nullptr }
+		, m_alcDevicePauseSOFT_ptr{ nullptr }
+		, m_alcDeviceResumeSOFT_ptr{ nullptr }
+		, m_alcReopenDeviceSOFT_ptr { nullptr }
 		, m_is_initialised{ false }
+		, m_is_direct_channles_available{ false }
+		, m_source_spatialize_available{ false }
 	{}
 
 	audio_device::~audio_device()
@@ -65,6 +71,68 @@ namespace age
 		}
 	}
 
+	void audio_device::pause()
+	{
+		if (m_device)
+		{
+			if (m_alcDevicePauseSOFT_ptr)
+			{
+				auto alcDevicePauseSOFT = reinterpret_cast<LPALCDEVICEPAUSESOFT>(m_alcDevicePauseSOFT_ptr);
+				AL_CALL(alcDevicePauseSOFT(static_cast<ALCdevice*>(m_device)));
+			}
+			else
+			{
+				for (auto& source : m_sound_sources)
+				{
+					if (source.get_state() == sound_state::playing)
+						source.pause();
+				}
+			}
+		}
+	}
+
+	void audio_device::resume()
+	{
+		if (m_device)
+		{
+			if (m_alcDeviceResumeSOFT_ptr)
+			{
+				auto alcDeviceResumeSOFT = reinterpret_cast<LPALCDEVICEPAUSESOFT>(m_alcDeviceResumeSOFT_ptr);
+				AL_CALL(alcDeviceResumeSOFT(static_cast<ALCdevice*>(m_device)));
+			}
+			else
+			{
+				for (auto& source : m_sound_sources)
+					if (source.get_state() == sound_state::paused)
+						source.play();
+			}
+		}
+	}
+
+	bool audio_device::is_connected() const
+	{
+		if (m_device)
+		{
+			ALCint connected = ALC_TRUE;
+
+			alcGetIntegerv(static_cast<ALCdevice*>(m_device), ALC_CONNECTED, 1, &connected);
+			return (connected == ALC_TRUE);
+		}
+
+		return false;
+	}
+
+	bool audio_device::reopen()
+	{
+		if (m_device && m_alcReopenDeviceSOFT_ptr)
+		{
+			auto alcReopenDeviceSOFT = reinterpret_cast<LPALCREOPENDEVICESOFT>(m_alcReopenDeviceSOFT_ptr);
+			return AL_CALL(alcReopenDeviceSOFT(static_cast<ALCdevice*>(m_device), nullptr, nullptr)) == ALC_TRUE;
+		}
+
+		return false;
+	}
+
 	void audio_device::stop_all_sounds()
 	{
 		auto stop_source_sound = [](sound_source& source) -> void
@@ -88,6 +156,11 @@ namespace age
 	bool audio_device::is_initialised() const
 	{
 		return m_is_initialised;
+	}
+
+	bool audio_device::is_direct_channels_available() const
+	{
+		return m_is_direct_channles_available;
 	}
 
 	audio_device& audio_device::get()
@@ -218,6 +291,7 @@ namespace age
 		open_device_and_create_context(device_name);
 		setup_sources();
 
+		m_device_name = device_name;
 		m_is_initialised = true;
 	}
 
@@ -258,6 +332,21 @@ namespace age
 		AL_CALL(alListenerf(AL_GAIN, m_listener_volume));
 		AL_CALL(alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z));
 		AL_CALL(alListenerfv(AL_ORIENTATION, orientation));
+
+		if (alIsExtensionPresent("AL_SOFT_direct_channels")) m_is_direct_channles_available = true;
+		if (alIsExtensionPresent("AL_SOFT_source_spatialize")) m_source_spatialize_available = true;
+
+		if (alcIsExtensionPresent(static_cast<ALCdevice*>(m_device), "ALC_SOFT_pause_device"))
+		{
+			// Fetch the function addresses
+			m_alcDevicePauseSOFT_ptr = alcGetProcAddress(static_cast<ALCdevice*>(m_device), "alcDevicePauseSOFT");
+			m_alcDeviceResumeSOFT_ptr = alcGetProcAddress(static_cast<ALCdevice*>(m_device), "alcDeviceResumeSOFT");
+		}
+
+		if (alcIsExtensionPresent(static_cast<ALCdevice*>(m_device), "ALC_SOFT_reopen_device"))
+		{
+			m_alcReopenDeviceSOFT_ptr = alcGetProcAddress(static_cast<ALCdevice*>(m_device), "ALC_SOFT_reopen_device");
+		}
 	}
 
 	void audio_device::destroy_context_and_close_device()
@@ -285,13 +374,37 @@ namespace age
 
 		m_context = nullptr;
 		m_device = nullptr;
+
+		m_alcDevicePauseSOFT_ptr = nullptr;
+		m_alcDeviceResumeSOFT_ptr = nullptr;
+		m_alcReopenDeviceSOFT_ptr = nullptr;
+
+		m_is_initialised = false;
+		m_is_direct_channles_available = false;
+		m_source_spatialize_available = false;
+
+		m_device_name = {};
 	}
 
 	void audio_device::setup_sources()
 	{
-		m_sound_sources.resize(MAX_SOURCES);
+		std::array<ALuint, MAX_SOURCES> source_names{};
+		m_sound_sources.clear();
+		m_sound_sources.reserve(MAX_SOURCES);
+		AL_CALL(alGenSources(MAX_SOURCES, source_names.data()));
+
+		for (auto source_name : source_names)
+		{
+			m_sound_sources.emplace_back(sound_source::constructor_key{}, source_name);
+
+			if (m_source_spatialize_available)
+			{
+				m_sound_sources.back().enable_source_spatialize();
+			}
+		}
 
 		std::lock_guard container_lock{ m_source_queue_mutex };
+		m_available_sources.clear();
 		for (auto& source : m_sound_sources)
 			m_available_sources.emplace_back(&source);
 	}

@@ -25,7 +25,7 @@ namespace age
 			stereo_16
 		};
 
-		sound_buffer();
+		sound_buffer() = default;
 		~sound_buffer() override;
 
 		sound_buffer(const sound_buffer&) = delete;

@@ -15,10 +15,6 @@
 
 namespace age
 {
-	sound_buffer::sound_buffer()
-		: m_handle{ gen_handle() }
-	{}
-
 	sound_buffer::~sound_buffer()
 	{
 		if (m_handle)
@@ -94,7 +90,8 @@ namespace age
 
 	void sound_buffer::buffer_data(format the_format, const std::byte data[], size_t size_in_bytes, uint32_t frequency)
 	{
-		alBufferData(m_handle, format_to_AL_enum(the_format), data, static_cast<ALsizei>(size_in_bytes), frequency);
+		if (!m_handle) m_handle = gen_handle();
+		if (m_handle) alBufferData(m_handle, format_to_AL_enum(the_format), data, static_cast<ALsizei>(size_in_bytes), frequency);
 	}
 
 	float sound_buffer::get_duration() const
@@ -105,6 +102,8 @@ namespace age
 		ALint frequency;
 
 		ALuint handle = get_handle();
+
+		if (!handle) return 0;
 
 		AL_CALL(alGetBufferi(handle, AL_SIZE, &size_in_bytes));
 		AL_CALL(alGetBufferi(handle, AL_CHANNELS, &channels));

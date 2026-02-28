@@ -17,8 +17,9 @@ namespace age
 		friend class sound;
 		friend class sound_interface;
 
-		sound_source();
-		sound_source(uint32_t handle);
+		class constructor_key { friend class audio_device; constructor_key() {} };
+
+		sound_source(constructor_key, uint32_t handle);
 
 		sound_source(const sound_source& other) = delete;
 		sound_source(sound_source&& other) noexcept = default;
@@ -50,6 +51,9 @@ namespace age
 		void set_relative_to_listener(bool value);
 		bool get_relative_to_listener() const;
 
+		void set_direct_channels(bool value);
+		bool get_direct_channels() const;
+
 		void set_looping(bool value);
 		bool get_looping() const;
 
@@ -64,21 +68,31 @@ namespace age
 		sound_queue_buffer unqueue_buffer();
 
 		void clear_buffers();
+
+		void invalidate();
 		
 		sound_state get_state() const;
 
 	protected:
 
 	private:
+		sound_source();
+		sound_source(uint32_t handle);
+
+		bool ensure_handle() const;
+
 		void set_attached_sound(sound_interface* value);
 		sound_interface* get_attached_sound() const;
 
+		void enable_source_spatialize();
+
 		void detach_sound();
-		
+
 		sound_interface* m_attached_sound;
-		
 		static uint32_t gen_handle();
 		static void delete_handle(uint32_t handle);
-		unique_handle<uint32_t, delete_handle> m_handle;
+		mutable unique_handle<uint32_t, delete_handle> m_handle;
+
+		uint32_t m_attached_buffer;
 	};
 }

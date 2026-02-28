@@ -35,6 +35,7 @@ namespace age
 		m_context.create(*this);
 
 		//For testing purpose only as multithreeaded OpenGL has ome issues on Wayland
+		//ToDo: Remove this when it works in a multithreaded environment
 		//m_context.acquire_shared_context();
 
 		//Use Vsync

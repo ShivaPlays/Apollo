@@ -19,6 +19,7 @@ namespace age
 		m_command_queue.reserve(8);
 		m_samples_buffer.resize(BUFFER_SAMPLES);
 		sound_interface::set_relative_to_listener(true);
+		sound_interface::set_direct_channels(true);
 
 		m_background_worker.add_job([this](){ worker_loop(); });
 	}

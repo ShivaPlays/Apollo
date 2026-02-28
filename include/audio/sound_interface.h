@@ -55,6 +55,12 @@ namespace age
 		virtual void update_relative_to_listener(bool value);
 		virtual bool get_relative_to_listener() const;
 
+		virtual void set_direct_channels(bool value);
+		virtual void update_direct_channels(bool value);
+		virtual bool get_direct_channels() const;
+
+		//virtual void set_looping(bool value);
+
 		virtual bool get_looping() const;
 
 	protected:
