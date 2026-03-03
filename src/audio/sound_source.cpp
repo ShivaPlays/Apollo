@@ -98,12 +98,12 @@ namespace age
 		return value;
 	}
 
-	void sound_source::set_min_distance(float value)
+	void sound_source::set_reference_distance(float value)
 	{
 		if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_REFERENCE_DISTANCE, value));
 	}
 
-	float sound_source::get_min_distance() const
+	float sound_source::get_reference_distance() const
 	{
 		ALfloat value{};
 		if (ensure_handle()) AL_CALL(alGetSourcef(m_handle, AL_REFERENCE_DISTANCE, &value));
@@ -275,29 +275,11 @@ namespace age
 		return m_handle != 0;
 	}
 
-	void sound_source::set_attached_sound(sound_interface* value)
-	{
-		m_attached_sound = value;
-	}
-
-	sound_interface* sound_source::get_attached_sound() const
-	{
-		return m_attached_sound;
-	}
-
 	void sound_source::enable_source_spatialize()
 	{
 		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_SOURCE_SPATIALIZE_SOFT, AL_AUTO_SOFT));
 	}
 
-	void sound_source::detach_sound()
-	{
-		if (m_attached_sound)
-		{
-			m_attached_sound->attach_source(nullptr);
-			m_attached_sound = nullptr;
-		}
-	}
 
 	uint32_t sound_source::gen_handle()
 	{

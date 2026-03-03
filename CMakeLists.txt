@@ -35,9 +35,11 @@ include(cmake/dependencies.cmake)
 # Add your library target
 add_library(${LIB_NAME} STATIC
     include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
+    include/audio/audio_channel.h
     include/audio/audio_device.h src/audio/audio_device.cpp
     include/audio/audio_format.h src/audio/audio_format.cpp
     include/audio/audio_resource.h src/audio/audio_resource.cpp
+    include/audio/channel_guard.h
     include/audio/listener.h src/audio/listener.cpp
     include/audio/music.h src/audio/music.cpp
     include/audio/sound.h src/audio/sound.cpp

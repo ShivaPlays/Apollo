@@ -1,0 +1,80 @@
+//
+// Created by skaldi on 03.03.26.
+//
+#pragma once
+
+#include <atomic>
+
+#include "sound_source.h"
+#include "sound_interface.h"
+
+namespace age
+{
+    class audio_channel
+    {
+        friend class audio_device;
+        friend class sound_interface;
+        friend class channel_guard;
+
+    public:
+        audio_channel(sound_source::constructor_key key, uint32_t handle)
+            : m_source{ key, handle }
+        {}
+
+        // We must manually define how to move this class
+        audio_channel(audio_channel&& other) noexcept
+            : m_source(std::move(other.m_source)),
+              m_owner(other.m_owner),
+              m_priority(other.m_priority),
+              m_is_reserved(other.m_is_reserved)
+        {
+            // You cannot move an atomic, so you load the value
+            // from the old one and store it in the new one.
+            m_busy.store(other.m_busy.load());
+        }
+
+        // Usually a good idea to delete the assignment operator
+        // to prevent accidental shallow copies of the hardware source
+        audio_channel& operator=(audio_channel&&) = delete;
+        audio_channel(const audio_channel&) = delete;
+        audio_channel& operator=(const audio_channel&) = delete;
+
+        sound_source& get_source () { return m_source; }
+        const sound_source& get_source() const { return m_source; }
+
+        void set_reserved(bool value) { m_is_reserved = value; }
+        bool is_reserved() const { return m_is_reserved; }
+
+        void set_priority(uint8_t value) { m_priority = value; }
+        uint8_t get_priority() const { return m_priority; }
+
+        void set_owner(sound_interface* owner) { m_owner = owner; }
+        sound_interface* get_owner() const { return m_owner; }
+    public:
+        bool is_free() const { return !m_is_reserved && m_source.get_state() == sound_state::stopped; }
+
+    protected:
+
+    private:
+        void detach_owner()
+        {
+            if (m_owner)
+            {
+                m_owner->attach_channel(nullptr);
+                m_owner = nullptr;
+            }
+        }
+
+        bool try_acquire() { return !m_busy.exchange(true); }
+        void release() { m_busy.store(false); }
+        bool is_busy() const { return m_busy.load(); }
+
+        sound_source m_source;
+        sound_interface* m_owner{};
+
+        std::atomic<bool> m_busy{false};
+
+        uint8_t m_priority{};
+        bool m_is_reserved{};
+    };
+}

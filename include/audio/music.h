@@ -60,7 +60,7 @@ namespace age
 		void update_position(const glm::vec3& value) override;
 		void update_pitch(float value) override;
 		void update_volume(float value) override;
-		void update_min_distance(float value) override;
+		void update_reference_distance(float value) override;
 		void update_attenuation(float value) override;
 		void update_relative_to_listener(bool value) override;
 

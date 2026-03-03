@@ -6,6 +6,7 @@
 namespace age
 {
 	class sound_source;
+	class audio_channel;
 	class sound_buffer;
 
 	class sound_interface
@@ -13,6 +14,7 @@ namespace age
 	public:
 		friend class audio_device;
 		friend class sound_source;
+		friend class audio_channel;
 
 		sound_interface() = default;
 		sound_interface(const sound_interface& other);
@@ -43,9 +45,9 @@ namespace age
 		virtual void update_volume(float value);
 		virtual float get_volume() const;
 
-		virtual void set_min_distance(float value);
-		virtual void update_min_distance(float value);
-		virtual float get_min_distance() const;
+		virtual void set_reference_distance(float value);
+		virtual void update_reference_distance(float value);
+		virtual float get_reference_distance() const;
 
 		virtual void set_attenuation(float value);
 		virtual void update_attenuation(float value);
@@ -64,15 +66,15 @@ namespace age
 		virtual bool get_looping() const;
 
 	protected:
-		void attach_source(sound_source* value);
-		sound_source* get_attached_source() const;
-		void detach_source() const;
+		void attach_channel(audio_channel* value);
+		audio_channel* get_attached_channel() const;
+		void detach_channel() const;
 
 		const sound_properties& get_properties() const;
 
 	private:
 		sound_properties m_properties;
 
-		mutable sound_source* m_attached_source{nullptr};
+		mutable audio_channel* m_attached_channel{nullptr};
 	};
 }

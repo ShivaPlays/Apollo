@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 #include "../utility/utility.h"
 #include "sound_queue_buffer.h"
@@ -36,20 +37,47 @@ namespace age
 		void set_position(const glm::vec3& value);
 		glm::vec3 get_position() const;
 
+		void set_velocity(const glm::vec3& value);
+		glm::vec3 get_velocity() const;
+
+		void set_direction(const glm::vec3& value);
+		glm::vec3 get_direction() const;
+
+		float set_radius(float value);
+		float get_radius() const;
+
+		float set_stereo_angels(glm::vec2 value);
+		glm::vec2 get_stereo_angels() const;
+
 		void set_pitch(float value);
 		float get_pitch() const;
 
 		void set_volume(float value);
 		float get_volume() const;
 
-		void set_min_distance(float value);
-		float get_min_distance() const;
+		void set_min_gain(float value);
+		float get_min_gain() const;
+
+		void set_max_gain(float value);
+		float get_max_gain() const;
+
+		void set_reference_distance(float value);
+		float get_reference_distance() const;
+
+		void set_max_distance(float value);
+		float get_max_distance() const;
+
+		void set_rolloff_factor(float value);
+		float get_rolloff_factor() const;
 
 		void set_attenuation(float value);
 		float get_attenuation() const;
 
 		void set_relative_to_listener(bool value);
 		bool get_relative_to_listener() const;
+
+		void set_air_absorption_factor(float value);
+		float get_air_absorption_factor() const;
 
 		void set_direct_channels(bool value);
 		bool get_direct_channels() const;
@@ -80,13 +108,8 @@ namespace age
 		sound_source(uint32_t handle);
 
 		bool ensure_handle() const;
-
-		void set_attached_sound(sound_interface* value);
-		sound_interface* get_attached_sound() const;
-
 		void enable_source_spatialize();
 
-		void detach_sound();
 
 		sound_interface* m_attached_sound;
 		static uint32_t gen_handle();

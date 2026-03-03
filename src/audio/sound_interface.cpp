@@ -7,17 +7,17 @@ namespace age
 {
 	sound_interface::sound_interface(const sound_interface& other)
 		: m_properties{ other.m_properties }
-		, m_attached_source{ nullptr }
+		, m_attached_channel{ nullptr }
 	{}
 
 	sound_interface::sound_interface(sound_interface&& other) noexcept
 		: m_properties{ other.m_properties }
-		, m_attached_source{ other.m_attached_source }
+		, m_attached_channel{ other.m_attached_channel }
 	{
-		other.m_attached_source = nullptr;
+		other.m_attached_channel = nullptr;
 
-		if (m_attached_source)
-			m_attached_source->set_attached_sound(this);
+		if (m_attached_channel)
+			m_attached_channel->set_owner(this);
 	}
 
 	sound_interface& sound_interface::operator = (const sound_interface& other)
@@ -30,25 +30,23 @@ namespace age
 	sound_interface& sound_interface::operator = (sound_interface&& other) noexcept
 	{
 		m_properties = other.m_properties;
-		m_attached_source = other.m_attached_source;
+		m_attached_channel = other.m_attached_channel;
 
-		other.m_attached_source = nullptr;
-		if (m_attached_source)
-			m_attached_source->set_attached_sound(this);
+		other.m_attached_channel = nullptr;
+		if (m_attached_channel)
+			m_attached_channel->set_owner(this);
 
 		return *this;
 	}
 
 	void sound_interface::stop()
 	{
-		if (m_attached_source)
+		if (m_attached_channel)
 		{
-			if (m_attached_source->get_looping())
-			{
-				audio_device::get().make_source_available(m_attached_source);
-			}
+			if (m_attached_channel->get_source().get_looping())
+				m_attached_channel->set_reserved(false);
 
-			m_attached_source->stop();
+			m_attached_channel->get_source().stop();
 		}
 	}
 
@@ -57,7 +55,7 @@ namespace age
 		source.set_position(m_properties.position);
 		source.set_pitch(m_properties.pitch);
 		source.set_volume(m_properties.volume);
-		source.set_min_distance(m_properties.min_distance);
+		source.set_reference_distance(m_properties.min_distance);
 		source.set_attenuation(m_properties.attenuation);
 		source.set_relative_to_listener(m_properties.relative_to_listener);
 		if (audio_device::get().is_direct_channels_available()) source.set_direct_channels(m_properties.direct_channels);
@@ -74,7 +72,7 @@ namespace age
 		if (m_properties.position != value)
 		{
 			set_position(value);
-			if (m_attached_source) m_attached_source->set_position(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_position(value);
 		}
 	}
 
@@ -93,7 +91,7 @@ namespace age
 		if (m_properties.pitch != value)
 		{
 			set_pitch(value);
-			if (m_attached_source) m_attached_source->set_pitch(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_pitch(value);
 		}
 	}
 
@@ -112,7 +110,7 @@ namespace age
 		if (m_properties.volume != value)
 		{
 			set_volume(value);
-			if (m_attached_source) m_attached_source->set_volume(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_volume(value);
 		}
 	}
 
@@ -121,21 +119,21 @@ namespace age
 		return m_properties.volume;
 	}
 
-	void sound_interface::set_min_distance(float value)
+	void sound_interface::set_reference_distance(float value)
 	{
 		m_properties.min_distance = value;
 	}
 
-	void sound_interface::update_min_distance(float value)
+	void sound_interface::update_reference_distance(float value)
 	{
 		if (m_properties.min_distance != value)
 		{
-			set_min_distance(value);
-			if (m_attached_source) m_attached_source->set_min_distance(value);
+			set_reference_distance(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_reference_distance(value);
 		}
 	}
 
-	float sound_interface::get_min_distance() const
+	float sound_interface::get_reference_distance() const
 	{
 		return m_properties.min_distance;
 	}
@@ -150,7 +148,7 @@ namespace age
 		if (m_properties.attenuation != value)
 		{
 			set_attenuation(value);
-			if (m_attached_source) m_attached_source->set_attenuation(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_attenuation(value);
 		}
 	}
 
@@ -169,7 +167,7 @@ namespace age
 		if (m_properties.relative_to_listener != value)
 		{
 			set_relative_to_listener(value);
-			if (m_attached_source) m_attached_source->set_relative_to_listener(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_relative_to_listener(value);
 		}
 	}
 
@@ -188,7 +186,7 @@ namespace age
 		if (m_properties.relative_to_listener != value)
 		{
 			set_direct_channels(value);
-			if (m_attached_source && audio_device::get().is_direct_channels_available()) m_attached_source->set_direct_channels(value);
+			if (m_attached_channel && audio_device::get().is_direct_channels_available()) m_attached_channel->get_source().set_direct_channels(value);
 		}
 	}
 
@@ -199,33 +197,33 @@ namespace age
 
 	bool sound_interface::get_looping() const
 	{
-		if (m_attached_source)
-			return m_attached_source->get_looping();
+		if (m_attached_channel)
+			return m_attached_channel->get_source().get_looping();
 
 		return false;
 	}
 
-	void sound_interface::attach_source(sound_source* value)
+	void sound_interface::attach_channel(audio_channel* value)
 	{
-		if (m_attached_source == value) return;
+		if (m_attached_channel == value) return;
 
-		detach_source();
-		m_attached_source = value;
-		if (m_attached_source)
-			m_attached_source->set_attached_sound(this);
+		detach_channel();
+		m_attached_channel = value;
+		if (m_attached_channel)
+			m_attached_channel->set_owner(this);
 	}
 
-	sound_source* sound_interface::get_attached_source() const
+	audio_channel* sound_interface::get_attached_channel() const
 	{
-		return m_attached_source;
+		return m_attached_channel;
 	}
 
-	void sound_interface::detach_source() const
+	void sound_interface::detach_channel() const
 	{
-		if (m_attached_source)
+		if (m_attached_channel)
 		{
-			m_attached_source->set_attached_sound(nullptr);
-			m_attached_source = nullptr;
+			m_attached_channel->set_owner(nullptr);
+			m_attached_channel = nullptr;
 		}
 	}
 
