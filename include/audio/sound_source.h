@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <gch/small_vector.hpp>
 
 #include "../utility/utility.h"
 #include "sound_queue_buffer.h"
@@ -110,12 +111,11 @@ namespace age
 		bool ensure_handle() const;
 		void enable_source_spatialize();
 
-
-		sound_interface* m_attached_sound;
 		static uint32_t gen_handle();
 		static void delete_handle(uint32_t handle);
 		mutable unique_handle<uint32_t, delete_handle> m_handle;
 
+		gch::small_vector<uint32_t, 16> m_queued_buffers;
 		uint32_t m_attached_buffer;
 	};
 }

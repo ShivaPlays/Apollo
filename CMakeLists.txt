@@ -112,6 +112,7 @@ target_include_directories(${LIB_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/headers/stb_image
         ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/headers/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/headers/gch
         ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/libs/glad/include
         $<INSTALL_INTERFACE:include>
 )

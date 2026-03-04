@@ -5,6 +5,7 @@
 #include <list>
 #include <string_view>
 #include <mutex>
+#include <atomic>
 #include <glm/vec3.hpp>
 
 #include "../system/background_worker.h"
@@ -87,7 +88,7 @@ namespace age
 
 		void* m_alcReopenDeviceSOFT_ptr;
 
-		size_t m_next_pool_index;
+		std::atomic<size_t> m_next_pool_index;
 		std::vector<audio_channel> m_audio_channels;
 
 		bool m_is_initialised;

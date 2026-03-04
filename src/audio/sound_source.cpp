@@ -1,37 +1,21 @@
 #include "audio/sound_source.h"
 
 #include <AL/al.h>
-#if __has_include(<AL/alext.h>)
 #include <AL/alext.h>
-#endif
 
 #include "audio/sound_interface.h"
 #include "audio/sound_buffer.h"
 
 #include "utility/al_check.h"
 
-#if not defined(AL_DIRECT_CHANNELS_SOFT)
-#define AL_DIRECT_CHANNELS_SOFT						0x1033
-#endif
-
-#ifndef AL_SOURCE_SPATIALIZE_SOFT
-	#define AL_SOURCE_SPATIALIZE_SOFT				0x1214
-#endif
-
-#ifndef AL_AUTO_SOFT
-	#define AL_AUTO_SOFT							0x0002
-#endif
-
 namespace age
 {
 	sound_source::sound_source()
-		: m_attached_sound{ nullptr }
-		, m_attached_buffer{ AL_NONE }
+		: m_attached_buffer{ AL_NONE }
 	{}
 
 	sound_source::sound_source(uint32_t handle)
-		: m_attached_sound{ nullptr }
-		, m_handle{ handle }
+		: m_handle{ handle }
 		, m_attached_buffer{ AL_NONE }
 	{}
 
@@ -179,9 +163,15 @@ namespace age
 
 	bool sound_source::has_buffer_attached(const sound_buffer& value) const
 	{
-		auto b_handle = value.get_handle();
+		if (const auto b_handle = value.get_handle())
+		{
+			for (auto b : m_queued_buffers)
+				if (b == b_handle) return true;
 
-		return b_handle && (m_attached_buffer != AL_NONE) && (m_attached_buffer == b_handle);
+			return (m_attached_buffer != AL_NONE) && (m_attached_buffer == b_handle);
+		}
+
+		return false;
 	}
 
 	void sound_source::detach_buffer(const sound_buffer& value)
@@ -195,6 +185,7 @@ namespace age
 			{
 				AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
 				m_attached_buffer = AL_NONE;
+				m_queued_buffers.clear();
 			}
 		}
 	}
@@ -203,7 +194,11 @@ namespace age
 	{
 		ALuint handle = value.get_handle();
 
-		if (ensure_handle()) AL_CALL(alSourceQueueBuffers(m_handle, 1, &handle));
+		if (ensure_handle())
+		{
+			AL_CALL(alSourceQueueBuffers(m_handle, 1, &handle));
+			m_queued_buffers.push_back(handle);
+		}
 	}
 
 	uint32_t sound_source::get_num_queued_buffers() const
@@ -228,7 +223,11 @@ namespace age
 	{
 		ALuint buffer = 0;
 
-		if (ensure_handle()) AL_CALL(alSourceUnqueueBuffers(m_handle, 1, &buffer));
+		if (ensure_handle())
+		{
+			AL_CALL(alSourceUnqueueBuffers(m_handle, 1, &buffer));
+			if (!m_queued_buffers.empty() && buffer) m_queued_buffers.erase(m_queued_buffers.begin());
+		}
 
 		return sound_queue_buffer{ buffer };
 	}

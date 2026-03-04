@@ -35,9 +35,11 @@ namespace age
 	{
 		const auto pool_size = m_audio_channels.size();
 
+		size_t start_index = m_next_pool_index.load(std::memory_order_relaxed);
+
 		for (size_t i = 0; i < pool_size; ++i)
 		{
-			size_t idx = (m_next_pool_index + i) % pool_size;
+			size_t idx = (start_index + i) % pool_size;
 			auto& channel = m_audio_channels[idx];
 
 			if (channel.try_acquire())
@@ -46,7 +48,7 @@ namespace age
 				if (channel.is_free() && !channel.is_reserved())
 				{
 					channel.set_reserved(reserved);
-					m_next_pool_index = (idx + 1) % pool_size;
+					m_next_pool_index.store((idx + 1) % pool_size);
 					return guard;
 				}
 			}
