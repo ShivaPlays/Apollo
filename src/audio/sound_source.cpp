@@ -144,7 +144,7 @@ namespace age
 		}
 	}
 
-	float sound_source::get_coner_inner_angle() const
+	float sound_source::get_cone_inner_angle() const
 	{
 		return m_properties.cone_inner_angle;
 	}
