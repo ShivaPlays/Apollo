@@ -61,7 +61,7 @@ namespace age
 		void update_pitch(float value) override;
 		void update_volume(float value) override;
 		void update_reference_distance(float value) override;
-		void update_attenuation(float value) override;
+		void update_rolloff_factor(float value) override;
 		void update_relative_to_listener(bool value) override;
 
 	protected:

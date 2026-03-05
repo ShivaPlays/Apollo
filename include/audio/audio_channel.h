@@ -7,6 +7,7 @@
 
 #include "sound_source.h"
 #include "sound_interface.h"
+#include "sound_properties.h"
 
 namespace age
 {
@@ -28,19 +29,17 @@ namespace age
               m_priority(other.m_priority),
               m_is_reserved(other.m_is_reserved)
         {
-            // You cannot move an atomic, so you load the value
-            // from the old one and store it in the new one.
             m_busy.store(other.m_busy.load());
         }
 
-        // Usually a good idea to delete the assignment operator
-        // to prevent accidental shallow copies of the hardware source
         audio_channel& operator=(audio_channel&&) = delete;
         audio_channel(const audio_channel&) = delete;
         audio_channel& operator=(const audio_channel&) = delete;
 
         sound_source& get_source () { return m_source; }
         const sound_source& get_source() const { return m_source; }
+
+        void apply_properties(const sound_properties& properties) { m_source.apply_properties(properties); }
 
         void set_reserved(bool value) { m_is_reserved = value; }
         bool is_reserved() const { return m_is_reserved; }
@@ -50,6 +49,10 @@ namespace age
 
         void set_owner(sound_interface* owner) { m_owner = owner; }
         sound_interface* get_owner() const { return m_owner; }
+
+        void set_filter_group(uint16_t value) { m_filter_group = value; }
+        uint16_t get_filter_group() const { return m_filter_group; }
+
     public:
         bool is_free() const { return !m_is_reserved && m_source.get_state() == sound_state::stopped; }
 
@@ -71,6 +74,8 @@ namespace age
 
         sound_source m_source;
         sound_interface* m_owner{};
+
+        uint16_t m_filter_group{};
 
         std::atomic<bool> m_busy{false};
 

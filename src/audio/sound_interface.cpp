@@ -55,8 +55,8 @@ namespace age
 		source.set_position(m_properties.position);
 		source.set_pitch(m_properties.pitch);
 		source.set_volume(m_properties.volume);
-		source.set_reference_distance(m_properties.min_distance);
-		source.set_attenuation(m_properties.attenuation);
+		source.set_reference_distance(m_properties.reference_distance);
+		source.set_rolloff_factor(m_properties.rolloff_factor);
 		source.set_relative_to_listener(m_properties.relative_to_listener);
 		if (audio_device::get().is_direct_channels_available()) source.set_direct_channels(m_properties.direct_channels);
 		source.set_looping(looped);
@@ -121,12 +121,12 @@ namespace age
 
 	void sound_interface::set_reference_distance(float value)
 	{
-		m_properties.min_distance = value;
+		m_properties.reference_distance = value;
 	}
 
 	void sound_interface::update_reference_distance(float value)
 	{
-		if (m_properties.min_distance != value)
+		if (m_properties.reference_distance != value)
 		{
 			set_reference_distance(value);
 			if (m_attached_channel) m_attached_channel->get_source().set_reference_distance(value);
@@ -135,26 +135,26 @@ namespace age
 
 	float sound_interface::get_reference_distance() const
 	{
-		return m_properties.min_distance;
+		return m_properties.reference_distance;
 	}
 
-	void sound_interface::set_attenuation(float value)
+	void sound_interface::set_rolloff_factor(float value)
 	{
-		m_properties.attenuation = value;
+		m_properties.rolloff_factor = value;
 	}
 
-	void sound_interface::update_attenuation(float value)
+	void sound_interface::update_rolloff_factor(float value)
 	{
-		if (m_properties.attenuation != value)
+		if (m_properties.rolloff_factor != value)
 		{
-			set_attenuation(value);
-			if (m_attached_channel) m_attached_channel->get_source().set_attenuation(value);
+			set_rolloff_factor(value);
+			if (m_attached_channel) m_attached_channel->get_source().set_rolloff_factor(value);
 		}
 	}
 
-	float sound_interface::get_attenuation() const
+	float sound_interface::get_rolloff_factor() const
 	{
-		return m_properties.attenuation;
+		return m_properties.rolloff_factor;
 	}
 
 	void sound_interface::set_relative_to_listener(bool value)

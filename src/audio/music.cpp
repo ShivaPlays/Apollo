@@ -173,9 +173,9 @@ namespace age
 		current_channel->get_source().set_reference_distance(value);
 	}
 
-	void music::update_attenuation(float value)
+	void music::update_rolloff_factor(float value)
 	{
-		sound_interface::set_attenuation(value);
+		sound_interface::set_rolloff_factor(value);
 
 		std::lock_guard source_lock{ m_source_mutex };
 
@@ -183,7 +183,7 @@ namespace age
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_attenuation(value);
+		current_channel->get_source().set_rolloff_factor(value);
 	}
 
 	void music::update_relative_to_listener(bool value)

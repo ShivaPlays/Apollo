@@ -28,8 +28,8 @@ namespace age
 		static audio_device& get();
 		static std::vector<std::string_view> get_device_names();
 
-		static void init();
-		static void init(std::string_view device_name);
+		static void init(uint8_t max_auxiliary_sends = 4);
+		static void init(std::string_view device_name, uint8_t max_auxiliary_sends = 4);
 		static void destroy();
 
 		static void set_listener_volume(float value);
@@ -64,6 +64,7 @@ namespace age
 		static inline std::mutex s_device_mutex;
 
 		inline static constexpr uint32_t MAX_SOURCES = 256;
+		inline static constexpr uint8_t MAX_AUXILIARY_SENDS = 16;
 
 		inline static float m_listener_volume = 1.0f;
 		inline static glm::vec3 m_listener_position{ 0.0f, 0.0f, 0.0f };
@@ -74,8 +75,8 @@ namespace age
 		audio_device(const audio_device& other) = delete;
 		audio_device(audio_device&& other) = delete;
 
-		void init(const char* device_name);
-		void open_device_and_create_context(const char* device_name);
+		void init(const char* device_name, uint8_t max_auxiliary_sends);
+		void open_device_and_create_context(const char* device_name, uint8_t max_auxiliary_sends);
 		void destroy_context_and_close_device();
 
 		void setup_channels();

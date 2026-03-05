@@ -148,16 +148,16 @@ namespace age
 		return result;
 	}
 
-	void audio_device::init()
+	void audio_device::init(uint8_t max_auxiliary_sends)
 	{
 		std::lock_guard lock{ s_device_mutex };
-		get().init(nullptr);
+		get().init(nullptr, max_auxiliary_sends);
 	}
 
-	void audio_device::init(std::string_view device_name)
+	void audio_device::init(std::string_view device_name, uint8_t max_auxiliary_sends)
 	{
 		std::lock_guard lock{ s_device_mutex };
-		get().init(device_name.data());
+		get().init(device_name.data(), max_auxiliary_sends);
 	}
 
 	void audio_device::destroy()
@@ -233,33 +233,29 @@ namespace age
 		auto& source = guard->get_source();
 
 		source.set_buffer(buffer);
-		source.set_position(properties.position);
-		source.set_relative_to_listener(properties.relative_to_listener);
-		source.set_volume(properties.volume);
-		source.set_pitch(properties.pitch);
-		source.set_attenuation(properties.attenuation);
-		source.set_reference_distance(properties.min_distance);
-		source.set_looping(properties.looping);
+		source.apply_properties(properties);
 
 		source.play();
 
 		return &*guard;
 	}
 
-	void audio_device::init(const char* device_name)
+	void audio_device::init(const char* device_name, uint8_t max_auxiliary_sends)
 	{
 		destroy_context_and_close_device();
-		open_device_and_create_context(device_name);
+		open_device_and_create_context(device_name, max_auxiliary_sends);
 		setup_channels();
 
 		m_device_name = device_name ? device_name : std::string{};
 		m_is_initialised = true;
 	}
 
-	void audio_device::open_device_and_create_context(const char* device_name)
+	void audio_device::open_device_and_create_context(const char* device_name, uint8_t max_auxiliary_sends)
 	{
 		const ALCchar* default_device = device_name ? device_name : alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
 		m_device = alcOpenDevice(default_device);
+
+		if (max_auxiliary_sends > MAX_AUXILIARY_SENDS) max_auxiliary_sends = MAX_AUXILIARY_SENDS;
 
 		if (!m_device)
 		{
@@ -270,7 +266,7 @@ namespace age
 			throw std::runtime_error{ ss.str() };
 		}
 
-		std::array<ALCint, 5> attributes = { ALC_MONO_SOURCES, MAX_SOURCES, ALC_STEREO_SOURCES, MAX_SOURCES, 0 };
+		std::array<ALCint, 7> attributes = { ALC_MONO_SOURCES, MAX_SOURCES, ALC_STEREO_SOURCES, MAX_SOURCES, ALC_MAX_AUXILIARY_SENDS, max_auxiliary_sends, 0 };
 		m_context = ALC_CALL(static_cast<ALCdevice*>(m_device), alcCreateContext(static_cast<ALCdevice*>(m_device), attributes.data()));
 
 		if (!m_context)
@@ -320,6 +316,13 @@ namespace age
 		};
 
 		alEventCallbackSOFT(callback, this);
+
+		//For testing the ALC_MAX_AUXILIARY_SENDS number
+		/*
+		ALint actual_sends = 0;
+		alcGetIntegerv(static_cast<ALCdevice*>(m_device), ALC_MAX_AUXILIARY_SENDS, 1, &actual_sends);
+		std::cout << actual_sends;
+		*/
 	}
 
 	void audio_device::destroy_context_and_close_device()

@@ -49,9 +49,9 @@ namespace age
 		virtual void update_reference_distance(float value);
 		virtual float get_reference_distance() const;
 
-		virtual void set_attenuation(float value);
-		virtual void update_attenuation(float value);
-		virtual float get_attenuation() const;
+		virtual void set_rolloff_factor(float value);
+		virtual void update_rolloff_factor(float value);
+		virtual float get_rolloff_factor() const;
 
 		virtual void set_relative_to_listener(bool value);
 		virtual void update_relative_to_listener(bool value);
@@ -75,6 +75,6 @@ namespace age
 	private:
 		sound_properties m_properties;
 
-		mutable audio_channel* m_attached_channel{nullptr};
+		mutable audio_channel* m_attached_channel{ nullptr };
 	};
 }
