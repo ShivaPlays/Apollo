@@ -48,10 +48,10 @@ namespace age
 		float get_radius() const;
 
 		void set_cone_inner_angle(float value);
-		float get_coner_inner_ange() const;
+		float get_coner_inner_angle() const;
 
 		void set_cone_outer_angle(float value);
-		float get_conte_outer_angle() const;
+		float get_cone_outer_angle() const;
 
 		void set_cone_outer_gain(float value);
 		float get_cone_outer_gain() const;
