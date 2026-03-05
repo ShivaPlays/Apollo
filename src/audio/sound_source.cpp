@@ -471,6 +471,7 @@ namespace age
 		{
 			m_handle = gen_handle();
 			apply_properties(sound_properties{}, true);
+			m_attached_buffer = AL_NONE;
 		}
 
 		return m_handle != 0;
