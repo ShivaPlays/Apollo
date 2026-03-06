@@ -1,20 +1,20 @@
 #pragma once
 #include "sound_interface.h"
 
-#include "sound_state.h"
+#include "state.h"
 #include <glm/vec3.hpp>
 
-namespace age
+namespace age::audio
 {
-	class sound_source;
-	class sound_buffer;
+	class source;
+	class buffer;
 	
 	class sound
 		: public sound_interface
 	{
 	public:
 		friend class audio_device;
-		friend class sound_source;
+		friend class source;
 
 		sound();
 		sound(const sound& other) = default;
@@ -30,14 +30,14 @@ namespace age
 		void stop() override;
 		void pause() override;
 
-		sound_state get_state() const;
+		state get_state() const;
 
-		void set_buffer(const sound_buffer* value);
-		const sound_buffer* get_buffer() const;
+		void set_buffer(const buffer* value);
+		const buffer* get_buffer() const;
 
 	protected:
 
 	private:
-		const sound_buffer* m_buffer;
+		const buffer* m_buffer;
 	};
 }

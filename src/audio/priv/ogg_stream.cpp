@@ -43,7 +43,7 @@ long tell(void* data)
 
 static ov_callbacks callbacks = { &read, &seek, NULL, &tell };
 
-namespace age
+namespace age::audio
 {
 	ogg_stream::~ogg_stream()
 	{
@@ -59,7 +59,7 @@ namespace age
 		m_channel_count = 0;
 	}
 
-	sound_stream::info ogg_stream::on_open(std::istream& is)
+	stream::info ogg_stream::on_open(std::istream& is)
 	{
 		int status = ov_open_callbacks(&is, &m_vorbis_file, nullptr, 0, callbacks);
 		if (status < 0)

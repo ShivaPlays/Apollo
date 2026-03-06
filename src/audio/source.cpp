@@ -1,4 +1,4 @@
-#include "audio/sound_source.h"
+#include "audio/source.h"
 
 #include <array>
 
@@ -6,48 +6,48 @@
 #include <AL/alext.h>
 
 #include "audio/sound_interface.h"
-#include "audio/sound_buffer.h"
+#include "audio/buffer.h"
 
 #include "utility/al_check.h"
 
-namespace age
+namespace age::audio
 {
-	sound_source::sound_source()
+	source::source()
 		: m_attached_buffer{ AL_NONE }
 	{}
 
-	sound_source::sound_source(uint32_t handle)
+	source::source(uint32_t handle)
 		: m_handle{ handle }
 		, m_attached_buffer{ AL_NONE }
 	{
-		apply_properties(sound_properties{}, true);
+		apply_properties(properties{}, true);
 	}
 
-	sound_source::sound_source(constructor_key, uint32_t handle)
-		: sound_source{ handle }
+	source::source(constructor_key, uint32_t handle)
+		: source{ handle }
 	{}
 
-	void sound_source::play()
+	void source::play()
 	{
 		if (ensure_handle()) AL_CALL(alSourcePlay(m_handle));
 	}
 
-	void sound_source::stop()
+	void source::stop()
 	{
 		if (ensure_handle()) AL_CALL(alSourceStop(m_handle));
 	}
 
-	void sound_source::pause()
+	void source::pause()
 	{
 		if (ensure_handle()) AL_CALL(alSourcePause(m_handle));
 	}
 
-	void sound_source::rewind()
+	void source::rewind()
 	{
 		if (ensure_handle()) AL_CALL(alSourceRewind(m_handle));
 	}
 
-	void sound_source::apply_properties(const sound_properties& properties, bool force)
+	void source::apply_properties(const properties& properties, bool force)
 	{
 		if (ensure_handle())
 		{
@@ -74,7 +74,7 @@ namespace age
 		}
 	}
 
-	void sound_source::set_position(const glm::vec3& value)
+	void source::set_position(const glm::vec3& value)
 	{
 		if (m_properties.position != value)
 		{
@@ -84,12 +84,12 @@ namespace age
 		}
 	}
 
-	const glm::vec3& sound_source::get_position() const
+	const glm::vec3& source::get_position() const
 	{
 		return m_properties.position;
 	}
 
-	void sound_source::set_velocity(const glm::vec3 &value)
+	void source::set_velocity(const glm::vec3 &value)
 	{
 		if (m_properties.velocity != value)
 		{
@@ -99,12 +99,12 @@ namespace age
 		}
 	}
 
-	const glm::vec3& sound_source::get_velocity() const
+	const glm::vec3& source::get_velocity() const
 	{
 		return m_properties.velocity;
 	}
 
-	void sound_source::set_direction(const glm::vec3& value)
+	void source::set_direction(const glm::vec3& value)
 	{
 		if (m_properties.direction != value)
 		{
@@ -114,12 +114,12 @@ namespace age
 		}
 	}
 
-	const glm::vec3& sound_source::get_direction() const
+	const glm::vec3& source::get_direction() const
 	{
 		return m_properties.direction;
 	}
 
-	void sound_source::set_radius(float value)
+	void source::set_radius(float value)
 	{
 		if (m_properties.source_radius != value)
 		{
@@ -129,12 +129,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_radius() const
+	float source::get_radius() const
 	{
 		return m_properties.source_radius;
 	}
 
-	void sound_source::set_cone_inner_angle(float value)
+	void source::set_cone_inner_angle(float value)
 	{
 		if (m_properties.cone_inner_angle != value)
 		{
@@ -144,12 +144,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_cone_inner_angle() const
+	float source::get_cone_inner_angle() const
 	{
 		return m_properties.cone_inner_angle;
 	}
 
-	void sound_source::set_cone_outer_angle(float value)
+	void source::set_cone_outer_angle(float value)
 	{
 		if (m_properties.cone_outer_angle != value)
 		{
@@ -159,12 +159,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_cone_outer_angle() const
+	float source::get_cone_outer_angle() const
 	{
 		return m_properties.cone_outer_angle;
 	}
 
-	void sound_source::set_cone_outer_gain(float value)
+	void source::set_cone_outer_gain(float value)
 	{
 		if (m_properties.cone_outer_gain != value)
 		{
@@ -174,12 +174,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_cone_outer_gain() const
+	float source::get_cone_outer_gain() const
 	{
 		return m_properties.cone_outer_gain;
 	}
 
-	void sound_source::set_pitch(float value)
+	void source::set_pitch(float value)
 	{
 		if (m_properties.pitch != value)
 		{
@@ -189,12 +189,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_pitch() const
+	float source::get_pitch() const
 	{
 		return m_properties.pitch;
 	}
 
-	void sound_source::set_volume(float value)
+	void source::set_volume(float value)
 	{
 		if (m_properties.volume != value)
 		{
@@ -204,12 +204,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_volume() const
+	float source::get_volume() const
 	{
 		return m_properties.volume;
 	}
 
-	void sound_source::set_min_gain(float value)
+	void source::set_min_gain(float value)
 	{
 		if (m_properties.min_gain != value)
 		{
@@ -219,12 +219,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_min_gain() const
+	float source::get_min_gain() const
 	{
 		return m_properties.min_gain;
 	}
 
-	void sound_source::set_max_gain(float value)
+	void source::set_max_gain(float value)
 	{
 		if (m_properties.max_gain != value)
 		{
@@ -234,12 +234,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_max_gain() const
+	float source::get_max_gain() const
 	{
 		return m_properties.max_gain;
 	}
 
-	void sound_source::set_max_distance(float value)
+	void source::set_max_distance(float value)
 	{
 		if (m_properties.max_distance != value)
 		{
@@ -249,12 +249,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_max_distance() const
+	float source::get_max_distance() const
 	{
 		return m_properties.max_distance;
 	}
 
-	void sound_source::set_rolloff_factor(float value)
+	void source::set_rolloff_factor(float value)
 	{
 		if (m_properties.rolloff_factor != value)
 		{
@@ -264,12 +264,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_rolloff_factor() const
+	float source::get_rolloff_factor() const
 	{
 		return m_properties.rolloff_factor;
 	}
 
-	void sound_source::set_reference_distance(float value)
+	void source::set_reference_distance(float value)
 	{
 		if (m_properties.reference_distance != value)
 		{
@@ -279,12 +279,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_reference_distance() const
+	float source::get_reference_distance() const
 	{
 		return m_properties.reference_distance;
 	}
 
-	void sound_source::set_relative_to_listener(bool value)
+	void source::set_relative_to_listener(bool value)
 	{
 		if (m_properties.relative_to_listener != value)
 		{
@@ -294,12 +294,12 @@ namespace age
 		}
 	}
 
-	bool sound_source::get_relative_to_listener() const
+	bool source::get_relative_to_listener() const
 	{
 		return m_properties.relative_to_listener;
 	}
 
-	void sound_source::set_air_absorption_factor(float value)
+	void source::set_air_absorption_factor(float value)
 	{
 		if (m_properties.air_absorption_factor != value)
 		{
@@ -309,12 +309,12 @@ namespace age
 		}
 	}
 
-	float sound_source::get_air_absorption_factor() const
+	float source::get_air_absorption_factor() const
 	{
 		return m_properties.air_absorption_factor;
 	}
 
-	void sound_source::set_direct_channels(bool value)
+	void source::set_direct_channels(bool value)
 	{
 		if (m_properties.direct_channels != value)
 		{
@@ -324,12 +324,12 @@ namespace age
 		}
 	}
 
-	bool sound_source::get_direct_channels() const
+	bool source::get_direct_channels() const
 	{
 		return m_properties.direct_channels;
 	}
 
-	void sound_source::set_looping(bool value)
+	void source::set_looping(bool value)
 	{
 		if (m_properties.looping != value)
 		{
@@ -339,12 +339,12 @@ namespace age
 		}
 	}
 
-	bool sound_source::get_looping() const
+	bool source::get_looping() const
 	{
 		return m_properties.looping;
 	}
 
-	void sound_source::set_buffer(const sound_buffer& value)
+	void source::set_buffer(const buffer& value)
 	{
 		auto new_buffer = value.get_handle();
 
@@ -359,7 +359,7 @@ namespace age
 		}
 	}
 
-	bool sound_source::has_buffer_attached(const sound_buffer& value) const
+	bool source::has_buffer_attached(const buffer& value) const
 	{
 		if (const auto b_handle = value.get_handle())
 		{
@@ -372,11 +372,11 @@ namespace age
 		return false;
 	}
 
-	void sound_source::detach_buffer(const sound_buffer& value)
+	void source::detach_buffer(const buffer& value)
 	{
 		if (has_buffer_attached(value))
 		{
-			if (auto state = get_state(); state == sound_state::playing || state == sound_state::paused)
+			if (auto state = get_state(); state == state::playing || state == state::paused)
 				stop();
 
 			if (ensure_handle())
@@ -388,7 +388,7 @@ namespace age
 		}
 	}
 
-	void sound_source::queue_buffer(sound_queue_buffer value)
+	void source::enqueue_buffer(queue_buffer value)
 	{
 		ALuint handle = value.get_handle();
 
@@ -399,7 +399,7 @@ namespace age
 		}
 	}
 
-	uint32_t sound_source::get_num_queued_buffers() const
+	uint32_t source::get_num_queued_buffers() const
 	{
 		ALint result = 0;
 
@@ -408,7 +408,7 @@ namespace age
 		return static_cast<uint32_t>(result);
 	}
 
-	uint32_t sound_source::get_num_processed_buffers() const
+	uint32_t source::get_num_processed_buffers() const
 	{
 		ALint result = 0;
 
@@ -417,7 +417,7 @@ namespace age
 		return static_cast<uint32_t>(result);
 	}
 
-	sound_queue_buffer sound_source::unqueue_buffer()
+	queue_buffer source::unqueue_buffer()
 	{
 		ALuint buffer = 0;
 
@@ -427,25 +427,25 @@ namespace age
 			if (!m_queued_buffers.empty() && buffer) m_queued_buffers.erase(m_queued_buffers.begin());
 		}
 
-		return sound_queue_buffer{ buffer };
+		return queue_buffer{ buffer };
 	}
 
-	void sound_source::clear_buffers()
+	void source::clear_buffers()
 	{
 		//stop if still playing
-		if (auto state = get_state(); state == sound_state::playing || state == sound_state::paused)
+		if (auto state = get_state(); state == state::playing || state == state::paused)
 			stop();
 
 		//get rid of an eventual bound buffer
 		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
 	}
 
-	void sound_source::invalidate()
+	void source::invalidate()
 	{
 		m_handle = 0;
 	}
 
-	sound_state sound_source::get_state() const
+	state source::get_state() const
 	{
 		ALint state = AL_INITIAL;
 
@@ -454,35 +454,35 @@ namespace age
 		switch (state)
 		{
 		case AL_PLAYING:
-			return sound_state::playing;
+			return state::playing;
 		case AL_PAUSED:
-			return sound_state::paused;
+			return state::paused;
 		//case AL_STOPPED:
 		//case AL_INITIAL:
 		//	return sound_state::stopped;
 		default:
-			return sound_state::stopped;
+			return state::stopped;
 		}
 	}
 
-	bool sound_source::ensure_handle()
+	bool source::ensure_handle()
 	{
 		if (!m_handle)
 		{
 			m_handle = gen_handle();
-			apply_properties(sound_properties{}, true);
+			apply_properties(properties{}, true);
 			m_attached_buffer = AL_NONE;
 		}
 
 		return m_handle != 0;
 	}
 
-	void sound_source::enable_source_spatialize()
+	void source::enable_source_spatialize()
 	{
 		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_SOURCE_SPATIALIZE_SOFT, AL_AUTO_SOFT));
 	}
 
-	uint32_t sound_source::gen_handle()
+	uint32_t source::gen_handle()
 	{
 		ALuint name = 0;
 		AL_CALL(alGenSources(1, &name));
@@ -490,7 +490,7 @@ namespace age
 		return name;
 	}
 
-	void sound_source::delete_handle(uint32_t handle)
+	void source::delete_handle(uint32_t handle)
 	{
 		if (handle) AL_CALL(alDeleteSources(1, &handle));
 	}

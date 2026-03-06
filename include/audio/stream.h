@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <istream>
 
-namespace age
+namespace age::audio
 {
-	class sound_stream
+	class stream
 	{
 	public:
 		struct info
@@ -15,14 +15,14 @@ namespace age
 			uint32_t sample_rate{};
 		};
 
-		sound_stream() = default;
-		sound_stream(const sound_stream& other) = default;
-		sound_stream(sound_stream&& other) = default;
+		stream() = default;
+		stream(const stream& other) = default;
+		stream(stream&& other) = default;
 
-		sound_stream& operator = (const sound_stream& other) = default;
-		sound_stream& operator = (sound_stream&& other) = default;
+		stream& operator = (const stream& other) = default;
+		stream& operator = (stream&& other) = default;
 
-		virtual ~sound_stream() = default;
+		virtual ~stream() = default;
 
 	public:
 		inline info open(std::istream& is) { return on_open(is); }

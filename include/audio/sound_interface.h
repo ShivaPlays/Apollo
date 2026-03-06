@@ -1,20 +1,20 @@
 #pragma once
 
 #include <glm/vec3.hpp>
-#include "sound_properties.h"
+#include "properties.h"
 
-namespace age
+namespace age::audio
 {
-	class sound_source;
-	class audio_channel;
-	class sound_buffer;
+	class source;
+	class buffer;
+	class channel;
 
 	class sound_interface
 	{
 	public:
 		friend class audio_device;
-		friend class sound_source;
-		friend class audio_channel;
+		friend class source;
+		friend class channel;
 
 		sound_interface() = default;
 		sound_interface(const sound_interface& other);
@@ -30,9 +30,8 @@ namespace age
 		virtual void stop() = 0;
 		virtual void pause() = 0;
 
-		void update_source(sound_source& source, bool looped) const;
+		void update_source(source& source, bool looped) const;
 
-		//ToDo: Maybe add here set_position and update_position with a glm::vec2 too
 		virtual void set_position(const glm::vec3& value);
 		virtual void update_position(const glm::vec3& value);
 		virtual const glm::vec3& get_position() const;
@@ -66,15 +65,15 @@ namespace age
 		virtual bool get_looping() const;
 
 	protected:
-		void attach_channel(audio_channel* value);
-		audio_channel* get_attached_channel() const;
+		void attach_channel(channel* value);
+		channel* get_attached_channel() const;
 		void detach_channel() const;
 
-		const sound_properties& get_properties() const;
+		const properties& get_properties() const;
 
 	private:
-		sound_properties m_properties;
+		properties m_properties;
 
-		mutable audio_channel* m_attached_channel{ nullptr };
+		mutable channel* m_attached_channel{ nullptr };
 	};
 }

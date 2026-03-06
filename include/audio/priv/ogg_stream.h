@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../sound_stream.h"
+#include "../stream.h"
 
 #include <vorbis/vorbisfile.h>
 
-namespace age
+namespace age::audio
 {
 	class ogg_stream
-		: public sound_stream
+		: public stream
 	{
 	public:
 		ogg_stream() = default;

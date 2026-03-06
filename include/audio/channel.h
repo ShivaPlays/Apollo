@@ -5,25 +5,25 @@
 
 #include <atomic>
 
-#include "sound_source.h"
+#include "source.h"
 #include "sound_interface.h"
-#include "sound_properties.h"
+#include "properties.h"
 
-namespace age
+namespace age::audio
 {
-    class audio_channel
+    class channel
     {
-        friend class audio_device;
+        friend class device;
         friend class sound_interface;
         friend class channel_guard;
 
     public:
-        audio_channel(sound_source::constructor_key key, uint32_t handle)
+        channel(source::constructor_key key, uint32_t handle)
             : m_source{ key, handle }
         {}
 
         // We must manually define how to move this class
-        audio_channel(audio_channel&& other) noexcept
+        channel(channel&& other) noexcept
             : m_source(std::move(other.m_source)),
               m_owner(other.m_owner),
               m_priority(other.m_priority),
@@ -32,14 +32,14 @@ namespace age
             m_busy.store(other.m_busy.load());
         }
 
-        audio_channel& operator=(audio_channel&&) = delete;
-        audio_channel(const audio_channel&) = delete;
-        audio_channel& operator=(const audio_channel&) = delete;
+        channel& operator=(channel&&) = delete;
+        channel(const channel&) = delete;
+        channel& operator=(const channel&) = delete;
 
-        sound_source& get_source () { return m_source; }
-        const sound_source& get_source() const { return m_source; }
+        source& get_source () { return m_source; }
+        const source& get_source() const { return m_source; }
 
-        void apply_properties(const sound_properties& properties) { m_source.apply_properties(properties); }
+        void apply_properties(const properties& properties) { m_source.apply_properties(properties); }
 
         void set_reserved(bool value) { m_is_reserved = value; }
         bool is_reserved() const { return m_is_reserved; }
@@ -54,7 +54,7 @@ namespace age
         uint16_t get_filter_group() const { return m_filter_group; }
 
     public:
-        bool is_free() const { return !m_is_reserved && m_source.get_state() == sound_state::stopped; }
+        bool is_free() const { return !m_is_reserved && m_source.get_state() == state::stopped; }
 
     protected:
 
@@ -72,7 +72,7 @@ namespace age
         void release() { m_busy.store(false); }
         bool is_busy() const { return m_busy.load(); }
 
-        sound_source m_source;
+        source m_source;
         sound_interface* m_owner{};
 
         uint16_t m_filter_group{};

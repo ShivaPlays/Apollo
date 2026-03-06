@@ -4,28 +4,28 @@
 #include <gch/small_vector.hpp>
 
 #include "../utility/utility.h"
-#include "sound_queue_buffer.h"
-#include "sound_state.h"
-#include "sound_properties.h"
+#include "queue_buffer.h"
+#include "state.h"
+#include "properties.h"
 
-namespace age
+namespace age::audio
 {
-	class sound_buffer;
+	class buffer;
 
-	class sound_source
+	class source
 	{
 	public:
-		friend class audio_device;
+		friend class device;
 
-		class constructor_key { friend class audio_device; constructor_key() {} };
+		class constructor_key { friend class device; constructor_key() {} };
 
-		sound_source(constructor_key, uint32_t handle);
+		source(constructor_key, uint32_t handle);
 
-		sound_source(const sound_source& other) = delete;
-		sound_source(sound_source&& other) noexcept = default;
+		source(const source& other) = delete;
+		source(source&& other) noexcept = default;
 
-		sound_source& operator = (const sound_source& other) = delete;
-		sound_source& operator = (sound_source&& other) noexcept = default;
+		source& operator = (const source& other) = delete;
+		source& operator = (source&& other) noexcept = default;
 
 	public:
 		void play();
@@ -33,7 +33,7 @@ namespace age
 		void pause();
 		void rewind();
 
-		void apply_properties(const sound_properties& properties, bool force = false);
+		void apply_properties(const properties& properties, bool force = false);
 		
 		void set_position(const glm::vec3& value);
 		const glm::vec3& get_position() const;
@@ -89,27 +89,27 @@ namespace age
 		void set_looping(bool value);
 		bool get_looping() const;
 
-		void set_buffer(const sound_buffer& value);
-		bool has_buffer_attached(const sound_buffer& value) const;
+		void set_buffer(const buffer& value);
+		bool has_buffer_attached(const buffer& value) const;
 
-		void detach_buffer(const sound_buffer& value);
+		void detach_buffer(const buffer& value);
 
-		void queue_buffer(sound_queue_buffer value);
+		void enqueue_buffer(queue_buffer value);
 		uint32_t get_num_queued_buffers() const;
 		uint32_t get_num_processed_buffers() const;
-		sound_queue_buffer unqueue_buffer();
+		queue_buffer unqueue_buffer();
 
 		void clear_buffers();
 
 		void invalidate();
 		
-		sound_state get_state() const;
+		state get_state() const;
 
 	protected:
 
 	private:
-		sound_source();
-		sound_source(uint32_t handle);
+		source();
+		source(uint32_t handle);
 
 		bool ensure_handle();
 		void enable_source_spatialize();
@@ -117,7 +117,7 @@ namespace age
 		static uint32_t gen_handle();
 		static void delete_handle(uint32_t handle);
 
-		sound_properties m_properties;
+		properties m_properties;
 
 		mutable unique_handle<uint32_t, delete_handle> m_handle;
 		gch::small_vector<uint32_t, 16> m_queued_buffers;

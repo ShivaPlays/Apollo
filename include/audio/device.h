@@ -10,22 +10,22 @@
 
 #include "../system/background_worker.h"
 
-#include "sound_properties.h"
-#include "sound_source.h"
-#include "audio_channel.h"
+#include "properties.h"
+#include "source.h"
+#include "channel.h"
 #include "channel_guard.h"
 
-namespace age
+namespace age::audio
 {
 	class sound;
-	class sound_source;
+	class source;
 
-	class audio_device
+	class device
 	{
 	public:
-		~audio_device();
+		~device();
 	public:
-		static audio_device& get();
+		static device& get();
 		static std::vector<std::string_view> get_device_names();
 
 		static void init(uint8_t max_auxiliary_sends = 4);
@@ -44,7 +44,7 @@ namespace age
 		static void set_listener_up_vector(const glm::vec3& value);
 		static const glm::vec3& get_listener_up_vector();
 
-		audio_channel* play_buffer(const sound_buffer& buffer, const sound_properties& properties);
+		channel* play_buffer(const buffer& buffer, const properties& properties);
 		channel_guard get_free_channel(bool reserved = false);
 
 		void pause();
@@ -54,7 +54,7 @@ namespace age
 		bool reopen();
 
 		void stop_all_sounds();
-		void remove_buffer_from_active_sources(const sound_buffer& buffer);
+		void remove_buffer_from_active_sources(const buffer& buffer);
 
 		bool is_initialised() const;
 		bool is_direct_channels_available() const;
@@ -64,16 +64,16 @@ namespace age
 		static inline std::mutex s_device_mutex;
 
 		inline static constexpr uint32_t MAX_SOURCES = 256;
-		inline static constexpr uint8_t MAX_AUXILIARY_SENDS = 16;
+		inline static constexpr uint8_t MAX_AUXILIARY_SENDS = 4;
 
 		inline static float m_listener_volume = 1.0f;
 		inline static glm::vec3 m_listener_position{ 0.0f, 0.0f, 0.0f };
 		inline static glm::vec3 m_listener_direction{ 0.0f, 0.0f, -1.0f };
 		inline static glm::vec3 m_listener_up_vector{ 0.0f, 1.0f, 0.0f };
 
-		audio_device();
-		audio_device(const audio_device& other) = delete;
-		audio_device(audio_device&& other) = delete;
+		device();
+		device(const device& other) = delete;
+		device(device&& other) = delete;
 
 		void init(const char* device_name, uint8_t max_auxiliary_sends);
 		void open_device_and_create_context(const char* device_name, uint8_t max_auxiliary_sends);
@@ -90,10 +90,10 @@ namespace age
 		void* m_alcReopenDeviceSOFT_ptr;
 
 		std::atomic<size_t> m_next_pool_index;
-		std::vector<audio_channel> m_audio_channels;
+		std::vector<channel> m_channels;
 
 		bool m_is_initialised;
-		bool m_is_direct_channles_available;
+		bool m_is_direct_channels_available;
 		bool m_source_spatialize_available;
 	};
 }

@@ -5,9 +5,9 @@
 #include <istream>
 #include <vector>
 
-namespace age
+namespace age::audio::file
 {
-	class sound_file_wave
+	class wave
 	{
 	public:
 		struct header

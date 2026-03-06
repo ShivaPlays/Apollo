@@ -4,9 +4,9 @@
 #include <glm/vec2.hpp>
 #include <limits>
 
-namespace age
+namespace age::audio
 {
-    struct sound_properties
+    struct properties
     {
         glm::vec3 position{0.0f};
         glm::vec3 velocity{0.0f};

@@ -1,17 +1,17 @@
-#include "audio/sound_file_wave.h"
+#include "audio/wave.h"
 
 #include "system/assetstream.h"
 #include "utility/endian.h"
 
-namespace age
+namespace age::audio::file
 {
-	void sound_file_wave::load(std::string_view fn)
+	void wave::load(std::string_view fn)
 	{
 		assetistream is{ fn.data() };
 		load(is);
 	}
 
-	void sound_file_wave::load(std::istream& is)
+	void wave::load(std::istream& is)
 	{
 		auto error = []() -> void { throw std::runtime_error{ "Error reading wave file" }; };
 		char buffer[4] = { 0, 0, 0, 0 };
@@ -89,7 +89,7 @@ namespace age
 		m_header = new_header;
 	}
 
-	void sound_file_wave::load(const std::byte data[], size_t size_in_bytes)
+	void wave::load(const std::byte data[], size_t size_in_bytes)
 	{
 		char buffer[4]{ 0, 0, 0, 0 };
 		m_header = header{};
@@ -97,12 +97,12 @@ namespace age
 
 	}
 
-	const sound_file_wave::header& sound_file_wave::get_header() const
+	const wave::header& wave::get_header() const
 	{
 		return m_header;
 	}
 
-	const std::vector<std::byte>& sound_file_wave::get_data() const
+	const std::vector<std::byte>& wave::get_data() const
 	{
 		return m_data;
 	}

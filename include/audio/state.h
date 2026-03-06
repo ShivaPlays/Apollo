@@ -1,8 +1,8 @@
 #pragma once
 
-namespace age
+namespace age::audio
 {
-	enum class sound_state
+	enum class state
 	{
 		playing,
 		paused,

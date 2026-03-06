@@ -2,7 +2,7 @@
 
 #include <glm/vec3.hpp>
 
-namespace age::listener
+namespace age::audio::listener
 {
 	void set_volume(float value);
 	float get_volume();

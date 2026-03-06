@@ -14,9 +14,9 @@
 #include "system/assetstream.h"
 #include "system/memstream.h"
 
-#include "audio/audio_format.h"
-#include "audio/sound_buffer.h"
-#include "audio/audio_device.h"
+#include "audio/format.h"
+#include "audio/buffer.h"
+#include "audio/device.h"
 
 age::engine::app_result test_app::on_init(int argc, char* argv[])
 {
@@ -245,12 +245,12 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
 
                     switch (m_test_music.get_state())
                     {
-                    case age::sound_state::playing:
+                    case age::audio::state::playing:
                         {
                             m_test_music.pause();
                         }
                         break;
-                    case age::sound_state::paused:
+                    case age::audio::state::paused:
                         {
                             m_test_music.play(true);
                         }
@@ -280,7 +280,7 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                 break;
             case SDLK_X:
                 {
-                    age::audio_device::get().stop_all_sounds();
+                    age::audio::device::get().stop_all_sounds();
                 }
                 break;
             case SDLK_1:

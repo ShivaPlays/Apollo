@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "audio_channel.h"
+#include "channel.h"
 
-namespace age
+namespace age::audio
 {
     class channel_guard
     {
     public:
-        friend class audio_device;
+        friend class device;
 
         channel_guard(const channel_guard&) = delete;
         channel_guard& operator=(const channel_guard&) = delete;
@@ -33,16 +33,16 @@ namespace age
 
         ~channel_guard() { release(); }
 
-        audio_channel* get() const { return m_channel; }
-        audio_channel* operator->() const { return m_channel; }
-        audio_channel& operator*() const { return *m_channel; }
+        channel* get() const { return m_channel; }
+        channel* operator->() const { return m_channel; }
+        channel& operator*() const { return *m_channel; }
         explicit operator bool() const { return m_channel != nullptr; }
     public:
 
     protected:
 
     private:
-        channel_guard(audio_channel* channel) { m_channel = channel; }
+        channel_guard(channel* channel) { m_channel = channel; }
 
         void release()
         {
@@ -53,6 +53,6 @@ namespace age
             }
         }
 
-        audio_channel* m_channel{ nullptr };
+        channel* m_channel{ nullptr };
     };
 }

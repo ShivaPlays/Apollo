@@ -4,16 +4,16 @@
 #include <chrono>
 #include <iostream>
 
-#include "audio/audio_device.h"
-#include "audio/sound_stream_factory.h"
+#include "audio/device.h"
+#include "audio/stream_factory.h"
 #include "system/assetstream.h"
 #include "system/memstream.h"
 
-namespace age
+namespace age::audio
 {
 	music::music()
 		: m_requested_stream{ nullptr }
-		, m_internal_state{ sound_state::stopped }
+		, m_internal_state{ state::stopped }
 		, m_alive{ true }
 	{
 		m_command_queue.reserve(8);
@@ -32,7 +32,7 @@ namespace age
 
 	void music::play(bool looped)
 	{
-		m_internal_state = sound_state::playing;
+		m_internal_state = state::playing;
 
 		std::lock_guard lock{ m_command_mutex };
 		m_command_queue.emplace_back(music_command{music_command::type::play, looped});
@@ -45,7 +45,7 @@ namespace age
 			std::lock_guard lock{ m_source_mutex };
 			if (auto current_channel = get_attached_channel())
 			{
-				m_internal_state = sound_state::stopped;
+				m_internal_state = state::stopped;
 				current_channel->get_source().stop();
 			}
 		}
@@ -61,7 +61,7 @@ namespace age
 			std::lock_guard lock{ m_source_mutex };
 			if (auto current_channel = get_attached_channel())
 			{
-				m_internal_state = sound_state::paused;
+				m_internal_state = state::paused;
 				current_channel->get_source().pause();
 			}
 		}
@@ -116,7 +116,7 @@ namespace age
 		m_command_cv.notify_one();
 	}
 
-	sound_state music::get_state() const
+	state music::get_state() const
 	{
 		return m_internal_state;
 	}
@@ -203,8 +203,8 @@ namespace age
 	{
 		stop();
 
-		m_sound_stream_info = sound_stream::info{};
-		m_sound_stream = sound_stream_factory::create_from_stream(is);
+		m_sound_stream_info = stream::info{};
+		m_sound_stream = stream_factory::create_from_stream(is);
 
 		if (!m_sound_stream)
 		{
@@ -284,8 +284,8 @@ namespace age
 
 						if (std::istream* target = m_active_istream ? m_active_istream.get() : m_requested_stream)
 						{
-							m_sound_stream_info = sound_stream::info{};
-							m_sound_stream = sound_stream_factory::create_from_stream(*target);
+							m_sound_stream_info = stream::info{};
+							m_sound_stream = stream_factory::create_from_stream(*target);
 
 							if (!m_sound_stream) continue;
 
@@ -299,7 +299,7 @@ namespace age
 						//Play was called without any data calling open first. So there is no data to stream
 						if (!m_active_istream && !m_requested_stream)
 						{
-							m_internal_state = sound_state::stopped;
+							m_internal_state = state::stopped;
 							continue;
 						}
 
@@ -309,12 +309,12 @@ namespace age
 						auto current_channel = get_attached_channel();
 						if (!current_channel)
 						{
-							auto guard = audio_device::get().get_free_channel(true);
+							auto guard = device::get().get_free_channel(true);
 							current_channel = guard.get();
 							//If nor source is available, this means there are already many sounds playing and we can just stop here
 							if (!current_channel)
 							{
-								m_internal_state = sound_state::stopped;
+								m_internal_state = state::stopped;
 								continue;
 							}
 
@@ -327,14 +327,14 @@ namespace age
 								size_t read = m_sound_stream->read(&m_samples_buffer[0], m_samples_buffer.size());
 								if (read == 0) { break; }
 
-								sound_buffer::format format = (m_sound_stream_info.channel_count == 1) ?
-									sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
+								buffer::format format = (m_sound_stream_info.channel_count == 1) ?
+									buffer::format::mono_16 : buffer::format::stereo_16;
 								buffer.buffer_data(format, &m_samples_buffer[0], read, m_sound_stream_info.sample_rate);
-								current_channel->get_source().queue_buffer(buffer);
+								current_channel->get_source().enqueue_buffer(buffer);
 							}
 						}
 						
-						if (current_channel->get_source().get_state() != sound_state::playing)
+						if (current_channel->get_source().get_state() != state::playing)
 						{
 							update_source(current_channel->get_source(), false);
 							current_channel->get_source().play();
@@ -347,7 +347,7 @@ namespace age
 
 					case music_command::type::stop:
 					{
-						m_internal_state = sound_state::stopped;
+						m_internal_state = state::stopped;
 						//If we have a source it was already stopped in the stop function, so all we need to here is to clean up and free the source
 
 						std::unique_lock lock{ m_source_mutex };
@@ -363,7 +363,7 @@ namespace age
 
 					case music_command::type::pause:
 					{
-						m_internal_state = sound_state::paused;
+						m_internal_state = state::paused;
 					}
 					break;
 
@@ -406,19 +406,19 @@ namespace age
 					}
 
 					auto processed_buffer = current_channel->get_source().unqueue_buffer();
-					sound_buffer::format format = m_sound_stream_info.channel_count == 1 ? sound_buffer::format::mono_16 : sound_buffer::format::stereo_16;
+					buffer::format format = m_sound_stream_info.channel_count == 1 ? buffer::format::mono_16 : buffer::format::stereo_16;
 					processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
 
-					current_channel->get_source().queue_buffer(processed_buffer);
+					current_channel->get_source().enqueue_buffer(processed_buffer);
 				}
 
-				if (current_channel->get_source().get_state() == sound_state::stopped && current_channel->get_source().get_num_queued_buffers() > 0)
+				if (current_channel->get_source().get_state() == state::stopped && current_channel->get_source().get_num_queued_buffers() > 0)
 				{
 					std::cout << "Music: buffer_queue underrun: Recovering!\n";
 					current_channel->get_source().play();
 				}
 
-				if (!play_looped && no_more_data && current_channel->get_source().get_state() == sound_state::stopped)
+				if (!play_looped && no_more_data && current_channel->get_source().get_state() == state::stopped)
 				{
 					//When we reach here, we actually want to clean up and set the state to stopped.
 					//We can do that easily by just adding a command

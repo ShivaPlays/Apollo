@@ -15,7 +15,7 @@
 #include "graphics/rectangle_shape.h"
 #include "graphics/circle_shape.h"
 #include "system/clock.h"
-#include "audio/sound_buffer.h"
+#include "audio/buffer.h"
 #include "audio/sound.h"
 #include "audio/music.h"
 
@@ -92,10 +92,10 @@ private:
     std::stringstream m_fps_stringstream;
     std::u32string m_fps_string;
 
-    age::sound_buffer m_test_buffer;
-    age::sound m_test_sound;
+    age::audio::buffer m_test_buffer;
+    age::audio::sound m_test_sound;
 
-    age::music m_test_music;
+    age::audio::music m_test_music;
 
     size_t m_text_counter = 0;
 

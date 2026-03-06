@@ -1,5 +1,5 @@
 #pragma once
-#include "audio_resource.h"
+#include "resource.h"
 
 #include <string_view>
 #include <istream>
@@ -8,14 +8,14 @@
 
 #include "../utility/utility.h"
 
-namespace age
+namespace age::audio
 {
-	class sound_queue_buffer;
+	class queue_buffer;
 
-	class sound_buffer : public audio_resource
+	class buffer : public resource
 	{
 	public:
-		friend class sound_queue_buffer;
+		friend class queue_buffer;
 
 		enum class format : uint32_t
 		{
@@ -25,14 +25,14 @@ namespace age
 			stereo_16
 		};
 
-		sound_buffer() = default;
-		~sound_buffer() override;
+		buffer() = default;
+		~buffer() override;
 
-		sound_buffer(const sound_buffer&) = delete;
-		sound_buffer& operator=(const sound_buffer&) = delete;
+		buffer(const buffer&) = delete;
+		buffer& operator=(const buffer&) = delete;
 
-		sound_buffer(sound_buffer&& other) noexcept;
-		sound_buffer& operator=(sound_buffer&& other) noexcept;
+		buffer(buffer&& other) noexcept;
+		buffer& operator=(buffer&& other) noexcept;
 
 	public:
 		void load(std::string_view fn);
@@ -45,7 +45,7 @@ namespace age
 	protected:
 
 	private:
-		friend class sound_source;
+		friend class source;
 
 		inline uint32_t get_handle() const { return m_handle; }
 

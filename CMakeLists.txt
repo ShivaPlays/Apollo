@@ -34,66 +34,75 @@ include(cmake/dependencies.cmake)
 
 # Add your library target
 add_library(${LIB_NAME} STATIC
-    include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
-    include/audio/audio_channel.h
-    include/audio/audio_device.h src/audio/audio_device.cpp
-    include/audio/audio_format.h src/audio/audio_format.cpp
-    include/audio/audio_resource.h src/audio/audio_resource.cpp
-    include/audio/channel_guard.h
-    include/audio/listener.h src/audio/listener.cpp
-    include/audio/music.h src/audio/music.cpp
-    include/audio/sound.h src/audio/sound.cpp
-    include/audio/sound_buffer.h src/audio/sound_buffer.cpp
-    include/audio/sound_file_wave.h src/audio/sound_file_wave.cpp
-    include/audio/sound_interface.h src/audio/sound_interface.cpp
-    include/audio/sound_properties.h
-    include/audio/sound_queue_buffer.h src/audio/sound_queue_buffer.cpp
-    include/audio/sound_source.h src/audio/sound_source.cpp
-    include/audio/sound_stream.h src/audio/sound_stream.cpp
-    include/audio/sound_stream_factory.h src/audio/sound_stream_factory.cpp
-    include/graphics/angle.h
-    include/graphics/blend_mode.h src/graphics/blend_mode.cpp
-    include/graphics/circle_shape.h src/graphics/circle_shape.cpp
-    include/graphics/color.h src/graphics/color.cpp
-    include/graphics/context.h src/graphics/context.cpp
-    include/graphics/drawable.h
-    include/graphics/font.h src/graphics/font.cpp
-    include/graphics/frame_buffer.h src/graphics/frame_buffer.cpp
-    include/graphics/image.h src/graphics/image.cpp
-    include/graphics/rect.h
-    include/graphics/rectangle_shape.h src/graphics/rectangle_shape.cpp
-    include/graphics/render_states.h src/graphics/render_states.cpp
-    include/graphics/render_states_cache.h
-    include/graphics/render_target.h src/graphics/render_target.cpp
-    include/graphics/render_window.h src/graphics/render_window.cpp
-    include/graphics/shader.h src/graphics/shader.cpp
-    include/graphics/shader_program.h src/graphics/shader_program.cpp
-    include/graphics/shape_2d.h src/graphics/shape_2d.cpp
-    include/graphics/sprite.h src/graphics/sprite.cpp
-    include/graphics/text.h src/graphics/text.cpp
-    include/graphics/texture.h src/graphics/texture.cpp
-    include/graphics/transformable_2d.h src/graphics/transformable_2d.cpp
-    include/graphics/uniform_buffer_object.h src/graphics/uniform_buffer_object.cpp
-    include/graphics/vertex_2d.h
-    include/graphics/vertex_array_object.h src/graphics/vertex_array_object.cpp
-    include/graphics/vertex_buffer_object.h src/graphics/vertex_buffer_object.cpp
-    include/graphics/view_2d.h src/graphics/view_2d.cpp
-    include/graphics/view_3d.h src/graphics/view_3d.cpp
-    include/system/assetstream.h src/system/assetstream.cpp
-    include/system/background_worker.h src/system/background_worker.cpp
-    include/system/clock.h src/system/clock.cpp
-    include/system/memstream.h src/system/memstream.cpp
-    include/system/platform.h
-    include/system/time.h
-    include/system/transient_context_lock.h src/system/transient_context_lock.cpp
-    include/utility/al_check.h
-    include/utility/endian.h
-    include/utility/fixed_string.h
-    include/utility/gl_check.h
-    include/utility/gl_loader.h
-    include/utility/utility.h src/utility/utility.cpp
-    include/apollo_main.h
-    include/engine.h src/engine.cpp
+        # Audio
+        include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
+        include/audio/buffer.h src/audio/buffer.cpp
+        include/audio/channel.h
+        include/audio/channel_guard.h
+        include/audio/device.h src/audio/device.cpp
+        include/audio/format.h src/audio/format.cpp
+        include/audio/listener.h src/audio/listener.cpp
+        include/audio/music.h src/audio/music.cpp
+        include/audio/properties.h
+        include/audio/queue_buffer.h src/audio/queue_buffer.cpp
+        include/audio/resource.h src/audio/resource.cpp
+        include/audio/sound.h src/audio/sound.cpp
+        include/audio/sound_interface.h src/audio/sound_interface.cpp
+        include/audio/source.h src/audio/source.cpp
+        include/audio/stream.h src/audio/stream.cpp
+        include/audio/stream_factory.h src/audio/stream_factory.cpp
+        include/audio/wave.h src/audio/wave.cpp
+
+        # Graphics
+        include/graphics/angle.h
+        include/graphics/blend_mode.h src/graphics/blend_mode.cpp
+        include/graphics/circle_shape.h src/graphics/circle_shape.cpp
+        include/graphics/color.h src/graphics/color.cpp
+        include/graphics/context.h src/graphics/context.cpp
+        include/graphics/drawable.h
+        include/graphics/font.h src/graphics/font.cpp
+        include/graphics/frame_buffer.h src/graphics/frame_buffer.cpp
+        include/graphics/image.h src/graphics/image.cpp
+        include/graphics/rect.h
+        include/graphics/rectangle_shape.h src/graphics/rectangle_shape.cpp
+        include/graphics/render_states.h src/graphics/render_states.cpp
+        include/graphics/render_states_cache.h
+        include/graphics/render_target.h src/graphics/render_target.cpp
+        include/graphics/render_window.h src/graphics/render_window.cpp
+        include/graphics/shader.h src/graphics/shader.cpp
+        include/graphics/shader_program.h src/graphics/shader_program.cpp
+        include/graphics/shape_2d.h src/graphics/shape_2d.cpp
+        include/graphics/sprite.h src/graphics/sprite.cpp
+        include/graphics/text.h src/graphics/text.cpp
+        include/graphics/texture.h src/graphics/texture.cpp
+        include/graphics/transformable_2d.h src/graphics/transformable_2d.cpp
+        include/graphics/uniform_buffer_object.h src/graphics/uniform_buffer_object.cpp
+        include/graphics/vertex_2d.h
+        include/graphics/vertex_array_object.h src/graphics/vertex_array_object.cpp
+        include/graphics/vertex_buffer_object.h src/graphics/vertex_buffer_object.cpp
+        include/graphics/view_2d.h src/graphics/view_2d.cpp
+        include/graphics/view_3d.h src/graphics/view_3d.cpp
+
+        # System
+        include/system/assetstream.h src/system/assetstream.cpp
+        include/system/background_worker.h src/system/background_worker.cpp
+        include/system/clock.h src/system/clock.cpp
+        include/system/memstream.h src/system/memstream.cpp
+        include/system/platform.h
+        include/system/time.h
+        include/system/transient_context_lock.h src/system/transient_context_lock.cpp
+
+        # Utility
+        include/utility/al_check.h
+        include/utility/endian.h
+        include/utility/fixed_string.h
+        include/utility/gl_check.h
+        include/utility/gl_loader.h
+        include/utility/utility.h src/utility/utility.cpp
+
+        # Root
+        include/apollo_main.h
+        include/engine.h src/engine.cpp
 )
 
 if(NOT ANDROID)

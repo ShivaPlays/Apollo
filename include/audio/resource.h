@@ -3,13 +3,13 @@
 #include <atomic>
 #include <cstddef>
 
-namespace age
+namespace age::audio
 {
-    class audio_resource
+    class resource
     {
     public:
-        audio_resource();
-        virtual ~audio_resource();
+        resource();
+        virtual ~resource();
     public:
 
     protected:
