@@ -15,7 +15,7 @@
 #include "buffer.h"
 #include "source.h"
 #include "stream.h"
-#include "../system/background_worker.h"
+#include "../core/background_worker.h"
 
 namespace age::audio
 {
@@ -68,7 +68,6 @@ namespace age::audio
 
 	private:
 		inline static constexpr size_t NUM_BUFFERS = 4;
-		//inline static constexpr size_t BUFFER_SAMPLES = 65536;
 		inline static constexpr size_t BUFFER_SAMPLES = 8192;
 
 		void open_from_stream(std::istream& is);
@@ -87,7 +86,7 @@ namespace age::audio
 
 		stream::info m_sound_stream_info;
 
-		background_worker m_background_worker;
+		core::background_worker m_background_worker;
 		std::unique_ptr<std::istream> m_active_istream;
 		std::istream* m_requested_stream;
 

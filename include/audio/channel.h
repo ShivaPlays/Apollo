@@ -3,6 +3,7 @@
 //
 #pragma once
 
+#include <mutex>
 #include <atomic>
 
 #include "source.h"
@@ -24,13 +25,12 @@ namespace age::audio
 
         // We must manually define how to move this class
         channel(channel&& other) noexcept
-            : m_source(std::move(other.m_source)),
-              m_owner(other.m_owner),
-              m_priority(other.m_priority),
-              m_is_reserved(other.m_is_reserved)
-        {
-            m_busy.store(other.m_busy.load());
-        }
+            : m_source{ std::move(other.m_source) }
+            , m_owner{ other.m_owner.load() }
+            , m_busy{ other.m_busy.load() }
+            , m_priority{ other.m_priority }
+            , m_is_reserved{ other.m_is_reserved }
+        {}
 
         channel& operator=(channel&&) = delete;
         channel(const channel&) = delete;
@@ -47,8 +47,14 @@ namespace age::audio
         void set_priority(uint8_t value) { m_priority = value; }
         uint8_t get_priority() const { return m_priority; }
 
-        void set_owner(sound_interface* owner) { m_owner = owner; }
-        sound_interface* get_owner() const { return m_owner; }
+        std::mutex& get_owner_mutex() const { return m_owner_mutex; }
+
+        void set_owner(sound_interface* owner)
+        {
+            std::lock_guard lock{ m_owner_mutex };
+            set_owner_locked(owner);
+        }
+        sound_interface* get_owner() const { return m_owner.load(std::memory_order_acquire); }
 
         void set_filter_group(uint16_t value) { m_filter_group = value; }
         uint16_t get_filter_group() const { return m_filter_group; }
@@ -59,12 +65,16 @@ namespace age::audio
     protected:
 
     private:
+        void set_owner_locked(sound_interface* owner) { m_owner.store(owner, std::memory_order_release); }
+
         void detach_owner()
         {
-            if (m_owner)
+            std::lock_guard lock{ m_owner_mutex };
+
+            if (auto owner = m_owner.load(std::memory_order_relaxed))
             {
-                m_owner->attach_channel(nullptr);
-                m_owner = nullptr;
+                owner->attach_channel(nullptr);
+                m_owner.store(nullptr, std::memory_order_release);
             }
         }
 
@@ -73,7 +83,9 @@ namespace age::audio
         bool is_busy() const { return m_busy.load(); }
 
         source m_source;
-        sound_interface* m_owner{};
+
+        mutable std::mutex m_owner_mutex;
+        std::atomic<sound_interface*> m_owner{};
 
         uint16_t m_filter_group{};
 

@@ -8,7 +8,7 @@
 #include <atomic>
 #include <glm/vec3.hpp>
 
-#include "../system/background_worker.h"
+#include "../core/background_worker.h"
 
 #include "properties.h"
 #include "source.h"
@@ -63,9 +63,6 @@ namespace age::audio
 	private:
 		static inline std::mutex s_device_mutex;
 
-		inline static constexpr uint32_t MAX_SOURCES = 256;
-		inline static constexpr uint8_t MAX_AUXILIARY_SENDS = 4;
-
 		inline static float m_listener_volume = 1.0f;
 		inline static glm::vec3 m_listener_position{ 0.0f, 0.0f, 0.0f };
 		inline static glm::vec3 m_listener_direction{ 0.0f, 0.0f, -1.0f };
@@ -81,7 +78,7 @@ namespace age::audio
 
 		void setup_channels();
 
-		background_worker m_maintenance_worker;
+		core::background_worker m_maintenance_worker;
 		std::string m_device_name;
 
 		void* m_device;

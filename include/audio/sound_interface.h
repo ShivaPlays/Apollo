@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include <glm/vec3.hpp>
 #include "properties.h"
 
@@ -68,12 +70,16 @@ namespace age::audio
 		void attach_channel(channel* value);
 		channel* get_attached_channel() const;
 		void detach_channel() const;
+		void detach_channel_locked() const;
 
 		const properties& get_properties() const;
+
+		std::mutex& get_channel_mutex() const { return m_channel_mutex; }
 
 	private:
 		properties m_properties;
 
+		mutable std::mutex m_channel_mutex;
 		mutable channel* m_attached_channel{ nullptr };
 	};
 }

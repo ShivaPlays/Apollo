@@ -10,9 +10,11 @@
 #include <sstream>
 #include <cstring>
 
+#include "audio/config.h"
 #include "audio/sound.h"
 
 #include "utility/al_check.h"
+
 
 namespace age::audio
 {
@@ -97,6 +99,8 @@ namespace age::audio
 	{
 		auto stop_source_sound = [](channel& ch) -> void
 		{
+			auto lock = std::lock_guard{ ch.get_owner_mutex() };
+
 			if (auto sound = ch.get_owner())
 				sound->stop();
 
@@ -255,7 +259,7 @@ namespace age::audio
 		const ALCchar* default_device = device_name ? device_name : alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
 		m_device = alcOpenDevice(default_device);
 
-		if (max_auxiliary_sends > MAX_AUXILIARY_SENDS) max_auxiliary_sends = MAX_AUXILIARY_SENDS;
+		if (max_auxiliary_sends > config::MAX_AUXILIARY_SENDS) max_auxiliary_sends = config::MAX_AUXILIARY_SENDS;
 
 		if (!m_device)
 		{
@@ -266,7 +270,7 @@ namespace age::audio
 			throw std::runtime_error{ ss.str() };
 		}
 
-		std::array<ALCint, 7> attributes = { ALC_MONO_SOURCES, MAX_SOURCES, ALC_STEREO_SOURCES, MAX_SOURCES, ALC_MAX_AUXILIARY_SENDS, max_auxiliary_sends, 0 };
+		std::array<ALCint, 7> attributes = { ALC_MONO_SOURCES, config::MAX_SOURCES, ALC_STEREO_SOURCES, config::MAX_SOURCES, ALC_MAX_AUXILIARY_SENDS, max_auxiliary_sends, 0 };
 		m_context = ALC_CALL(static_cast<ALCdevice*>(m_device), alcCreateContext(static_cast<ALCdevice*>(m_device), attributes.data()));
 
 		if (!m_context)
@@ -360,12 +364,12 @@ namespace age::audio
 
 	void device::setup_channels()
 	{
-		std::array<ALuint, MAX_SOURCES> source_names{};
+		std::array<ALuint, config::MAX_SOURCES> source_names{};
 
 		m_channels.clear();
-		m_channels.reserve(MAX_SOURCES);
+		m_channels.reserve(config::MAX_SOURCES);
 
-		AL_CALL(alGenSources(MAX_SOURCES, source_names.data()));
+		AL_CALL(alGenSources(config::MAX_SOURCES, source_names.data()));
 
 		for (auto source_name : source_names)
 		{

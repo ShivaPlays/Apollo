@@ -35,10 +35,26 @@ include(cmake/dependencies.cmake)
 # Add your library target
 add_library(${LIB_NAME} STATIC
         # Audio
+        include/audio/effect/autowah.h src/audio/effect/autowah.cpp
+        include/audio/effect/chorus.h src/audio/effect/chorus.cpp
+        include/audio/effect/compressor.h src/audio/effect/compressor.cpp
+        include/audio/effect/distortion.h src/audio/effect/distortion.cpp
+        include/audio/effect/echo.h src/audio/effect/echo.cpp
+        include/audio/effect/effect_interface.h src/audio/effect/effect_interface.cpp
+        include/audio/effect/equalizer.h src/audio/effect/equalizer.cpp
+        include/audio/effect/flanger.h src/audio/effect/flanger.cpp
+        include/audio/effect/frequency_shifter.h src/audio/effect/frequency_shifter.cpp
+        include/audio/effect/group.h
+        include/audio/effect/pitch_shifter.h src/audio/effect/pitch_shifter.cpp
+        include/audio/effect/reverb.h src/audio/effect/reverb.cpp
+        include/audio/effect/ring_modulator.h src/audio/effect/ring_modulator.cpp
+        include/audio/effect/slot.h src/audio/effect/slot.cpp
+        include/audio/effect/vocal_morpher.h src/audio/effect/vocal_morpher.cpp
         include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
         include/audio/buffer.h src/audio/buffer.cpp
         include/audio/channel.h
         include/audio/channel_guard.h
+        include/audio/config.h
         include/audio/device.h src/audio/device.cpp
         include/audio/format.h src/audio/format.cpp
         include/audio/listener.h src/audio/listener.cpp
@@ -86,7 +102,7 @@ add_library(${LIB_NAME} STATIC
 
         # System
         include/system/assetstream.h src/system/assetstream.cpp
-        include/system/background_worker.h src/system/background_worker.cpp
+        include/core/background_worker.h src/core/background_worker.cpp
         include/system/clock.h src/system/clock.cpp
         include/system/memstream.h src/system/memstream.cpp
         include/system/platform.h
@@ -104,6 +120,9 @@ add_library(${LIB_NAME} STATIC
         # Root
         include/apollo_main.h
         include/engine.h src/engine.cpp
+        include/audio/filter.h
+        src/audio/filter.cpp
+        include/core/dependency_tracker.h
 )
 
 if(NOT ANDROID)

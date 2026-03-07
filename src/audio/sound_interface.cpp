@@ -14,10 +14,16 @@ namespace age::audio
 		: m_properties{ other.m_properties }
 		, m_attached_channel{ other.m_attached_channel }
 	{
+		// We lock 'other' to ensure it isn't being updated by the audio thread
+		// while we are stealing its channel.
+		std::lock_guard lock{ other.m_channel_mutex };
+
+		m_attached_channel = other.m_attached_channel;
 		other.m_attached_channel = nullptr;
 
-		if (m_attached_channel)
+		if (m_attached_channel) {
 			m_attached_channel->set_owner(this);
+		}
 	}
 
 	sound_interface& sound_interface::operator = (const sound_interface& other)
@@ -29,18 +35,32 @@ namespace age::audio
 
 	sound_interface& sound_interface::operator = (sound_interface&& other) noexcept
 	{
-		m_properties = other.m_properties;
-		m_attached_channel = other.m_attached_channel;
+		if (this == &other) return *this;
 
+		// Use scoped_lock to safely lock both mutexes without risk of deadlock
+		std::scoped_lock lock{ m_channel_mutex, other.m_channel_mutex };
+
+		// 1. Clean up our current state
+		detach_channel_locked();
+
+		// 2. Transfer properties
+		m_properties = other.m_properties;
+
+		// 3. Transfer channel ownership
+		m_attached_channel = other.m_attached_channel;
 		other.m_attached_channel = nullptr;
-		if (m_attached_channel)
+
+		if (m_attached_channel) {
 			m_attached_channel->set_owner(this);
+		}
 
 		return *this;
 	}
 
 	void sound_interface::stop()
 	{
+		std::lock_guard lock{ m_channel_mutex };
+
 		if (m_attached_channel)
 		{
 			if (m_attached_channel->get_source().get_looping())
@@ -64,6 +84,8 @@ namespace age::audio
 	void sound_interface::update_position(const glm::vec3& value)
 	{
 		set_position(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_position(value);
 	}
 
@@ -80,6 +102,8 @@ namespace age::audio
 	void sound_interface::update_pitch(float value)
 	{
 		set_pitch(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_pitch(value);
 	}
 
@@ -96,6 +120,8 @@ namespace age::audio
 	void sound_interface::update_volume(float value)
 	{
 		set_volume(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_volume(value);
 	}
 
@@ -112,6 +138,8 @@ namespace age::audio
 	void sound_interface::update_reference_distance(float value)
 	{
 		set_reference_distance(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_reference_distance(value);
 	}
 
@@ -128,6 +156,8 @@ namespace age::audio
 	void sound_interface::update_rolloff_factor(float value)
 	{
 		set_rolloff_factor(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_rolloff_factor(value);
 	}
 
@@ -144,6 +174,8 @@ namespace age::audio
 	void sound_interface::update_relative_to_listener(bool value)
 	{
 		set_relative_to_listener(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel) m_attached_channel->get_source().set_relative_to_listener(value);
 	}
 
@@ -160,6 +192,8 @@ namespace age::audio
 	void sound_interface::update_direct_channels(bool value)
 	{
 		set_direct_channels(value);
+
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel && device::get().is_direct_channels_available()) m_attached_channel->get_source().set_direct_channels(value);
 	}
 
@@ -170,6 +204,8 @@ namespace age::audio
 
 	bool sound_interface::get_looping() const
 	{
+		std::lock_guard lock{ m_channel_mutex };
+
 		if (m_attached_channel)
 			return m_attached_channel->get_source().get_looping();
 
@@ -178,9 +214,10 @@ namespace age::audio
 
 	void sound_interface::attach_channel(channel* value)
 	{
+		std::lock_guard lock{ m_channel_mutex };
 		if (m_attached_channel == value) return;
 
-		detach_channel();
+		detach_channel_locked();
 		m_attached_channel = value;
 		if (m_attached_channel)
 			m_attached_channel->set_owner(this);
@@ -192,6 +229,13 @@ namespace age::audio
 	}
 
 	void sound_interface::detach_channel() const
+	{
+		std::lock_guard lock{ m_channel_mutex };
+
+		detach_channel_locked();
+	}
+
+	void sound_interface::detach_channel_locked() const
 	{
 		if (m_attached_channel)
 		{
