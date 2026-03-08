@@ -6,6 +6,8 @@
 
 #include "channel.h"
 
+#include <mutex>
+
 namespace age::audio
 {
     class channel_guard
@@ -17,7 +19,8 @@ namespace age::audio
         channel_guard& operator=(const channel_guard&) = delete;
 
         channel_guard(channel_guard&& other) noexcept
-            : m_channel(std::exchange(other.m_channel, nullptr))
+            : m_channel_lock{ std::move(other.m_channel_lock) }
+            , m_channel(std::exchange(other.m_channel, nullptr))
         {}
 
         channel_guard& operator=(channel_guard&& other) noexcept
@@ -25,6 +28,7 @@ namespace age::audio
             if (this != &other)
             {
                 release();
+                m_channel_lock = std::move(other.m_channel_lock);
                 m_channel = std::exchange(other.m_channel, nullptr);
             }
 
@@ -42,17 +46,28 @@ namespace age::audio
     protected:
 
     private:
-        channel_guard(channel* channel) { m_channel = channel; }
+        static std::unique_lock<std::mutex> create_lock(channel* c)
+        {
+            if (c) return std::unique_lock{ c->get_state_mutex() };
+            return std::unique_lock<std::mutex>{};
+        }
+
+        channel_guard(channel* channel)
+            : m_channel_lock{ create_lock(channel) }
+            , m_channel{ channel }
+        {}
 
         void release()
         {
             if (m_channel)
             {
+                if (m_channel_lock.owns_lock()) m_channel_lock.unlock();
                 m_channel->release();
                 m_channel = nullptr;
             }
         }
 
-        channel* m_channel{ nullptr };
+        std::unique_lock<std::mutex> m_channel_lock;
+        channel* m_channel;
     };
 }

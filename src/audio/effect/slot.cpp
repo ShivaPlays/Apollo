@@ -2,10 +2,17 @@
 // Created by skaldi on 06.03.26.
 //
 
+#define AL_ALEXT_PROTOTYPES
+#include <AL/al.h>
+#include <AL/alext.h>
+
 #include "audio/effect/slot.h"
 
 #include "audio/effect/effect_interface.h"
-#include "audio/filter.h"
+#include "audio/effect/group.h"
+#include "audio/filter/filter_interface.h"
+
+#include "utility/al_check.h"
 
 namespace age::audio::effect
 {
@@ -58,6 +65,8 @@ namespace age::audio::effect
     {
         std::lock_guard lock{ m_effect_mutex };
 
+        if (m_effect == value) return;
+
         if (m_effect) m_effect->remove_slot(this);
 
         m_effect = value;
@@ -66,9 +75,11 @@ namespace age::audio::effect
         apply_effect();
     }
 
-    void slot::attach_filter(filter* value)
+    void slot::attach_filter(filter_interface* value)
     {
         std::lock_guard lock{ m_filter_mutex };
+
+        if (m_filter == value) return;
 
         if (m_filter) m_filter->remove_slot(this);
 
@@ -76,7 +87,7 @@ namespace age::audio::effect
 
         if (m_filter) m_filter->register_slot(this);
 
-       apply_filter();
+        m_owner->on_slot_filter_changed(*this);
     }
 
     void slot::apply_effect()
@@ -87,20 +98,46 @@ namespace age::audio::effect
         }
         else
         {
-            //ToDo: Apply NULL effect
+            alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
         }
     }
 
-    void slot::apply_filter()
+    uint32_t slot::gen_handle()
     {
-        if (m_filter)
+        ALuint slotID;
+        AL_CALL(alGenAuxiliaryEffectSlots(1, &slotID));
+
+        return slotID;
+    }
+
+    void slot::delete_handle(uint32_t handle)
+    {
+        AL_CALL(alDeleteAuxiliaryEffectSlots(1, &handle));
+    }
+
+    effect_interface* slot::get_effect() const
+    {
+        return m_effect;
+    }
+
+    filter_interface* slot::get_filter() const
+    {
+        return m_filter;
+    }
+
+    void slot::set_volume(float value)
+    {
+        if (m_volume != value)
         {
-            //ToDo: Apply filter
+            if (ensure_handle()) AL_CALL(alAuxiliaryEffectSlotf(m_handle, AL_EFFECTSLOT_GAIN, value));
+
+            m_volume = value;
         }
-        else
-        {
-            //ToDo: Apply NULL filter
-        }
+    }
+
+    float slot::get_volume() const
+    {
+        return m_volume;
     }
 
     void slot::on_effect_destroyed(effect_interface* value)
@@ -114,14 +151,11 @@ namespace age::audio::effect
         }
     }
 
-    void slot::on_filter_destroyed(filter *value)
+    void slot::on_filter_destroyed(filter_interface *value)
     {
         std::lock_guard lock{ m_filter_mutex };
 
-        if (m_filter == value)
-        {
-            m_filter = nullptr;
-            apply_filter();
-        }
+        if (m_filter == value) m_filter = nullptr;
+
     }
 }

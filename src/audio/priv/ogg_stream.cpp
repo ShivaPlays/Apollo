@@ -43,7 +43,7 @@ long tell(void* data)
 
 static ov_callbacks callbacks = { &read, &seek, NULL, &tell };
 
-namespace age::audio
+namespace age::audio::priv
 {
 	ogg_stream::~ogg_stream()
 	{

@@ -18,6 +18,8 @@
 #include "audio/buffer.h"
 #include "audio/device.h"
 
+#include "../cmake-build-debug/_deps/openal-soft-src/include/AL/al.h"
+
 age::engine::app_result test_app::on_init(int argc, char* argv[])
 {
     static constexpr uint32_t SCREEN_WIDTH = 540;
@@ -304,6 +306,34 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                     }
 
                     m_text_counter++;
+                }
+                break;
+
+            case SDLK_2:
+                {
+                    const int num_sounds = 100;
+                    auto old_volume = m_test_sound.get_volume();
+
+                    m_test_sound.set_volume(0.001f);
+
+                    //m_test_sound.play();
+
+                    // 1. Start the timer
+                    auto start = std::chrono::high_resolution_clock::now();
+
+                    for (size_t i = 0; i < num_sounds; ++i)
+                    {
+                        //alSourcePlay(2);
+                        m_test_sound.play();
+                    }
+
+                    auto end = std::chrono::high_resolution_clock::now();
+
+                    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+                    m_test_sound.set_volume(old_volume);
+
+                    std::cout << "Time to play " << num_sounds << " sounds: " << duration.count() / 1000.0 << " ms" << std::endl;
                 }
                 break;
             }

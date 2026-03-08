@@ -12,7 +12,7 @@ namespace age::audio::stream_factory
 			//ToDo add propert Test if stream is for an ogg file
 		}
 
-		std::unique_ptr<stream> result = std::make_unique<ogg_stream>();
+		std::unique_ptr<stream> result = std::make_unique<priv::ogg_stream>();
 		return result;
 	}
 }

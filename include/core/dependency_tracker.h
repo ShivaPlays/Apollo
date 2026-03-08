@@ -14,6 +14,8 @@ namespace age::core
     class dependency_tracker
     {
     public:
+        dependency_tracker() noexcept = default;
+
         // Move constructor: Lock other, steal data
         dependency_tracker(dependency_tracker&& other) noexcept
         {

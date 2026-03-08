@@ -47,6 +47,7 @@ namespace age::audio
         void set_priority(uint8_t value) { m_priority = value; }
         uint8_t get_priority() const { return m_priority; }
 
+        std::mutex& get_state_mutex() const { return m_state_mutex; }
         std::mutex& get_owner_mutex() const { return m_owner_mutex; }
 
         void set_owner(sound_interface* owner)
@@ -84,6 +85,7 @@ namespace age::audio
 
         source m_source;
 
+        mutable std::mutex m_state_mutex;
         mutable std::mutex m_owner_mutex;
         std::atomic<sound_interface*> m_owner{};
 

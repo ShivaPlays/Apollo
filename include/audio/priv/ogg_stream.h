@@ -4,7 +4,7 @@
 
 #include <vorbis/vorbisfile.h>
 
-namespace age::audio
+namespace age::audio::priv
 {
 	class ogg_stream
 		: public stream

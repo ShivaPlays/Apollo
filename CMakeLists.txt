@@ -120,9 +120,16 @@ add_library(${LIB_NAME} STATIC
         # Root
         include/apollo_main.h
         include/engine.h src/engine.cpp
-        include/audio/filter.h
-        src/audio/filter.cpp
+        include/audio/filter/filter_interface.h
+        src/audio/filter/filter_interface.cpp
         include/core/dependency_tracker.h
+        include/utility/make_array.h
+        include/audio/filter/low_pass.h
+        include/audio/filter/high_pass.h
+        include/audio/filter/band_pass.h
+        src/audio/filter/low_pass.cpp
+        src/audio/filter/high_pass.cpp
+        src/audio/filter/band_pass.cpp
 )
 
 if(NOT ANDROID)
