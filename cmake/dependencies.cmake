@@ -162,8 +162,8 @@ if(NOT OpenAL_FOUND)
     fetch_hide_from_ide(
             openal-soft
             GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-            #GIT_TAG 1.24.3  #This version has a bug with CMake. As soon as there is a newer one, the newer one can be used
-            GIT_TAG master
+            GIT_TAG 1.25.1
+            #GIT_TAG master
     )
 
     set(OPENAL_TARGET OpenAL::OpenAL) # Still use the alias for linking
@@ -200,7 +200,7 @@ if(NOT SDL3_FOUND)
     fetch_hide_from_ide(
             sdl3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-            GIT_TAG release-3.4.2  # latest 3.4.0 patch version
+            GIT_TAG release-3.4.2  # latest 3.4.2 patch version
     )
 
     set(SDL3_TARGET SDL3::SDL3)

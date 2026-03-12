@@ -34,11 +34,10 @@ namespace age::audio
     public:
 
     protected:
-        virtual int32_t get_type() const = 0;
+        virtual void init() = 0;
 
         bool ensure_handle();
         uint32_t get_handle() const { return m_handle; }
-
 
     private:
         static uint32_t gen_handle();

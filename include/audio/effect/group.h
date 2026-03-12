@@ -23,6 +23,8 @@ namespace age::audio::effect
     protected:
 
     private:
-        std::array<slot, config::MAX_AUXILIARY_SENDS> m_slots{ utility::make_array<slot, config::MAX_AUXILIARY_SENDS>(this) };
+        std::array<slot, config::MAX_AUXILIARY_SENDS> m_slots{ utility::make_array_factory<slot, config::MAX_AUXILIARY_SENDS>([this](std::size_t i) { return slot(this, i); }) };
+
+        bool m_enabled = false;
     };
 }

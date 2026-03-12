@@ -202,6 +202,23 @@ namespace age::audio
 		return m_properties.direct_channels;
 	}
 
+	void sound_interface::set_auxiliary_bus(uint8_t value)
+	{
+		m_auxiliary_bus = value;
+	}
+
+	void sound_interface::update_auxiliary_bus(uint8_t value)
+	{
+		set_auxiliary_bus(value);
+		std::lock_guard lock{ m_channel_mutex };
+		if (m_attached_channel) m_attached_channel->set_auxiliary_bus(value);
+	}
+
+	uint8_t sound_interface::get_auxiliary_bus() const
+	{
+		return m_auxiliary_bus;
+	}
+
 	bool sound_interface::get_looping() const
 	{
 		std::lock_guard lock{ m_channel_mutex };

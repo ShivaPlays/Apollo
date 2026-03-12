@@ -13,7 +13,7 @@
 #include "audio/config.h"
 #include "audio/sound.h"
 
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 
 namespace age::audio

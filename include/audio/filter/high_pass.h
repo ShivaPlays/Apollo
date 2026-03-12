@@ -19,7 +19,10 @@ namespace age::audio::filter
         float get_gain_lf() const;
 
     protected:
-        int32_t get_type() const override;
+        void init() override;
     private:
+
+        float m_gain{ 1.0f };
+        float m_gain_lf{ 1.0f };
     };
 }

@@ -12,7 +12,7 @@
 #include "audio/effect/group.h"
 #include "audio/filter/filter_interface.h"
 
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 namespace age::audio::effect
 {
@@ -98,7 +98,7 @@ namespace age::audio::effect
         }
         else
         {
-            alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+            if (ensure_handle()) alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
         }
     }
 
@@ -113,6 +113,16 @@ namespace age::audio::effect
     void slot::delete_handle(uint32_t handle)
     {
         AL_CALL(alDeleteAuxiliaryEffectSlots(1, &handle));
+    }
+
+    bool slot::ensure_handle()
+    {
+        if (m_handle == 0)
+        {
+            m_handle = gen_handle();
+        }
+
+        return m_handle != 0;
     }
 
     effect_interface* slot::get_effect() const

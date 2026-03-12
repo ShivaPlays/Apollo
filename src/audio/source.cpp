@@ -8,7 +8,7 @@
 #include "audio/sound_interface.h"
 #include "audio/buffer.h"
 
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 namespace age::audio
 {
@@ -471,6 +471,16 @@ namespace age::audio
 		{
 			m_handle = gen_handle();
 			apply_properties(properties{}, true);
+			for (size_t i = 0; i < m_slot_filters.size(); ++i)
+			{
+				auto& sf = m_slot_filters[i];
+
+				sf.attached_filter = AL_FILTER_NULL;
+				sf.attached_slot = AL_EFFECTSLOT_NULL;
+
+				alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, sf.attached_slot, static_cast<ALint>(i), sf.attached_filter);
+			}
+
 			m_attached_buffer = AL_NONE;
 		}
 

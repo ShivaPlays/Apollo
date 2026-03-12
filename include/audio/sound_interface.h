@@ -62,9 +62,15 @@ namespace age::audio
 		virtual void update_direct_channels(bool value);
 		virtual bool get_direct_channels() const;
 
+		virtual void set_auxiliary_bus(uint8_t value);
+		virtual void update_auxiliary_bus(uint8_t value);
+		virtual uint8_t get_auxiliary_bus() const;
+
 		//virtual void set_looping(bool value);
 
 		virtual bool get_looping() const;
+
+
 
 	protected:
 		void attach_channel(channel* value);
@@ -81,5 +87,7 @@ namespace age::audio
 
 		mutable std::mutex m_channel_mutex;
 		mutable channel* m_attached_channel{ nullptr };
+
+		uint8_t m_auxiliary_bus{};
 	};
 }

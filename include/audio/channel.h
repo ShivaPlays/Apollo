@@ -57,8 +57,8 @@ namespace age::audio
         }
         sound_interface* get_owner() const { return m_owner.load(std::memory_order_acquire); }
 
-        void set_filter_group(uint16_t value) { m_filter_group = value; }
-        uint16_t get_filter_group() const { return m_filter_group; }
+        void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; }
+        uint8_t get_auxiliary_bus() const { return m_auxiliary_bus; }
 
     public:
         bool is_free() const { return !m_is_reserved && m_source.get_state() == state::stopped; }
@@ -89,9 +89,9 @@ namespace age::audio
         mutable std::mutex m_owner_mutex;
         std::atomic<sound_interface*> m_owner{};
 
-        uint16_t m_filter_group{};
-
         std::atomic<bool> m_busy{false};
+
+        uint8_t m_auxiliary_bus{};
 
         uint8_t m_priority{};
         bool m_is_reserved{};

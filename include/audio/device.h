@@ -14,6 +14,7 @@
 #include "source.h"
 #include "channel.h"
 #include "channel_guard.h"
+#include "effect/group.h"
 
 namespace age::audio
 {
@@ -77,6 +78,8 @@ namespace age::audio
 		void destroy_context_and_close_device();
 
 		void setup_channels();
+
+		std::array<effect::group, 256> m_auxiliary_buses;
 
 		core::background_worker m_maintenance_worker;
 		std::string m_device_name;

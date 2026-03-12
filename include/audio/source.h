@@ -7,6 +7,12 @@
 #include "queue_buffer.h"
 #include "state.h"
 #include "properties.h"
+#include "config.h"
+
+namespace age::audio::effect
+{
+	class slot;
+}
 
 namespace age::audio
 {
@@ -18,6 +24,12 @@ namespace age::audio
 		friend class device;
 
 		class constructor_key { friend class device; constructor_key() {} };
+
+		struct slot_filter
+		{
+			int32_t attached_slot{};
+			int32_t attached_filter{};
+		};
 
 		source(constructor_key, uint32_t handle);
 
@@ -91,7 +103,6 @@ namespace age::audio
 
 		void set_buffer(const buffer& value);
 		bool has_buffer_attached(const buffer& value) const;
-
 		void detach_buffer(const buffer& value);
 
 		void enqueue_buffer(queue_buffer value);
@@ -100,6 +111,9 @@ namespace age::audio
 		queue_buffer unqueue_buffer();
 
 		void clear_buffers();
+
+		void set_effect_slot(size_t index, effect::slot& slot);
+
 
 		void invalidate();
 		
@@ -121,6 +135,8 @@ namespace age::audio
 
 		mutable unique_handle<uint32_t, delete_handle> m_handle;
 		gch::small_vector<uint32_t, 16> m_queued_buffers;
+		std::array<slot_filter, config::MAX_AUXILIARY_SENDS> m_slot_filters;
+
 		uint32_t m_attached_buffer;
 	};
 }

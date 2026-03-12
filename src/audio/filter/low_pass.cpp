@@ -8,7 +8,7 @@
 #include <AL/al.h>
 #include <AL/alext.h>
 
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 namespace age::audio::filter
 {
@@ -40,8 +40,10 @@ namespace age::audio::filter
         return m_gain_hf;
     }
 
-    int32_t low_pass::get_type() const
+    void low_pass::init()
     {
-        return AL_FILTER_LOWPASS;
+        AL_CALL(alFilteri(get_handle(), AL_FILTER_TYPE, AL_FILTER_LOWPASS));
+        AL_CALL(alFilterf(get_handle(), AL_LOWPASS_GAIN, m_gain));
+        AL_CALL(alFilterf(get_handle(), AL_LOWPASS_GAINHF, m_gain_hf));
     }
 }

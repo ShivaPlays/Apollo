@@ -1,7 +1,3 @@
-//
-// Created by skaldi on 08.03.26.
-//
-
 #pragma once
 
 #include <array>
@@ -10,18 +6,14 @@
 
 namespace age::utility
 {
-    // This helper does the heavy lifting
-    template <typename T, typename... Args, std::size_t... Is>
-    std::array<T, sizeof...(Is)> make_array_impl(std::index_sequence<Is...>, Args&&... args)
+    // The factory takes a function/lambda that receives the index
+    template <typename T, std::size_t N, typename Factory>
+    constexpr std::array<T, N> make_array_factory(Factory&& factory)
     {
-        // This expands: T{args...}, T{args...}, T{args...}
-        return { ((static_cast<void>(Is), T{std::forward<Args>(args)...}))... };
-    }
-
-    // Your public API
-    template <typename T, std::size_t N, typename... Args>
-    std::array<T, N> make_array(Args&&... args)
-    {
-        return make_array_impl<T>(std::make_index_sequence<N>{}, std::forward<Args>(args)...);
+        return []<std::size_t... Is>(Factory&& f, std::index_sequence<Is...>)
+        {
+            // Each element is constructed by calling the factory with the current index
+            return std::array<T, N>{ f(Is)... };
+        }(std::forward<Factory>(factory), std::make_index_sequence<N>{});
     }
 }

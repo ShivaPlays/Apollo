@@ -9,7 +9,7 @@
 #include <AL/alext.h>
 
 #include "audio/effect/slot.h"
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 
 namespace age::audio
@@ -32,7 +32,7 @@ namespace age::audio
         if (m_handle == 0)
         {
             m_handle = gen_handle();
-            if (m_handle) AL_CALL(alFilteri(m_handle, AL_FILTER_TYPE, get_type()));
+            if (m_handle) init();
         }
 
         return m_handle != 0;

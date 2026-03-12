@@ -35,22 +35,6 @@ include(cmake/dependencies.cmake)
 # Add your library target
 add_library(${LIB_NAME} STATIC
         # Audio
-        include/audio/effect/autowah.h src/audio/effect/autowah.cpp
-        include/audio/effect/chorus.h src/audio/effect/chorus.cpp
-        include/audio/effect/compressor.h src/audio/effect/compressor.cpp
-        include/audio/effect/distortion.h src/audio/effect/distortion.cpp
-        include/audio/effect/echo.h src/audio/effect/echo.cpp
-        include/audio/effect/effect_interface.h src/audio/effect/effect_interface.cpp
-        include/audio/effect/equalizer.h src/audio/effect/equalizer.cpp
-        include/audio/effect/flanger.h src/audio/effect/flanger.cpp
-        include/audio/effect/frequency_shifter.h src/audio/effect/frequency_shifter.cpp
-        include/audio/effect/group.h
-        include/audio/effect/pitch_shifter.h src/audio/effect/pitch_shifter.cpp
-        include/audio/effect/reverb.h src/audio/effect/reverb.cpp
-        include/audio/effect/ring_modulator.h src/audio/effect/ring_modulator.cpp
-        include/audio/effect/slot.h src/audio/effect/slot.cpp
-        include/audio/effect/vocal_morpher.h src/audio/effect/vocal_morpher.cpp
-        include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
         include/audio/buffer.h src/audio/buffer.cpp
         include/audio/channel.h
         include/audio/channel_guard.h
@@ -69,6 +53,33 @@ add_library(${LIB_NAME} STATIC
         include/audio/stream.h src/audio/stream.cpp
         include/audio/stream_factory.h src/audio/stream_factory.cpp
         include/audio/wave.h src/audio/wave.cpp
+
+        # Audio Effects
+        include/audio/effect/autowah.h src/audio/effect/autowah.cpp
+        include/audio/effect/chorus.h src/audio/effect/chorus.cpp
+        include/audio/effect/compressor.h src/audio/effect/compressor.cpp
+        include/audio/effect/distortion.h src/audio/effect/distortion.cpp
+        include/audio/effect/echo.h src/audio/effect/echo.cpp
+        include/audio/effect/effect_interface.h src/audio/effect/effect_interface.cpp
+        include/audio/effect/equalizer.h src/audio/effect/equalizer.cpp
+        include/audio/effect/flanger.h src/audio/effect/flanger.cpp
+        include/audio/effect/frequency_shifter.h src/audio/effect/frequency_shifter.cpp
+        include/audio/effect/group.h src/audio/effect/group.cpp
+        include/audio/effect/pitch_shifter.h src/audio/effect/pitch_shifter.cpp
+        include/audio/effect/reverb.h src/audio/effect/reverb.cpp
+        include/audio/effect/ring_modulator.h src/audio/effect/ring_modulator.cpp
+        include/audio/effect/slot.h src/audio/effect/slot.cpp
+        include/audio/effect/vocal_morpher.h src/audio/effect/vocal_morpher.cpp
+
+        # Audio Filters
+        include/audio/filter/band_pass.h src/audio/filter/band_pass.cpp
+        include/audio/filter/filter_interface.h src/audio/filter/filter_interface.cpp
+        include/audio/filter/high_pass.h src/audio/filter/high_pass.cpp
+        include/audio/filter/low_pass.h src/audio/filter/low_pass.cpp
+
+        # Audio Private
+        include/audio/priv/al_check.h
+        include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp
 
         # Graphics
         include/graphics/angle.h
@@ -100,9 +111,10 @@ add_library(${LIB_NAME} STATIC
         include/graphics/view_2d.h src/graphics/view_2d.cpp
         include/graphics/view_3d.h src/graphics/view_3d.cpp
 
-        # System
-        include/system/assetstream.h src/system/assetstream.cpp
+        # Core & System
         include/core/background_worker.h src/core/background_worker.cpp
+        include/core/dependency_tracker.h
+        include/system/assetstream.h src/system/assetstream.cpp
         include/system/clock.h src/system/clock.cpp
         include/system/memstream.h src/system/memstream.cpp
         include/system/platform.h
@@ -110,26 +122,16 @@ add_library(${LIB_NAME} STATIC
         include/system/transient_context_lock.h src/system/transient_context_lock.cpp
 
         # Utility
-        include/utility/al_check.h
         include/utility/endian.h
         include/utility/fixed_string.h
         include/utility/gl_check.h
         include/utility/gl_loader.h
+        include/utility/make_array.h
         include/utility/utility.h src/utility/utility.cpp
 
         # Root
         include/apollo_main.h
         include/engine.h src/engine.cpp
-        include/audio/filter/filter_interface.h
-        src/audio/filter/filter_interface.cpp
-        include/core/dependency_tracker.h
-        include/utility/make_array.h
-        include/audio/filter/low_pass.h
-        include/audio/filter/high_pass.h
-        include/audio/filter/band_pass.h
-        src/audio/filter/low_pass.cpp
-        src/audio/filter/high_pass.cpp
-        src/audio/filter/band_pass.cpp
 )
 
 if(NOT ANDROID)

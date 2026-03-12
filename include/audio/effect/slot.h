@@ -24,8 +24,9 @@ namespace age::audio::effect
         friend class effect_interface;
         friend class audio::filter_interface;
 
-        slot(group* parent)
+        slot(group* parent, size_t index)
             : m_owner{ parent }
+            , m_index{ index }
         {}
         ~slot();
 
@@ -67,6 +68,7 @@ namespace age::audio::effect
         filter_interface* m_filter{ nullptr };
 
         group* m_owner{ nullptr };
+        size_t m_index{};
 
         unique_handle<uint32_t, delete_handle> m_handle{};
 

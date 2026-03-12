@@ -20,7 +20,7 @@ namespace age::audio::filter
 
 
     protected:
-        int32_t get_type() const override;
+        void init() override;
 
     private:
 

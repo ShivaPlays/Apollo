@@ -379,6 +379,7 @@ namespace age::audio
 
 				//If no command has arrived and play_requested is true then lets continue buffering the source
 				auto processed_buffers = current_channel->get_source().get_num_processed_buffers();
+				//std::cout << "processed buffers: " << processed_buffers << "\n";
 				while (processed_buffers--)
 				{
 					size_t bytes_read = m_sound_stream->read(&m_samples_buffer[0], m_samples_buffer.size());
@@ -414,7 +415,7 @@ namespace age::audio
 
 				if (current_channel->get_source().get_state() == state::stopped && current_channel->get_source().get_num_queued_buffers() > 0)
 				{
-					std::cout << "Music: buffer_queue underrun: Recovering!\n";
+					//std::cout << "Music: buffer_queue underrun: Recovering!\n";
 					current_channel->get_source().play();
 				}
 

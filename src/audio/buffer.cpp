@@ -11,7 +11,7 @@
 #include "audio/wave.h"
 #include "system/assetstream.h"
 
-#include "utility/al_check.h"
+#include "audio/priv/al_check.h"
 
 namespace age::audio
 {
