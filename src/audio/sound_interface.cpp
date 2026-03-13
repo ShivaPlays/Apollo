@@ -70,12 +70,6 @@ namespace age::audio
 		}
 	}
 
-	void sound_interface::update_source(source& source, bool looped) const
-	{
-		source.apply_properties(m_properties);
-		source.set_looping(looped);
-	}
-
 	void sound_interface::set_position(const glm::vec3& value)
 	{
 		m_properties.position = value;

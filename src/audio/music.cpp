@@ -46,7 +46,7 @@ namespace age::audio
 			if (auto current_channel = get_attached_channel())
 			{
 				m_internal_state = state::stopped;
-				current_channel->get_source().stop();
+				current_channel->stop();
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace age::audio
 			if (auto current_channel = get_attached_channel())
 			{
 				m_internal_state = state::paused;
-				current_channel->get_source().pause();
+				current_channel->pause();
 			}
 		}
 
@@ -131,7 +131,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_position(value);
+		current_channel->set_position(value);
 	}
 
 	void music::update_pitch(float value)
@@ -144,7 +144,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_pitch(value);
+		current_channel->set_pitch(value);
 	}
 
 	void music::update_volume(float value)
@@ -157,7 +157,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_volume(value);
+		current_channel->set_volume(value);
 	}
 
 	void music::update_reference_distance(float value)
@@ -170,7 +170,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_reference_distance(value);
+		current_channel->set_reference_distance(value);
 	}
 
 	void music::update_rolloff_factor(float value)
@@ -183,7 +183,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_rolloff_factor(value);
+		current_channel->set_rolloff_factor(value);
 	}
 
 	void music::update_relative_to_listener(bool value)
@@ -196,7 +196,7 @@ namespace age::audio
 		if (!current_channel)
 			return;
 
-		current_channel->get_source().set_relative_to_listener(value);
+		current_channel->set_relative_to_listener(value);
 	}
 
 	void music::open_from_stream(std::istream& is)
@@ -318,7 +318,7 @@ namespace age::audio
 								continue;
 							}
 
-							current_channel->get_source().clear_buffers();
+							current_channel->clear_buffers();
 							attach_channel(current_channel);
 
 							//Okay we got a sound_source, lets buffer some data
@@ -330,14 +330,18 @@ namespace age::audio
 								buffer::format format = (m_sound_stream_info.channel_count == 1) ?
 									buffer::format::mono_16 : buffer::format::stereo_16;
 								buffer.buffer_data(format, &m_samples_buffer[0], read, m_sound_stream_info.sample_rate);
-								current_channel->get_source().enqueue_buffer(buffer);
+								current_channel->enqueue_buffer(buffer);
 							}
 						}
 						
-						if (current_channel->get_source().get_state() != state::playing)
+						if (current_channel->get_state() != state::playing)
 						{
-							update_source(current_channel->get_source(), false);
-							current_channel->get_source().play();
+							auto props = get_properties();
+							props.looping = false;
+
+							current_channel->apply_properties(props);
+							current_channel->set_auxiliary_bus(get_auxiliary_bus());
+							current_channel->play();
 						}
 						play_requested = true;
 
@@ -354,8 +358,7 @@ namespace age::audio
 						auto current_channel = get_attached_channel();
 						if (!current_channel) continue;
 
-						//current_source->stop();
-						current_channel->get_source().clear_buffers();
+						current_channel->clear_buffers();
 						detach_channel();
 						current_channel->set_reserved(false);
 					}
@@ -378,7 +381,7 @@ namespace age::audio
 				bool no_more_data = false;
 
 				//If no command has arrived and play_requested is true then lets continue buffering the source
-				auto processed_buffers = current_channel->get_source().get_num_processed_buffers();
+				auto processed_buffers = current_channel->get_num_processed_buffers();
 				//std::cout << "processed buffers: " << processed_buffers << "\n";
 				while (processed_buffers--)
 				{
@@ -406,20 +409,20 @@ namespace age::audio
 						}
 					}
 
-					auto processed_buffer = current_channel->get_source().unqueue_buffer();
+					auto processed_buffer = current_channel->unqueue_buffer();
 					buffer::format format = m_sound_stream_info.channel_count == 1 ? buffer::format::mono_16 : buffer::format::stereo_16;
 					processed_buffer.buffer_data(format, &m_samples_buffer[0], bytes_read, m_sound_stream_info.sample_rate);
 
-					current_channel->get_source().enqueue_buffer(processed_buffer);
+					current_channel->enqueue_buffer(processed_buffer);
 				}
 
-				if (current_channel->get_source().get_state() == state::stopped && current_channel->get_source().get_num_queued_buffers() > 0)
+				if (current_channel->get_state() == state::stopped && current_channel->get_num_queued_buffers() > 0)
 				{
 					//std::cout << "Music: buffer_queue underrun: Recovering!\n";
-					current_channel->get_source().play();
+					current_channel->play();
 				}
 
-				if (!play_looped && no_more_data && current_channel->get_source().get_state() == state::stopped)
+				if (!play_looped && no_more_data && current_channel->get_state() == state::stopped)
 				{
 					//When we reach here, we actually want to clean up and set the state to stopped.
 					//We can do that easily by just adding a command

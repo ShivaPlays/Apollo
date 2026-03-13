@@ -17,12 +17,12 @@ namespace age::audio
 		{
 			current_attached_channel->set_owner(nullptr);
 
-			auto source_looping = current_attached_channel->get_source().get_looping();
+			auto source_looping = current_attached_channel->get_looping();
 
 			//Our source is in the unavailable container. Make it available again
-			if (source_looping || current_attached_channel->get_source().get_state() == state::paused)
+			if (source_looping || current_attached_channel->get_state() == state::paused)
 			{
-				current_attached_channel->get_source().stop();
+				current_attached_channel->stop();
 				current_attached_channel->set_reserved(false);
 			}
 		}
@@ -35,18 +35,18 @@ namespace age::audio
 		auto current_attached_channel = get_attached_channel();
 		if (current_attached_channel)
 		{
-			if (current_attached_channel->get_source().get_state() == state::paused)
+			if (current_attached_channel->get_state() == state::paused)
 			{
-				current_attached_channel->get_source().play();
+				current_attached_channel->play();
 				return;
 			}
 
-			if (current_attached_channel->get_source().get_looping())
+			if (current_attached_channel->get_looping())
 			{
-				current_attached_channel->get_source().stop();
-				current_attached_channel->get_source().set_buffer(*m_buffer);
-				current_attached_channel->get_source().set_looping(looped);
-				current_attached_channel->get_source().play();
+				current_attached_channel->stop();
+				current_attached_channel->set_buffer(*m_buffer);
+				current_attached_channel->set_looping(looped);
+				current_attached_channel->play();
 
 				return;
 			}
@@ -55,12 +55,8 @@ namespace age::audio
 		auto properties = get_properties();
 		properties.looping = looped;
 
-		auto* new_channel = device::get().play_buffer(*m_buffer, properties);
-
-		if (new_channel)
-		{
-			attach_channel(new_channel);
-		}
+		auto guard = device::get().play_buffer(*m_buffer, properties);
+		if (guard) attach_channel(guard.get());
 	}
 
 	void sound::stop()
@@ -69,12 +65,12 @@ namespace age::audio
 
 		if (current_attached_channel)
 		{
-			if (current_attached_channel->get_source().get_looping())
+			if (current_attached_channel->get_looping())
 			{
 				current_attached_channel->set_reserved(false);
 			}
 
-			current_attached_channel->get_source().stop();
+			current_attached_channel->stop();
 		}
 	}
 
@@ -83,7 +79,7 @@ namespace age::audio
 		auto current_attached_channel = get_attached_channel();
 
 		if (current_attached_channel)
-			current_attached_channel->get_source().pause();
+			current_attached_channel->pause();
 	}
 
 	state sound::get_state() const
@@ -91,7 +87,7 @@ namespace age::audio
 		auto current_attached_channel = get_attached_channel();
 
 		if (current_attached_channel)
-			return current_attached_channel->get_source().get_state();
+			return current_attached_channel->get_state();
 
 		return state::stopped;
 	}

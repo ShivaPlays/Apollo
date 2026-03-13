@@ -12,11 +12,18 @@
 namespace age::audio::effect
 {
 	class slot;
+	class auxiliary_send_group;
+}
+
+namespace age::audio::filter
+{
+	class filter_interface;
 }
 
 namespace age::audio
 {
 	class buffer;
+	class group;
 
 	class source
 	{
@@ -27,8 +34,8 @@ namespace age::audio
 
 		struct slot_filter
 		{
-			int32_t attached_slot{};
-			int32_t attached_filter{};
+			uint32_t attached_slot{};
+			uint32_t attached_filter{};
 		};
 
 		source(constructor_key, uint32_t handle);
@@ -112,8 +119,10 @@ namespace age::audio
 
 		void clear_buffers();
 
-		void set_effect_slot(size_t index, effect::slot& slot);
-
+		void set_effect_slot(size_t index, const effect::slot& slot);
+		void update_effect_slots(const effect::auxiliary_send_group& group);
+		void reset_effect_slots();
+		void update_slot_filter(size_t index, filter::filter_interface* filter);
 
 		void invalidate();
 		

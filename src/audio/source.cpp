@@ -9,6 +9,9 @@
 #include "audio/buffer.h"
 
 #include "audio/priv/al_check.h"
+#include "audio/effect/slot.h"
+#include "audio/effect/auxiliary_send_group.h"
+#include "audio/filter/filter_interface.h"
 
 namespace age::audio
 {
@@ -68,7 +71,7 @@ namespace age::audio
 			if (force || m_properties.air_absorption_factor != properties.air_absorption_factor) AL_CALL(alSourcef(m_handle, AL_AIR_ABSORPTION_FACTOR, properties.air_absorption_factor));
 			if (force || m_properties.relative_to_listener != properties.relative_to_listener) AL_CALL(alSourcei(m_handle, AL_SOURCE_RELATIVE, properties.relative_to_listener ? 1 : 0));
 			if (force || m_properties.direct_channels != properties.direct_channels) AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, properties.direct_channels ? 1 : 0));
-			if (force || m_properties.looping != properties.looping) AL_CALL(alSourcei(m_handle, AL_LOOPING,  properties.looping ? 1 : 0));
+			if (force || m_properties.looping != properties.looping) AL_CALL(alSourcei(m_handle, AL_LOOPING, properties.looping ? 1 : 0));
 
 			m_properties = properties;
 		}
@@ -440,6 +443,59 @@ namespace age::audio
 		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
 	}
 
+	void source::set_effect_slot(size_t index, const effect::slot &slot)
+	{
+		if (index < m_slot_filters.size() && m_slot_filters[index].attached_slot != slot.get_handle())
+		{
+			if (ensure_handle())
+			{
+				auto filter_id = slot.get_filter() ? slot.get_filter()->get_handle() : AL_FILTER_NULL;
+				auto slot_id = slot.get_handle();
+
+				AL_CALL(alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, slot_id, index, filter_id));
+
+				m_slot_filters[index].attached_slot = slot_id;
+				m_slot_filters[index].attached_filter = filter_id;
+			}
+		}
+	}
+
+	void source::update_effect_slots(const effect::auxiliary_send_group &group)
+	{
+		const auto& slots = group.get_slots();
+		for (size_t i = 0; i < slots.size(); ++i) set_effect_slot(i, slots[i]);
+	}
+
+	void source::reset_effect_slots()
+	{
+		for (size_t i = 0; i < m_slot_filters.size(); ++i)
+		{
+			auto& sf = m_slot_filters[i];
+
+			if (sf.attached_slot != AL_EFFECTSLOT_NULL || sf.attached_filter != AL_FILTER_NULL)
+			{
+				if (ensure_handle()) AL_CALL(alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, sf.attached_slot, i, AL_FILTER_NULL));
+
+				sf.attached_slot = AL_EFFECTSLOT_NULL;
+				sf.attached_filter = AL_FILTER_NULL;
+			}
+		}
+	}
+
+	void source::update_slot_filter(size_t index, filter::filter_interface *filter)
+	{
+		auto filter_id = filter ? filter->get_handle() : AL_FILTER_NULL;
+
+		if (filter_id != m_slot_filters[index].attached_filter)
+		{
+			if (ensure_handle())
+			{
+				AL_CALL(alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, m_slot_filters[index].attached_slot, index, filter_id));
+				m_slot_filters[index].attached_filter = filter_id;
+			}
+		}
+	}
+
 	void source::invalidate()
 	{
 		m_handle = 0;
@@ -471,15 +527,7 @@ namespace age::audio
 		{
 			m_handle = gen_handle();
 			apply_properties(properties{}, true);
-			for (size_t i = 0; i < m_slot_filters.size(); ++i)
-			{
-				auto& sf = m_slot_filters[i];
-
-				sf.attached_filter = AL_FILTER_NULL;
-				sf.attached_slot = AL_EFFECTSLOT_NULL;
-
-				alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, sf.attached_slot, static_cast<ALint>(i), sf.attached_filter);
-			}
+			reset_effect_slots();
 
 			m_attached_buffer = AL_NONE;
 		}
@@ -502,6 +550,6 @@ namespace age::audio
 
 	void source::delete_handle(uint32_t handle)
 	{
-		if (handle) AL_CALL(alDeleteSources(1, &handle));
+		AL_CALL(alDeleteSources(1, &handle));
 	}
 }

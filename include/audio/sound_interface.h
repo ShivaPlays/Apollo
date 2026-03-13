@@ -32,8 +32,6 @@ namespace age::audio
 		virtual void stop() = 0;
 		virtual void pause() = 0;
 
-		void update_source(source& source, bool looped) const;
-
 		virtual void set_position(const glm::vec3& value);
 		virtual void update_position(const glm::vec3& value);
 		virtual const glm::vec3& get_position() const;
@@ -69,8 +67,6 @@ namespace age::audio
 		//virtual void set_looping(bool value);
 
 		virtual bool get_looping() const;
-
-
 
 	protected:
 		void attach_channel(channel* value);

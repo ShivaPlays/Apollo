@@ -14,7 +14,7 @@ namespace age::audio::effect
     class slot;
 }
 
-namespace age::audio
+namespace age::audio::filter
 {
     class filter_interface
     {
@@ -32,12 +32,12 @@ namespace age::audio
         filter_interface& operator=(filter_interface&& other) noexcept = default;
 
     public:
+        uint32_t get_handle() const { return m_handle; }
 
     protected:
         virtual void init() = 0;
 
         bool ensure_handle();
-        uint32_t get_handle() const { return m_handle; }
 
     private:
         static uint32_t gen_handle();

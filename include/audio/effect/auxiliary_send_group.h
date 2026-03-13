@@ -12,13 +12,18 @@
 
 namespace age::audio::effect
 {
-    class group
+    class auxiliary_send_group
     {
         friend class slot;
     public:
 
     public:
         void on_slot_filter_changed(const slot& s);
+        std::array<slot, config::MAX_AUXILIARY_SENDS>& get_slots() { return m_slots; }
+        const std::array<slot, config::MAX_AUXILIARY_SENDS>& get_slots() const { return m_slots; }
+
+        void set_enabled(bool value) { m_enabled = value; }
+        bool get_enabled() const { return m_enabled; }
 
     protected:
 

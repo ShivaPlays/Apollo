@@ -14,7 +14,7 @@
 #include "source.h"
 #include "channel.h"
 #include "channel_guard.h"
-#include "effect/group.h"
+#include "effect/auxiliary_send_group.h"
 
 namespace age::audio
 {
@@ -45,7 +45,7 @@ namespace age::audio
 		static void set_listener_up_vector(const glm::vec3& value);
 		static const glm::vec3& get_listener_up_vector();
 
-		channel* play_buffer(const buffer& buffer, const properties& properties);
+		channel_guard play_buffer(const buffer& buffer, const properties& properties, uint8_t bus = 0);
 		channel_guard get_free_channel(bool reserved = false);
 
 		void pause();
@@ -59,6 +59,9 @@ namespace age::audio
 
 		bool is_initialised() const;
 		bool is_direct_channels_available() const;
+
+		const effect::auxiliary_send_group& get_auxiliary_send_group(uint8_t index) const { return m_auxiliary_buses[index]; }
+		effect::auxiliary_send_group& get_auxiliary_send_group(uint8_t index) { return m_auxiliary_buses[index]; }
 	protected:
 
 	private:
@@ -79,7 +82,7 @@ namespace age::audio
 
 		void setup_channels();
 
-		std::array<effect::group, 256> m_auxiliary_buses;
+		std::array<effect::auxiliary_send_group, 256> m_auxiliary_buses;
 
 		core::background_worker m_maintenance_worker;
 		std::string m_device_name;

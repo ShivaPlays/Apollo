@@ -9,7 +9,7 @@
 #include "audio/effect/slot.h"
 
 #include "audio/effect/effect_interface.h"
-#include "audio/effect/group.h"
+#include "audio/effect/auxiliary_send_group.h"
 #include "audio/filter/filter_interface.h"
 
 #include "audio/priv/al_check.h"
@@ -75,7 +75,7 @@ namespace age::audio::effect
         apply_effect();
     }
 
-    void slot::attach_filter(filter_interface* value)
+    void slot::attach_filter(filter::filter_interface* value)
     {
         std::lock_guard lock{ m_filter_mutex };
 
@@ -130,7 +130,7 @@ namespace age::audio::effect
         return m_effect;
     }
 
-    filter_interface* slot::get_filter() const
+    filter::filter_interface* slot::get_filter() const
     {
         return m_filter;
     }
@@ -161,7 +161,7 @@ namespace age::audio::effect
         }
     }
 
-    void slot::on_filter_destroyed(filter_interface *value)
+    void slot::on_filter_destroyed(filter::filter_interface *value)
     {
         std::lock_guard lock{ m_filter_mutex };
 

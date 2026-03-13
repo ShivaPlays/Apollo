@@ -36,7 +36,7 @@ include(cmake/dependencies.cmake)
 add_library(${LIB_NAME} STATIC
         # Audio
         include/audio/buffer.h src/audio/buffer.cpp
-        include/audio/channel.h
+        include/audio/channel.h src/audio/channel.cpp
         include/audio/channel_guard.h
         include/audio/config.h
         include/audio/device.h src/audio/device.cpp
@@ -56,6 +56,7 @@ add_library(${LIB_NAME} STATIC
 
         # Audio Effects
         include/audio/effect/autowah.h src/audio/effect/autowah.cpp
+        include/audio/effect/auxiliary_send_group.h src/audio/effect/auxiliary_send_group.cpp
         include/audio/effect/chorus.h src/audio/effect/chorus.cpp
         include/audio/effect/compressor.h src/audio/effect/compressor.cpp
         include/audio/effect/distortion.h src/audio/effect/distortion.cpp
@@ -64,7 +65,6 @@ add_library(${LIB_NAME} STATIC
         include/audio/effect/equalizer.h src/audio/effect/equalizer.cpp
         include/audio/effect/flanger.h src/audio/effect/flanger.cpp
         include/audio/effect/frequency_shifter.h src/audio/effect/frequency_shifter.cpp
-        include/audio/effect/group.h src/audio/effect/group.cpp
         include/audio/effect/pitch_shifter.h src/audio/effect/pitch_shifter.cpp
         include/audio/effect/reverb.h src/audio/effect/reverb.cpp
         include/audio/effect/ring_modulator.h src/audio/effect/ring_modulator.cpp

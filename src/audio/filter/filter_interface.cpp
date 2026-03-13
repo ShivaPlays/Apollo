@@ -12,7 +12,7 @@
 #include "audio/priv/al_check.h"
 
 
-namespace age::audio
+namespace age::audio::filter
 {
     uint32_t filter_interface::gen_handle()
     {

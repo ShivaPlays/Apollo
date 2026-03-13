@@ -8,23 +8,23 @@
 
 #include "utility/utility.h"
 
-namespace age::audio
+namespace age::audio::filter
 {
-    class filter_interface; // Forward declaration
+    class filter_interface;
 }
 
 namespace age::audio::effect
 {
     class effect_interface;
-    class group;
+    class auxiliary_send_group;
 
     class slot
     {
     public:
         friend class effect_interface;
-        friend class audio::filter_interface;
+        friend class audio::filter::filter_interface;
 
-        slot(group* parent, size_t index)
+        slot(auxiliary_send_group* parent, size_t index)
             : m_owner{ parent }
             , m_index{ index }
         {}
@@ -39,16 +39,17 @@ namespace age::audio::effect
 
     public:
         void attach_effect(effect_interface* value);
-        void attach_filter(filter_interface* value);
+        void attach_filter(filter::filter_interface* value);
 
         effect_interface* get_effect() const;
-        filter_interface* get_filter() const;
+        filter::filter_interface* get_filter() const;
 
         void set_volume(float value);
         float get_volume() const;
 
         void apply_effect();
 
+        uint32_t get_handle() const { return m_handle; }
     protected:
 
     private:
@@ -59,15 +60,15 @@ namespace age::audio::effect
 
         void notify_death();
         void on_effect_destroyed(effect_interface* value);
-        void on_filter_destroyed(filter_interface* value);
+        void on_filter_destroyed(filter::filter_interface* value);
 
         std::mutex m_effect_mutex{};
         effect_interface* m_effect{ nullptr };
 
         std::mutex m_filter_mutex{};
-        filter_interface* m_filter{ nullptr };
+        filter::filter_interface* m_filter{ nullptr };
 
-        group* m_owner{ nullptr };
+        auxiliary_send_group* m_owner{ nullptr };
         size_t m_index{};
 
         unique_handle<uint32_t, delete_handle> m_handle{};

@@ -229,19 +229,20 @@ namespace age::audio
 		return m_listener_up_vector;
 	}
 
-	channel* device::play_buffer(const buffer &buffer, const properties &properties)
+	channel_guard device::play_buffer(const buffer &buffer, const properties &properties, uint8_t bus)
 	{
 		auto guard = get_free_channel(properties.looping);
 
-		if (!guard) return nullptr;
-		auto& source = guard->get_source();
+		if (auto channel = guard.get())
+		{
+			channel->set_auxiliary_bus(bus);
+			channel->set_buffer(buffer);
+			channel->apply_properties(properties);
 
-		source.set_buffer(buffer);
-		source.apply_properties(properties);
+			channel->play();
+		}
 
-		source.play();
-
-		return &*guard;
+		return guard;
 	}
 
 	void device::init(const char* device_name, uint8_t max_auxiliary_sends)
