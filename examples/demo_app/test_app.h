@@ -18,6 +18,8 @@
 #include "audio/buffer.h"
 #include "audio/sound.h"
 #include "audio/music.h"
+#include "audio/effect/reverb.h"
+#include "audio/filter/low_pass.h"
 
 class test_app
 	: public age::engine
@@ -96,6 +98,9 @@ private:
     age::audio::sound m_test_sound;
 
     age::audio::music m_test_music;
+
+    age::audio::effect::reverb m_test_effect;
+    age::audio::filter::low_pass m_test_filter;
 
     size_t m_text_counter = 0;
 

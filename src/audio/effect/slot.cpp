@@ -8,6 +8,8 @@
 
 #include "audio/effect/slot.h"
 
+#include "audio/device.h"
+
 #include "audio/effect/effect_interface.h"
 #include "audio/effect/auxiliary_send_group.h"
 #include "audio/filter/filter_interface.h"
@@ -61,7 +63,16 @@ namespace age::audio::effect
         if (m_effect) m_effect->remove_slot(this);
     }
 
-    void slot::attach_effect(effect_interface *value)
+    void slot::set_passthrough()
+    {
+        auto& effect = device::get().get_bus_passthrough();
+        auto& filter = device::get().get_mute_filter();
+
+        attach_effect(&effect);
+        attach_filter(&filter);
+    }
+
+    void slot::attach_effect(const effect_interface *value)
     {
         std::lock_guard lock{ m_effect_mutex };
 
@@ -75,7 +86,7 @@ namespace age::audio::effect
         apply_effect();
     }
 
-    void slot::attach_filter(filter::filter_interface* value)
+    void slot::attach_filter(const filter::filter_interface* value)
     {
         std::lock_guard lock{ m_filter_mutex };
 
@@ -85,21 +96,34 @@ namespace age::audio::effect
 
         m_filter = value;
 
-        if (m_filter) m_filter->register_slot(this);
+        if (m_filter)
+        {
+            m_filter->register_slot(this);
+            (void) m_filter->ensure_handle();
+        }
 
         m_owner->on_slot_filter_changed(*this);
+        ensure_handle();
     }
 
     void slot::apply_effect()
     {
-        if (m_effect)
+        if (ensure_handle()) alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, m_effect ? static_cast<ALint>(m_effect->get_handle()) : AL_EFFECT_NULL);
+    }
+
+    void slot::set_spatialized(bool value)
+    {
+        if (m_spatialized != value)
         {
-            //ToDo: Apply effect
+            if (ensure_handle()) AL_CALL(alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, value ? 1 : 0));
+
+            m_spatialized = value;
         }
-        else
-        {
-            if (ensure_handle()) alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
-        }
+    }
+
+    bool slot::get_spatialized() const
+    {
+        return m_spatialized;
     }
 
     uint32_t slot::gen_handle()
@@ -120,17 +144,23 @@ namespace age::audio::effect
         if (m_handle == 0)
         {
             m_handle = gen_handle();
+            AL_CALL(alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO,1));
         }
 
         return m_handle != 0;
     }
 
-    effect_interface* slot::get_effect() const
+    void slot::release()
+    {
+        if (m_handle) m_handle.reset(0);
+    }
+
+    const effect_interface* slot::get_effect() const
     {
         return m_effect;
     }
 
-    filter::filter_interface* slot::get_filter() const
+    const filter::filter_interface* slot::get_filter() const
     {
         return m_filter;
     }
@@ -150,7 +180,7 @@ namespace age::audio::effect
         return m_volume;
     }
 
-    void slot::on_effect_destroyed(effect_interface* value)
+    void slot::on_effect_destroyed(const effect_interface* value)
     {
         std::lock_guard lock{ m_effect_mutex };
 
@@ -161,7 +191,7 @@ namespace age::audio::effect
         }
     }
 
-    void slot::on_filter_destroyed(filter::filter_interface *value)
+    void slot::on_filter_destroyed(const filter::filter_interface *value)
     {
         std::lock_guard lock{ m_filter_mutex };
 

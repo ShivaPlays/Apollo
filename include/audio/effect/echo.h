@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "audio/effect/effect_interface.h"
+#include "effect_interface.h"
 
 namespace age::audio::effect
 {
@@ -29,7 +29,7 @@ namespace age::audio::effect
         float get_spread() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         float m_delay{ 0.1f };

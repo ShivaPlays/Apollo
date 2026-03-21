@@ -5,7 +5,7 @@
 #pragma once
 
 
-#include "audio/effect/effect_interface.h"
+#include "effect_interface.h"
 
 namespace age::audio::effect
 {
@@ -21,7 +21,7 @@ namespace age::audio::effect
         int32_t get_fine_tune() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         int32_t m_coarse_tune{ 12 };

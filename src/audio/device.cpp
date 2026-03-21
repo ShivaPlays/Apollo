@@ -236,7 +236,7 @@ namespace age::audio
 		if (auto channel = guard.get())
 		{
 			channel->set_auxiliary_bus(bus);
-			channel->set_buffer(buffer);
+			channel->attach_buffer(buffer);
 			channel->apply_properties(properties);
 
 			channel->play();
@@ -250,6 +250,8 @@ namespace age::audio
 		destroy_context_and_close_device();
 		open_device_and_create_context(device_name, max_auxiliary_sends);
 		setup_channels();
+		m_mute_filter.set_gain(0.0f);
+		m_mute_filter.set_gain_hf(0.0f);
 
 		m_device_name = device_name ? device_name : std::string{};
 		m_is_initialised = true;
@@ -340,6 +342,8 @@ namespace age::audio
 
 				m_channels.clear();
 			}
+
+			for (auto& g : m_auxiliary_buses) g.release();
 
 			alcMakeContextCurrent(nullptr);
 			alcDestroyContext(static_cast<ALCcontext*>(m_context));

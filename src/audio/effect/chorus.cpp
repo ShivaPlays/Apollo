@@ -103,7 +103,7 @@ namespace age::audio::effect
         }
     }
 
-    void chorus::init()
+    void chorus::init() const
     {
         const auto handle = get_handle();
 

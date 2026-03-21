@@ -15,6 +15,8 @@
 #include "channel.h"
 #include "channel_guard.h"
 #include "effect/auxiliary_send_group.h"
+#include "filter/low_pass.h"
+#include "effect/dedicated_dialog.h"
 
 namespace age::audio
 {
@@ -62,6 +64,9 @@ namespace age::audio
 
 		const effect::auxiliary_send_group& get_auxiliary_send_group(uint8_t index) const { return m_auxiliary_buses[index]; }
 		effect::auxiliary_send_group& get_auxiliary_send_group(uint8_t index) { return m_auxiliary_buses[index]; }
+
+		const filter::filter_interface& get_mute_filter() const { return m_mute_filter; }
+		const effect::effect_interface& get_bus_passthrough() const { return m_bus_passthrough; }
 	protected:
 
 	private:
@@ -85,6 +90,10 @@ namespace age::audio
 		std::array<effect::auxiliary_send_group, 256> m_auxiliary_buses;
 
 		core::background_worker m_maintenance_worker;
+
+		filter::low_pass m_mute_filter;
+		effect::dedicated_dialog m_bus_passthrough;
+
 		std::string m_device_name;
 
 		void* m_device;

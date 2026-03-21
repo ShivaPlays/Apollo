@@ -78,7 +78,7 @@ namespace age::audio::effect
         return int_to_direction(m_right_direction);
     }
 
-    void frequency_shifter::init()
+    void frequency_shifter::init() const
     {
         auto handle = get_handle();
 

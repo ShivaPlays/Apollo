@@ -22,8 +22,13 @@ namespace age::audio::effect
         std::array<slot, config::MAX_AUXILIARY_SENDS>& get_slots() { return m_slots; }
         const std::array<slot, config::MAX_AUXILIARY_SENDS>& get_slots() const { return m_slots; }
 
+        slot& get_slot(size_t index) { return m_slots.at(index); }
+        const slot& get_slot(size_t index) const { return m_slots.at(index); }
+
         void set_enabled(bool value) { m_enabled = value; }
         bool get_enabled() const { return m_enabled; }
+
+        void release() { for (auto& slot : m_slots) slot.release(); }
 
     protected:
 

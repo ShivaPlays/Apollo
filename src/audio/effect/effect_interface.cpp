@@ -26,7 +26,7 @@ namespace age::audio::effect
         AL_CALL(alDeleteEffects(1, &value));
     }
 
-    bool effect_interface::ensure_handle()
+    bool effect_interface::ensure_handle() const
     {
         if (m_handle == 0)
         {
@@ -37,7 +37,7 @@ namespace age::audio::effect
         return m_handle != 0;
     }
 
-    void effect_interface::notify_death()
+    void effect_interface::notify_death() const
     {
         m_tracker.notify_and_clear([this](slot* s) {
             s->on_effect_destroyed(this);

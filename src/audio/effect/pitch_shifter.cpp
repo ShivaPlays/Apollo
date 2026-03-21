@@ -40,7 +40,7 @@ namespace age::audio::effect
         return m_fine_tune;
     }
 
-    void pitch_shifter::init()
+    void pitch_shifter::init() const
     {
         auto handle = get_handle();
 

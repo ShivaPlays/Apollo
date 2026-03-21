@@ -19,7 +19,7 @@ namespace age::audio::filter
         float get_gain_hf() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "audio/effect/effect_interface.h"
+#include "effect_interface.h"
 
 namespace age::audio::effect
 {
@@ -31,7 +31,7 @@ namespace age::audio::effect
         direction get_right_direction() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         float m_frequency{ 0.0f };

@@ -14,6 +14,7 @@ namespace age::audio
         if (m_auxiliary_bus == 0)
         {
             m_source.reset_effect_slots();
+            m_source.clear_filter();
             return;
         }
 
@@ -21,9 +22,11 @@ namespace age::audio
         if (!aux_group.get_enabled())
         {
             m_source.reset_effect_slots();
+            m_source.clear_filter();
             return;
         }
 
         m_source.update_effect_slots(aux_group);
+        m_source.attach_filter(device::get().get_mute_filter());
     }
 }

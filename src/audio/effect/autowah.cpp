@@ -68,7 +68,7 @@ namespace age::audio::effect
         return m_peak_gain;
     }
 
-    void autowah::init()
+    void autowah::init() const
     {
         const auto handle = get_handle();
 

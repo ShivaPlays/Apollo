@@ -66,7 +66,7 @@ namespace age::audio::effect
         }
     }
 
-    void ring_modulator::init()
+    void ring_modulator::init() const
     {
         auto handle = get_handle();
 

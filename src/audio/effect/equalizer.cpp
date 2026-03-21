@@ -152,7 +152,7 @@ namespace age::audio::effect
         return m_high_cutoff;
     }
 
-    void equalizer::init()
+    void equalizer::init() const
     {
         const auto handle = get_handle();
 

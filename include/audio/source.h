@@ -108,7 +108,7 @@ namespace age::audio
 		void set_looping(bool value);
 		bool get_looping() const;
 
-		void set_buffer(const buffer& value);
+		void attach_buffer(const buffer& value);
 		bool has_buffer_attached(const buffer& value) const;
 		void detach_buffer(const buffer& value);
 
@@ -118,6 +118,11 @@ namespace age::audio
 		queue_buffer unqueue_buffer();
 
 		void clear_buffers();
+
+		void attach_filter(const filter::filter_interface& filter);
+		bool has_filter_attached(const filter::filter_interface& filter) const;
+		void detach_filter(const filter::filter_interface& filter);
+		void clear_filter();
 
 		void set_effect_slot(size_t index, const effect::slot& slot);
 		void update_effect_slots(const effect::auxiliary_send_group& group);
@@ -147,5 +152,6 @@ namespace age::audio
 		std::array<slot_filter, config::MAX_AUXILIARY_SENDS> m_slot_filters;
 
 		uint32_t m_attached_buffer;
+		uint32_t m_attached_direct_filter;
 	};
 }

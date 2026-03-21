@@ -59,7 +59,9 @@ add_library(${LIB_NAME} STATIC
         include/audio/effect/auxiliary_send_group.h src/audio/effect/auxiliary_send_group.cpp
         include/audio/effect/chorus.h src/audio/effect/chorus.cpp
         include/audio/effect/compressor.h src/audio/effect/compressor.cpp
+        include/audio/effect/dedicated_dialog.h src/audio/effect/dedicated_dialog.cpp
         include/audio/effect/distortion.h src/audio/effect/distortion.cpp
+        include/audio/effect/eax_reverb.h src/audio/effect/eax_reverb.cpp
         include/audio/effect/echo.h src/audio/effect/echo.cpp
         include/audio/effect/effect_interface.h src/audio/effect/effect_interface.cpp
         include/audio/effect/equalizer.h src/audio/effect/equalizer.cpp

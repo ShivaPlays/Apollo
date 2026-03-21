@@ -42,7 +42,7 @@ namespace age::audio::filter
         return m_gain_lf;
     }
 
-    void high_pass::init()
+    void high_pass::init() const
     {
         AL_CALL(alFilteri(get_handle(), AL_FILTER_TYPE, AL_FILTER_HIGHPASS));
         AL_CALL(alFilterf(get_handle(), AL_HIGHPASS_GAIN, m_gain));

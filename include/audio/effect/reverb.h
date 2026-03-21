@@ -53,7 +53,7 @@ namespace age::audio::effect
         bool get_decay_hfl_limit() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         float m_air_absorption_gain_hf{ 0.994 };

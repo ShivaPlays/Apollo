@@ -39,7 +39,7 @@ namespace age::audio::effect
         float get_delay() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         int32_t m_waveform{ 1 };

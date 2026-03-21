@@ -21,6 +21,7 @@ namespace age::audio::effect
     class slot
     {
     public:
+        friend class auxiliary_send_group;
         friend class effect_interface;
         friend class audio::filter::filter_interface;
 
@@ -38,18 +39,24 @@ namespace age::audio::effect
         slot& operator=(slot&& other) noexcept;
 
     public:
-        void attach_effect(effect_interface* value);
-        void attach_filter(filter::filter_interface* value);
+        void set_passthrough();
 
-        effect_interface* get_effect() const;
-        filter::filter_interface* get_filter() const;
+        void attach_effect(const effect_interface* value);
+        void attach_filter(const filter::filter_interface* value);
+
+        const effect_interface* get_effect() const;
+        const filter::filter_interface* get_filter() const;
 
         void set_volume(float value);
         float get_volume() const;
 
         void apply_effect();
 
+        void set_spatialized(bool value);
+        bool get_spatialized() const;
+
         uint32_t get_handle() const { return m_handle; }
+
     protected:
 
     private:
@@ -57,22 +64,25 @@ namespace age::audio::effect
         static void delete_handle(uint32_t handle);
 
         bool ensure_handle();
+        void release();
 
         void notify_death();
-        void on_effect_destroyed(effect_interface* value);
-        void on_filter_destroyed(filter::filter_interface* value);
+        void on_effect_destroyed(const effect_interface* value);
+        void on_filter_destroyed(const filter::filter_interface* value);
 
         std::mutex m_effect_mutex{};
-        effect_interface* m_effect{ nullptr };
+        const effect_interface* m_effect{ nullptr };
 
         std::mutex m_filter_mutex{};
-        filter::filter_interface* m_filter{ nullptr };
+        const filter::filter_interface* m_filter{ nullptr };
 
         auxiliary_send_group* m_owner{ nullptr };
         size_t m_index{};
 
         unique_handle<uint32_t, delete_handle> m_handle{};
 
-        float m_volume = 1.0f;
+        float m_volume { 1.0f };
+
+        bool m_spatialized{ true };
     };
 }

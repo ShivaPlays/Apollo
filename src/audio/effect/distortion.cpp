@@ -82,7 +82,7 @@ namespace age::audio::effect
         return m_eq_bandwidth;
     }
 
-    void distortion::init()
+    void distortion::init() const
     {
         const auto handle = get_handle();
 

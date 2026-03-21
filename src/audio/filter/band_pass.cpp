@@ -54,7 +54,7 @@ namespace age::audio::filter
         return m_gain_hf;
     }
 
-    void band_pass::init()
+    void band_pass::init() const
     {
         AL_CALL(alFilteri(get_handle(), AL_FILTER_TYPE, AL_FILTER_BANDPASS));
         AL_CALL(alFilterf(get_handle(), AL_BANDPASS_GAIN, m_gain));

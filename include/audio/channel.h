@@ -98,7 +98,7 @@ namespace age::audio
         void set_looping(bool value) { m_source.set_looping(value); }
         bool get_looping() const { return m_source.get_looping(); }
 
-        void set_buffer(const buffer& value) { m_source.set_buffer(value); }
+        void attach_buffer(const buffer& value) { m_source.attach_buffer(value); }
         bool has_buffer_attached(const buffer& value) const { return m_source.has_buffer_attached(value); }
         void detach_buffer(const buffer& value) { m_source.detach_buffer(value); }
 
@@ -108,6 +108,11 @@ namespace age::audio
         queue_buffer unqueue_buffer() { return m_source.unqueue_buffer(); }
 
         void clear_buffers() { m_source.clear_buffers(); }
+
+        void attach_filter(const filter::filter_interface& filter) { m_source.attach_filter(filter); }
+        bool has_filter_attached(const filter::filter_interface& filter) const { return m_source.has_filter_attached(filter); }
+        void detach_filter(const filter::filter_interface& filter) { m_source.detach_filter(filter); }
+        void clear_filter() { m_source.clear_filter(); }
 
         void invalidate() { m_source.invalidate(); }
 

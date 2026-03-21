@@ -196,7 +196,7 @@ namespace age::audio::effect
         return m_rate;
     }
 
-    void vocal_morpher::init()
+    void vocal_morpher::init() const
     {
         auto handle = get_handle();
 

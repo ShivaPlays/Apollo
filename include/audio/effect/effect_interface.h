@@ -27,24 +27,24 @@ namespace age::audio::effect
         virtual ~effect_interface() { notify_death(); }
 
     public:
-        void register_slot(slot* value) { m_tracker.add(value); }
+        void register_slot(slot* value) const { m_tracker.add(value); }
 
     protected:
-        virtual void init() = 0;
+        virtual void init() const = 0;
 
-        bool ensure_handle();
+        bool ensure_handle() const;
         uint32_t get_handle() const { return m_handle; }
 
     private:
         static uint32_t gen_handle();
         static void delete_handle(uint32_t value);
 
-        void notify_death();
-        void remove_slot(slot* value) { m_tracker.remove(value); }
-        void update_slot_address(slot* old_addr, slot* new_addr) { m_tracker.update_address(old_addr, new_addr); }
+        void notify_death() const;
+        void remove_slot(slot* value) const { m_tracker.remove(value); }
+        void update_slot_address(slot* old_addr, slot* new_addr) const { m_tracker.update_address(old_addr, new_addr); }
 
-        core::dependency_tracker<slot, 8> m_tracker;
+        mutable core::dependency_tracker<slot, 8> m_tracker;
 
-        unique_handle<uint32_t, delete_handle> m_handle{};
+        mutable unique_handle<uint32_t, delete_handle> m_handle{};
     };
 }

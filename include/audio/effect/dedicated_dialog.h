@@ -1,5 +1,5 @@
 //
-// Created by skaldi on 06.03.26.
+// Created by skaldi on 21.03.26.
 //
 
 #pragma once
@@ -8,18 +8,19 @@
 
 namespace age::audio::effect
 {
-    class compressor : public effect_interface
+    class dedicated_dialog : public effect_interface
     {
     public:
 
     public:
-        void set_on_off(bool value);
-        bool get_on_off() const;
+        void set_gain(float value);
+        float get_gain() const;
+
 
     protected:
         void init() const override;
 
     private:
-        bool m_on_off{ true };
+        float m_gain{ 1.0f };
     };
 }

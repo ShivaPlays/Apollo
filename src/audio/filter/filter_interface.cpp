@@ -27,7 +27,7 @@ namespace age::audio::filter
         alDeleteFilters(1, &value);
     }
 
-    bool filter_interface::ensure_handle()
+    bool filter_interface::ensure_handle() const
     {
         if (m_handle == 0)
         {

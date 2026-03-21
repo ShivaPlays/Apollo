@@ -26,7 +26,7 @@ namespace age::audio::effect
         return m_on_off;
     }
 
-    void compressor::init()
+    void compressor::init() const
     {
         const auto handle = get_handle();
 

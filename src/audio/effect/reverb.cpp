@@ -194,7 +194,7 @@ namespace age::audio::effect
         return m_decay_hfl_limit;
     }
 
-    void reverb::init()
+    void reverb::init() const
     {
         const auto handle = get_handle();
 

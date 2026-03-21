@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "audio/effect/effect_interface.h"
+#include "effect_interface.h"
 
 namespace age::audio::effect
 {
@@ -76,7 +76,7 @@ namespace age::audio::effect
         float get_rate() const;
 
     protected:
-        void init() override;
+        void init() const override;
 
     private:
         int32_t m_phoneme_a{ 0 };

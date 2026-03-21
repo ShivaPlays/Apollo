@@ -82,7 +82,7 @@ namespace age::audio::effect
         return m_spread;
     }
 
-    void echo::init()
+    void echo::init() const
     {
         const auto handle = get_handle();
 

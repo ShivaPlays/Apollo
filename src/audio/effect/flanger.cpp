@@ -107,7 +107,7 @@ namespace age::audio::effect
         return m_delay;
     }
 
-    void flanger::init()
+    void flanger::init() const
     {
         const auto handle = get_handle();
 

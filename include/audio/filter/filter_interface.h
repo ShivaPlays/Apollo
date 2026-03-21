@@ -35,22 +35,22 @@ namespace age::audio::filter
         uint32_t get_handle() const { return m_handle; }
 
     protected:
-        virtual void init() = 0;
+        virtual void init() const = 0;
 
-        bool ensure_handle();
+        bool ensure_handle() const;
 
     private:
         static uint32_t gen_handle();
         static void delete_handle(uint32_t value);
 
-        void register_slot(effect::slot* value) { m_tracker.add(value); }
-        void remove_slot(effect::slot* value)   { m_tracker.remove(value); }
-        void update_slot_address(effect::slot* old_addr, effect::slot* new_addr) { m_tracker.update_address(old_addr, new_addr); }
+        void register_slot(effect::slot* value) const { m_tracker.add(value); }
+        void remove_slot(effect::slot* value) const { m_tracker.remove(value); }
+        void update_slot_address(effect::slot* old_addr, effect::slot* new_addr) const { m_tracker.update_address(old_addr, new_addr); }
 
         void notify_death();
 
-        core::dependency_tracker<effect::slot, 8> m_tracker;
+        mutable core::dependency_tracker<effect::slot, 8> m_tracker;
 
-        unique_handle<uint32_t, delete_handle> m_handle{};
+        mutable unique_handle<uint32_t, delete_handle> m_handle{};
     };
 }

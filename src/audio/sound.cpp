@@ -44,7 +44,7 @@ namespace age::audio
 			if (current_attached_channel->get_looping())
 			{
 				current_attached_channel->stop();
-				current_attached_channel->set_buffer(*m_buffer);
+				current_attached_channel->attach_buffer(*m_buffer);
 				current_attached_channel->set_looping(looped);
 				current_attached_channel->play();
 

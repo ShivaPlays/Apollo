@@ -17,11 +17,13 @@ namespace age::audio
 {
 	source::source()
 		: m_attached_buffer{ AL_NONE }
+		, m_attached_direct_filter { AL_FILTER_NULL}
 	{}
 
 	source::source(uint32_t handle)
 		: m_handle{ handle }
 		, m_attached_buffer{ AL_NONE }
+		, m_attached_direct_filter { AL_FILTER_NULL}
 	{
 		apply_properties(properties{}, true);
 	}
@@ -347,7 +349,7 @@ namespace age::audio
 		return m_properties.looping;
 	}
 
-	void source::set_buffer(const buffer& value)
+	void source::attach_buffer(const buffer& value)
 	{
 		auto new_buffer = value.get_handle();
 
@@ -441,6 +443,55 @@ namespace age::audio
 
 		//get rid of an eventual bound buffer
 		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
+	}
+
+	void source::attach_filter(const filter::filter_interface &filter)
+	{
+		if (m_attached_direct_filter != filter.get_handle())
+		{
+			if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_DIRECT_FILTER, filter.get_handle()));
+
+			m_attached_direct_filter = filter.get_handle();
+		}
+	}
+
+	bool source::has_filter_attached(const filter::filter_interface &filter) const
+	{
+		auto search_id = filter.get_handle();
+
+		if (m_attached_direct_filter == search_id) return true;
+
+		return std::any_of(m_slot_filters.begin(), m_slot_filters.end(), [search_id](const auto& sf) {
+			return sf.attached_filter == search_id;
+		});
+	}
+
+	void source::detach_filter(const filter::filter_interface &filter)
+	{
+		if (has_filter_attached(filter))
+		{
+			if (ensure_handle())
+			{
+				AL_CALL(alSourcei(m_handle, AL_DIRECT_FILTER, AL_FILTER_NULL));
+
+				for (size_t i = 0; i < m_slot_filters.size(); ++i)
+				{
+					if (m_slot_filters[i].attached_filter == filter.get_handle()) update_slot_filter(i, nullptr);
+				}
+
+				m_attached_direct_filter = AL_FILTER_NULL;
+			}
+		}
+	}
+
+	void source::clear_filter()
+	{
+		if (m_attached_direct_filter != AL_FILTER_NULL)
+		{
+			if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_DIRECT_FILTER, AL_FILTER_NULL));
+
+			m_attached_direct_filter = AL_FILTER_NULL;
+		}
 	}
 
 	void source::set_effect_slot(size_t index, const effect::slot &slot)
