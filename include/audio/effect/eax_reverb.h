@@ -15,12 +15,79 @@ namespace age::audio::effect
     public:
 
     public:
+        void set_density(float value);
+        float get_density() const;
+
+        void set_diffusion(float value);
+        float get_diffusion() const;
+
+        void set_gain(float value);
+        float get_gain() const;
+
+        void set_gain_hf(float value);
+        float get_gain_hf() const;
+
+        void set_gain_lf(float value);
+        float get_gain_lf() const;
+
+        void set_decay_time(float value);
+        float get_decay_time() const;
+
+        void set_decay_hf_ratio(float value);
+        float get_decay_hf_ratio() const;
+
+        void set_decay_lf_ratio(float value);
+        float get_decay_lf_ratio() const;
+
+        void set_reflections_gain(float value);
+        float get_reflections_gain() const;
+
+        void set_reflections_delay(float value);
+        float get_reflections_delay() const;
+
+        void set_reflections_pan(const glm::vec3& value);
+        const glm::vec3& get_reflections_pan() const;
+
+        void set_late_reverb_gain(float value);
+        float get_late_reverb_gain() const;
+
+        void set_late_reverb_delay(float value);
+        float get_late_reverb_delay() const;
+
+        void set_late_reverb_pan(const glm::vec3& value);
+        const glm::vec3& get_late_reverb_pan() const;
+
+        void set_echo_time(float value);
+        float get_echo_time() const;
+
+        void set_echo_depth(float value);
+        float get_echo_depth() const;
+
+        void set_modulation_time(float value);
+        float get_modulation_time() const;
+
+        void set_modulation_depth(float value);
+        float get_modulation_depth() const;
+
+        void set_air_absorption_gain_hf(float value);
+        float get_air_absorption_gain_hf() const;
+
+        void set_hf_reference(float value);
+        float get_hf_reference() const;
+
+        void set_lf_reference(float value);
+        float get_lf_reference() const;
+
+        void set_room_rolloff_factor(float value);
+        float get_room_rolloff_factor() const;
+
+        void set_decay_hf_limit(bool value);
+        bool get_decay_hf_limit() const;
 
     protected:
         void init() const override;
 
     private:
-
         float m_density{ 1.0f };
         float m_diffusion{ 1.0f };
         float m_gain{ 0.32f };
