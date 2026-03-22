@@ -40,6 +40,7 @@ add_library(${LIB_NAME} STATIC
         include/audio/channel_guard.h
         include/audio/config.h
         include/audio/device.h src/audio/device.cpp
+        include/audio/filter.h src/audio/filter.cpp
         include/audio/format.h src/audio/format.cpp
         include/audio/listener.h src/audio/listener.cpp
         include/audio/music.h src/audio/music.cpp
@@ -73,11 +74,6 @@ add_library(${LIB_NAME} STATIC
         include/audio/effect/slot.h src/audio/effect/slot.cpp
         include/audio/effect/vocal_morpher.h src/audio/effect/vocal_morpher.cpp
 
-        # Audio Filters
-        include/audio/filter/band_pass.h src/audio/filter/band_pass.cpp
-        include/audio/filter/filter_interface.h src/audio/filter/filter_interface.cpp
-        include/audio/filter/high_pass.h src/audio/filter/high_pass.cpp
-        include/audio/filter/low_pass.h src/audio/filter/low_pass.cpp
 
         # Audio Private
         include/audio/priv/al_check.h

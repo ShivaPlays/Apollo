@@ -250,8 +250,6 @@ namespace age::audio
 		destroy_context_and_close_device();
 		open_device_and_create_context(device_name, max_auxiliary_sends);
 		setup_channels();
-		m_mute_filter.set_gain(0.0f);
-		m_mute_filter.set_gain_hf(0.0f);
 
 		m_device_name = device_name ? device_name : std::string{};
 		m_is_initialised = true;

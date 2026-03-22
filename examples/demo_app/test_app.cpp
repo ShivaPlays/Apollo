@@ -114,21 +114,28 @@ age::engine::app_result test_app::on_user_create()
     */
 
     m_test_effect.set_gain_hf(0.1f);
-    m_test_effect.set_decay_time(1.5f);
+    m_test_effect.set_decay_time(2.5f);
     m_test_effect.set_air_absorption_gain_hf(0.9f);
     m_test_effect.set_decay_hf_ratio(0.1f);
+    m_test_effect.set_decay_lf_ratio(2.0f);
     m_test_effect.set_density(1.0f);
-    m_test_filter.set_gain(1.0f);
-    m_test_filter.set_gain_hf(0.1f);
+    m_test_effect.set_echo_time(0.12f);
+    m_test_effect.set_echo_depth(0.4f);
+    m_test_effect.set_hf_reference(5000.0f);
+    m_test_effect.set_lf_reference(200.0f);
+
+    //m_test_filter.set_gain(1.0f);
+    //m_test_filter.set_gain_hf(0.1f);
+
     age::audio::device::get().get_auxiliary_send_group(1).set_enabled(true);
     age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_effect(&m_test_effect);
-    age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_filter(&m_test_filter);
+    //age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_filter(&m_test_filter);
     age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).set_volume(1.0f);
 
     m_test_sound.set_buffer(&m_test_buffer);
 
     m_test_music.open("./test_data/menu.ogg");
-    m_test_music.set_volume(0.5f);
+    m_test_music.set_volume(0.25f);
     m_test_music.set_auxiliary_bus(1);
     m_test_music.set_direct_channels(false);
 

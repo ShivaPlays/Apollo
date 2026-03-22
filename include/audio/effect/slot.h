@@ -8,11 +8,6 @@
 
 #include "utility/utility.h"
 
-namespace age::audio::filter
-{
-    class filter_interface;
-}
-
 namespace age::audio::effect
 {
     class effect_interface;
@@ -23,7 +18,6 @@ namespace age::audio::effect
     public:
         friend class auxiliary_send_group;
         friend class effect_interface;
-        friend class audio::filter::filter_interface;
 
         slot(auxiliary_send_group* parent, size_t index)
             : m_owner{ parent }
@@ -42,10 +36,7 @@ namespace age::audio::effect
         void set_passthrough();
 
         void attach_effect(const effect_interface* value);
-        void attach_filter(const filter::filter_interface* value);
-
         const effect_interface* get_effect() const;
-        const filter::filter_interface* get_filter() const;
 
         void set_volume(float value);
         float get_volume() const;
@@ -68,13 +59,9 @@ namespace age::audio::effect
 
         void notify_death();
         void on_effect_destroyed(const effect_interface* value);
-        void on_filter_destroyed(const filter::filter_interface* value);
 
         std::mutex m_effect_mutex{};
         const effect_interface* m_effect{ nullptr };
-
-        std::mutex m_filter_mutex{};
-        const filter::filter_interface* m_filter{ nullptr };
 
         auxiliary_send_group* m_owner{ nullptr };
         size_t m_index{};

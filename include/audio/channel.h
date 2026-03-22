@@ -109,11 +109,6 @@ namespace age::audio
 
         void clear_buffers() { m_source.clear_buffers(); }
 
-        void attach_filter(const filter::filter_interface& filter) { m_source.attach_filter(filter); }
-        bool has_filter_attached(const filter::filter_interface& filter) const { return m_source.has_filter_attached(filter); }
-        void detach_filter(const filter::filter_interface& filter) { m_source.detach_filter(filter); }
-        void clear_filter() { m_source.clear_filter(); }
-
         void invalidate() { m_source.invalidate(); }
 
         state get_state() const { return m_source.get_state(); }

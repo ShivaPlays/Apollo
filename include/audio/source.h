@@ -8,16 +8,12 @@
 #include "state.h"
 #include "properties.h"
 #include "config.h"
+#include "filter.h"
 
 namespace age::audio::effect
 {
 	class slot;
 	class auxiliary_send_group;
-}
-
-namespace age::audio::filter
-{
-	class filter_interface;
 }
 
 namespace age::audio
@@ -31,12 +27,6 @@ namespace age::audio
 		friend class device;
 
 		class constructor_key { friend class device; constructor_key() {} };
-
-		struct slot_filter
-		{
-			uint32_t attached_slot{};
-			uint32_t attached_filter{};
-		};
 
 		source(constructor_key, uint32_t handle);
 
@@ -119,15 +109,9 @@ namespace age::audio
 
 		void clear_buffers();
 
-		void attach_filter(const filter::filter_interface& filter);
-		bool has_filter_attached(const filter::filter_interface& filter) const;
-		void detach_filter(const filter::filter_interface& filter);
-		void clear_filter();
-
 		void set_effect_slot(size_t index, const effect::slot& slot);
 		void update_effect_slots(const effect::auxiliary_send_group& group);
 		void reset_effect_slots();
-		void update_slot_filter(size_t index, filter::filter_interface* filter);
 
 		void invalidate();
 		
@@ -147,11 +131,13 @@ namespace age::audio
 
 		properties m_properties;
 
-		mutable unique_handle<uint32_t, delete_handle> m_handle;
-		gch::small_vector<uint32_t, 16> m_queued_buffers;
-		std::array<slot_filter, config::MAX_AUXILIARY_SENDS> m_slot_filters;
+		filter m_direct_filter;
+		std::array<filter, config::MAX_AUXILIARY_SENDS> m_send_filters{};
 
-		uint32_t m_attached_buffer;
-		uint32_t m_attached_direct_filter;
+		mutable unique_handle<uint32_t, delete_handle> m_handle{};
+		gch::small_vector<uint32_t, 16> m_queued_buffers{};
+		std::array<uint32_t, config::MAX_AUXILIARY_SENDS> m_slots{};
+
+		uint32_t m_attached_buffer{};
 	};
 }

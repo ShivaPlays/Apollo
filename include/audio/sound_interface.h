@@ -5,11 +5,6 @@
 #include <glm/vec3.hpp>
 #include "properties.h"
 
-namespace age::audio::filter
-{
-	class filter_interface;
-}
-
 namespace age::audio
 {
 	class source;

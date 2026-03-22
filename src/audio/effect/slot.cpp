@@ -12,7 +12,6 @@
 
 #include "audio/effect/effect_interface.h"
 #include "audio/effect/auxiliary_send_group.h"
-#include "audio/filter/filter_interface.h"
 
 #include "audio/priv/al_check.h"
 
@@ -66,10 +65,8 @@ namespace age::audio::effect
     void slot::set_passthrough()
     {
         auto& effect = device::get().get_bus_passthrough();
-        auto& filter = device::get().get_mute_filter();
 
         attach_effect(&effect);
-        attach_filter(&filter);
     }
 
     void slot::attach_effect(const effect_interface *value)
@@ -86,25 +83,6 @@ namespace age::audio::effect
         apply_effect();
     }
 
-    void slot::attach_filter(const filter::filter_interface* value)
-    {
-        std::lock_guard lock{ m_filter_mutex };
-
-        if (m_filter == value) return;
-
-        if (m_filter) m_filter->remove_slot(this);
-
-        m_filter = value;
-
-        if (m_filter)
-        {
-            m_filter->register_slot(this);
-            (void) m_filter->ensure_handle();
-        }
-
-        m_owner->on_slot_filter_changed(*this);
-        ensure_handle();
-    }
 
     void slot::apply_effect()
     {
@@ -160,11 +138,6 @@ namespace age::audio::effect
         return m_effect;
     }
 
-    const filter::filter_interface* slot::get_filter() const
-    {
-        return m_filter;
-    }
-
     void slot::set_volume(float value)
     {
         if (m_volume != value)
@@ -189,13 +162,5 @@ namespace age::audio::effect
             m_effect = nullptr;
             apply_effect();
         }
-    }
-
-    void slot::on_filter_destroyed(const filter::filter_interface *value)
-    {
-        std::lock_guard lock{ m_filter_mutex };
-
-        if (m_filter == value) m_filter = nullptr;
-
     }
 }
