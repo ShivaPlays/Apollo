@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_on_off != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_COMPRESSOR_ONOFF, m_on_off ? 1 : 0));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_COMPRESSOR_ONOFF, m_on_off ? 1 : 0));
             m_on_off = value;
         }
     }

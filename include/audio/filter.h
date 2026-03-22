@@ -38,12 +38,15 @@ namespace age::audio
         };
 
     public:
-        void apply_settings(const settings& settings);
+        void apply_settings(const settings& value, bool forced = false);
+        bool realize() const;
 
-        bool ensure_handle() const;
     protected:
 
     private:
+        void update_driver(const settings& value, bool forced = false) const;
+        void init_internal() const;
+
         static uint32_t gen_handle();
         static void delete_handle(uint32_t handle);
 

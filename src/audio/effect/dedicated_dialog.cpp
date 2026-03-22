@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DEDICATED_GAIN, 1.0f));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DEDICATED_GAIN, 1.0f));
 
             m_gain = value;
         }

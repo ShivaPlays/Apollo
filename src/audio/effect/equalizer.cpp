@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_low_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_LOW_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_LOW_GAIN, value));
             m_low_gain = value;
         }
     }
@@ -30,7 +30,7 @@ namespace age::audio::effect
     {
         if (m_low_cutoff != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_LOW_CUTOFF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_LOW_CUTOFF, value));
             m_low_cutoff = value;
         }
     }
@@ -44,7 +44,7 @@ namespace age::audio::effect
     {
         if (m_mid1_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_GAIN, value));
             m_mid1_gain = value;
         }
     }
@@ -58,7 +58,7 @@ namespace age::audio::effect
     {
         if (m_mid1_center != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_CENTER, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_CENTER, value));
             m_mid1_center = value;
         }
     }
@@ -72,7 +72,7 @@ namespace age::audio::effect
     {
         if (m_mid1_width != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_WIDTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID1_WIDTH, value));
             m_mid1_width = value;
         }
     }
@@ -86,7 +86,7 @@ namespace age::audio::effect
     {
         if (m_mid2_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_GAIN, value));
             m_mid2_gain = value;
         }
     }
@@ -100,7 +100,7 @@ namespace age::audio::effect
     {
         if (m_mid2_center != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_CENTER, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_CENTER, value));
             m_mid2_center = value;
         }
     }
@@ -114,7 +114,7 @@ namespace age::audio::effect
     {
         if (m_mid2_width != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_WIDTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_MID2_WIDTH, value));
             m_mid2_width = value;
         }
     }
@@ -128,7 +128,7 @@ namespace age::audio::effect
     {
         if (m_high_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_HIGH_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_HIGH_GAIN, value));
             m_high_gain = value;
         }
     }
@@ -142,7 +142,7 @@ namespace age::audio::effect
     {
         if (m_high_cutoff != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_HIGH_CUTOFF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EQUALIZER_HIGH_CUTOFF, value));
             m_high_cutoff = value;
         }
     }

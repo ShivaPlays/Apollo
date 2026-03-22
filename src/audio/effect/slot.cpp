@@ -86,14 +86,14 @@ namespace age::audio::effect
 
     void slot::apply_effect()
     {
-        if (ensure_handle()) alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, m_effect ? static_cast<ALint>(m_effect->get_handle()) : AL_EFFECT_NULL);
+        if (realize()) alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_EFFECT, m_effect ? static_cast<ALint>(m_effect->get_handle()) : AL_EFFECT_NULL);
     }
 
     void slot::set_spatialized(bool value)
     {
         if (m_spatialized != value)
         {
-            if (ensure_handle()) AL_CALL(alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, value ? 1 : 0));
+            if (realize()) AL_CALL(alAuxiliaryEffectSloti(m_handle, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, value ? 1 : 0));
 
             m_spatialized = value;
         }
@@ -117,7 +117,7 @@ namespace age::audio::effect
         AL_CALL(alDeleteAuxiliaryEffectSlots(1, &handle));
     }
 
-    bool slot::ensure_handle()
+    bool slot::realize()
     {
         if (m_handle == 0)
         {
@@ -142,7 +142,7 @@ namespace age::audio::effect
     {
         if (m_volume != value)
         {
-            if (ensure_handle()) AL_CALL(alAuxiliaryEffectSlotf(m_handle, AL_EFFECTSLOT_GAIN, value));
+            if (realize()) AL_CALL(alAuxiliaryEffectSlotf(m_handle, AL_EFFECTSLOT_GAIN, value));
 
             m_volume = value;
         }

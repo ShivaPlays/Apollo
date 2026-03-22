@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_attack_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_ATTACK_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_ATTACK_TIME, value));
             m_attack_time = value;
         }
     }
@@ -30,7 +30,7 @@ namespace age::audio::effect
     {
         if (m_release_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_RELEASE_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_RELEASE_TIME, value));
             m_release_time = value;
         }
     }
@@ -44,7 +44,7 @@ namespace age::audio::effect
     {
         if (m_resonance != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_RESONANCE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_RESONANCE, value));
             m_resonance = value;
         }
     }
@@ -58,7 +58,7 @@ namespace age::audio::effect
     {
         if (m_peak_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_PEAK_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_AUTOWAH_PEAK_GAIN, value));
             m_peak_gain = value;
         }
     }

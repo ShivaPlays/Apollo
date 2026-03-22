@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_coarse_tune != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_PITCH_SHIFTER_COARSE_TUNE, value));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_PITCH_SHIFTER_COARSE_TUNE, value));
             m_coarse_tune = value;
         }
     }
@@ -30,7 +30,7 @@ namespace age::audio::effect
     {
         if (m_fine_tune != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_PITCH_SHIFTER_FINE_TUNE, value));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_PITCH_SHIFTER_FINE_TUNE, value));
             m_fine_tune = value;
         }
     }

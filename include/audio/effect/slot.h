@@ -54,7 +54,7 @@ namespace age::audio::effect
         static uint32_t gen_handle();
         static void delete_handle(uint32_t handle);
 
-        bool ensure_handle();
+        bool realize();
         void release();
 
         void notify_death();

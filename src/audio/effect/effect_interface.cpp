@@ -26,7 +26,7 @@ namespace age::audio::effect
         AL_CALL(alDeleteEffects(1, &value));
     }
 
-    bool effect_interface::ensure_handle() const
+    bool effect_interface::realize() const
     {
         if (m_handle == 0)
         {

@@ -32,7 +32,7 @@ namespace age::audio::effect
     protected:
         virtual void init() const = 0;
 
-        bool ensure_handle() const;
+        bool realize() const;
         uint32_t get_handle() const { return m_handle; }
 
     private:

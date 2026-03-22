@@ -31,27 +31,27 @@ namespace age::audio
 
 	void source::play()
 	{
-		if (ensure_handle()) AL_CALL(alSourcePlay(m_handle));
+		if (realize()) AL_CALL(alSourcePlay(m_handle));
 	}
 
 	void source::stop()
 	{
-		if (ensure_handle()) AL_CALL(alSourceStop(m_handle));
+		if (realize()) AL_CALL(alSourceStop(m_handle));
 	}
 
 	void source::pause()
 	{
-		if (ensure_handle()) AL_CALL(alSourcePause(m_handle));
+		if (realize()) AL_CALL(alSourcePause(m_handle));
 	}
 
 	void source::rewind()
 	{
-		if (ensure_handle()) AL_CALL(alSourceRewind(m_handle));
+		if (realize()) AL_CALL(alSourceRewind(m_handle));
 	}
 
 	void source::apply_properties(const properties& properties, bool force)
 	{
-		if (ensure_handle())
+		if (realize())
 		{
 			if (force || m_properties.position != properties.position) AL_CALL(alSource3f(m_handle, AL_POSITION, properties.position.x, properties.position.y, properties.position.z));
 			if (force || m_properties.velocity != properties.velocity) AL_CALL(alSource3f(m_handle, AL_VELOCITY, properties.velocity.x, properties.velocity.y, properties.velocity.z));
@@ -80,7 +80,7 @@ namespace age::audio
 	{
 		if (m_properties.position != value)
 		{
-			if (ensure_handle()) AL_CALL(alSource3f(m_handle, AL_POSITION, value.x, value.y, value.z));
+			if (realize()) AL_CALL(alSource3f(m_handle, AL_POSITION, value.x, value.y, value.z));
 
 			m_properties.position = value;
 		}
@@ -95,7 +95,7 @@ namespace age::audio
 	{
 		if (m_properties.velocity != value)
 		{
-			if (ensure_handle()) AL_CALL(alSource3f(m_handle, AL_VELOCITY, value.x, value.y, value.z));
+			if (realize()) AL_CALL(alSource3f(m_handle, AL_VELOCITY, value.x, value.y, value.z));
 
 			m_properties.velocity = value;
 		}
@@ -110,7 +110,7 @@ namespace age::audio
 	{
 		if (m_properties.direction != value)
 		{
-			if (ensure_handle()) AL_CALL(alSource3f(m_handle, AL_DIRECTION, value.x, value.y, value.z));
+			if (realize()) AL_CALL(alSource3f(m_handle, AL_DIRECTION, value.x, value.y, value.z));
 
 			m_properties.direction = value;
 		}
@@ -125,7 +125,7 @@ namespace age::audio
 	{
 		if (m_properties.source_radius != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_SOURCE_RADIUS, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_SOURCE_RADIUS, value));
 
 			m_properties.source_radius = value;
 		}
@@ -140,7 +140,7 @@ namespace age::audio
 	{
 		if (m_properties.cone_inner_angle != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_CONE_INNER_ANGLE, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_CONE_INNER_ANGLE, value));
 
 			m_properties.cone_inner_angle = value;
 		}
@@ -155,7 +155,7 @@ namespace age::audio
 	{
 		if (m_properties.cone_outer_angle != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_ANGLE, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_ANGLE, value));
 
 			m_properties.cone_outer_angle = value;
 		}
@@ -170,7 +170,7 @@ namespace age::audio
 	{
 		if (m_properties.cone_outer_gain != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_GAIN, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_GAIN, value));
 
 			m_properties.cone_outer_gain = value;
 		}
@@ -185,7 +185,7 @@ namespace age::audio
 	{
 		if (m_properties.pitch != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_PITCH, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_PITCH, value));
 
 			m_properties.pitch = value;
 		}
@@ -200,7 +200,7 @@ namespace age::audio
 	{
 		if (m_properties.volume != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_GAIN, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_GAIN, value));
 
 			m_properties.volume = value;
 		}
@@ -215,7 +215,7 @@ namespace age::audio
 	{
 		if (m_properties.min_gain != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_MIN_GAIN, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_MIN_GAIN, value));
 
 			m_properties.min_gain = value;
 		}
@@ -230,7 +230,7 @@ namespace age::audio
 	{
 		if (m_properties.max_gain != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_MAX_GAIN, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_MAX_GAIN, value));
 
 			m_properties.max_gain = value;
 		}
@@ -245,7 +245,7 @@ namespace age::audio
 	{
 		if (m_properties.max_distance != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_MAX_DISTANCE, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_MAX_DISTANCE, value));
 
 			m_properties.max_distance = value;
 		}
@@ -260,7 +260,7 @@ namespace age::audio
 	{
 		if (m_properties.rolloff_factor != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_ROLLOFF_FACTOR, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_ROLLOFF_FACTOR, value));
 
 			m_properties.rolloff_factor = value;
 		}
@@ -275,7 +275,7 @@ namespace age::audio
 	{
 		if (m_properties.reference_distance != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_REFERENCE_DISTANCE, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_REFERENCE_DISTANCE, value));
 
 			m_properties.reference_distance = value;
 		}
@@ -290,7 +290,7 @@ namespace age::audio
 	{
 		if (m_properties.relative_to_listener != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_SOURCE_RELATIVE, value ? 1 : 0));
+			if (realize()) AL_CALL(alSourcei(m_handle, AL_SOURCE_RELATIVE, value ? 1 : 0));
 
 			m_properties.relative_to_listener = value;
 		}
@@ -305,7 +305,7 @@ namespace age::audio
 	{
 		if (m_properties.air_absorption_factor != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcef(m_handle, AL_AIR_ABSORPTION_FACTOR, value));
+			if (realize()) AL_CALL(alSourcef(m_handle, AL_AIR_ABSORPTION_FACTOR, value));
 
 			m_properties.air_absorption_factor = value;
 		}
@@ -320,7 +320,7 @@ namespace age::audio
 	{
 		if (m_properties.direct_channels != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, value ? 1 : 0));
+			if (realize()) AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, value ? 1 : 0));
 
 			m_properties.direct_channels = value;
 		}
@@ -335,7 +335,7 @@ namespace age::audio
 	{
 		if (m_properties.looping != value)
 		{
-			if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_LOOPING, value ? 1 : 0));
+			if (realize()) AL_CALL(alSourcei(m_handle, AL_LOOPING, value ? 1 : 0));
 
 			m_properties.looping = value;
 		}
@@ -352,7 +352,7 @@ namespace age::audio
 
 		if (m_attached_buffer != new_buffer)
 		{
-			if (ensure_handle())
+			if (realize())
 			{
 				AL_CALL(alSourcei(m_handle, AL_BUFFER, new_buffer));
 
@@ -381,7 +381,7 @@ namespace age::audio
 			if (auto state = get_state(); state == state::playing || state == state::paused)
 				stop();
 
-			if (ensure_handle())
+			if (realize())
 			{
 				AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
 				m_attached_buffer = AL_NONE;
@@ -394,7 +394,7 @@ namespace age::audio
 	{
 		ALuint handle = value.get_handle();
 
-		if (ensure_handle())
+		if (realize())
 		{
 			AL_CALL(alSourceQueueBuffers(m_handle, 1, &handle));
 			m_queued_buffers.push_back(handle);
@@ -423,7 +423,7 @@ namespace age::audio
 	{
 		ALuint buffer = 0;
 
-		if (ensure_handle())
+		if (realize())
 		{
 			AL_CALL(alSourceUnqueueBuffers(m_handle, 1, &buffer));
 			if (!m_queued_buffers.empty() && buffer) m_queued_buffers.erase(m_queued_buffers.begin());
@@ -439,7 +439,7 @@ namespace age::audio
 			stop();
 
 		//get rid of an eventual bound buffer
-		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
+		if (realize()) AL_CALL(alSourcei(m_handle, AL_BUFFER, AL_NONE));
 	}
 
 
@@ -447,7 +447,7 @@ namespace age::audio
 	{
 		if (index < m_slots.size() && m_slots[index] != slot.get_handle())
 		{
-			if (ensure_handle())
+			if (realize())
 			{
 				auto slot_id = slot.get_handle();
 
@@ -470,7 +470,7 @@ namespace age::audio
 		{
 			if (auto& sf = m_slots[i]; sf != AL_EFFECTSLOT_NULL)
 			{
-				if (ensure_handle()) AL_CALL(alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, sf, i, AL_FILTER_NULL));
+				if (realize()) AL_CALL(alSource3i(m_handle, AL_AUXILIARY_SEND_FILTER, sf, i, AL_FILTER_NULL));
 				sf = AL_EFFECTSLOT_NULL;
 			}
 		}
@@ -501,7 +501,7 @@ namespace age::audio
 		}
 	}
 
-	bool source::ensure_handle()
+	bool source::realize()
 	{
 		if (!m_handle)
 		{
@@ -517,7 +517,7 @@ namespace age::audio
 
 	void source::enable_source_spatialize()
 	{
-		if (ensure_handle()) AL_CALL(alSourcei(m_handle, AL_SOURCE_SPATIALIZE_SOFT, AL_AUTO_SOFT));
+		if (realize()) AL_CALL(alSourcei(m_handle, AL_SOURCE_SPATIALIZE_SOFT, AL_AUTO_SOFT));
 	}
 
 	uint32_t source::gen_handle()

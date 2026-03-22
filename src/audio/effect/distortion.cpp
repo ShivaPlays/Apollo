@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_edge != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EDGE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EDGE, value));
             m_edge = value;
         }
     }
@@ -30,7 +30,7 @@ namespace age::audio::effect
     {
         if (m_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_GAIN, value));
             m_gain = value;
         }
     }
@@ -44,7 +44,7 @@ namespace age::audio::effect
     {
         if (m_lowpass_cutoff != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_LOWPASS_CUTOFF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_LOWPASS_CUTOFF, value));
             m_lowpass_cutoff = value;
         }
     }
@@ -58,7 +58,7 @@ namespace age::audio::effect
     {
         if (m_eq_center != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EQCENTER, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EQCENTER, value));
             m_eq_center = value;
         }
     }
@@ -72,7 +72,7 @@ namespace age::audio::effect
     {
         if (m_eq_bandwidth != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EQBANDWIDTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_DISTORTION_EQBANDWIDTH, value));
             m_eq_bandwidth = value;
         }
     }

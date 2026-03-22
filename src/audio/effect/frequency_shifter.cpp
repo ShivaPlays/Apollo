@@ -36,7 +36,7 @@ namespace age::audio::effect
     {
         if (m_frequency != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_FREQUENCY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_FREQUENCY, value));
             m_frequency = value;
         }
     }
@@ -52,7 +52,7 @@ namespace age::audio::effect
 
         if (m_left_direction != left_direction)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_LEFT_DIRECTION, left_direction));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_LEFT_DIRECTION, left_direction));
             m_left_direction = left_direction;
         }
     }
@@ -68,7 +68,7 @@ namespace age::audio::effect
 
         if (m_right_direction != right_direction)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_RIGHT_DIRECTION, right_direction));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FREQUENCY_SHIFTER_RIGHT_DIRECTION, right_direction));
             m_right_direction = right_direction;
         }
     }

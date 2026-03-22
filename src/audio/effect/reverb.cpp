@@ -16,7 +16,7 @@ namespace age::audio::effect
     {
         if (m_air_absorption_gain_hf != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_AIR_ABSORPTION_GAINHF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_AIR_ABSORPTION_GAINHF, value));
             m_air_absorption_gain_hf = value;
         }
     }
@@ -30,7 +30,7 @@ namespace age::audio::effect
     {
         if (m_density != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DENSITY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DENSITY, value));
             m_density = value;
         }
     }
@@ -44,7 +44,7 @@ namespace age::audio::effect
     {
         if (m_diffusion != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DIFFUSION, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DIFFUSION, value));
             m_diffusion = value;
         }
     }
@@ -58,7 +58,7 @@ namespace age::audio::effect
     {
         if (m_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_GAIN, value));
             m_gain = value;
         }
     }
@@ -72,7 +72,7 @@ namespace age::audio::effect
     {
         if (m_gain_hf != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_GAINHF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_GAINHF, value));
             m_gain_hf = value;
         }
     }
@@ -86,7 +86,7 @@ namespace age::audio::effect
     {
         if (m_decay_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DECAY_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DECAY_TIME, value));
             m_decay_time = value;
         }
     }
@@ -100,7 +100,7 @@ namespace age::audio::effect
     {
         if (m_decay_hf_ratio != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DECAY_HFRATIO, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_DECAY_HFRATIO, value));
             m_decay_hf_ratio = value;
         }
     }
@@ -114,7 +114,7 @@ namespace age::audio::effect
     {
         if (m_reflections_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_REFLECTIONS_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_REFLECTIONS_GAIN, value));
             m_reflections_gain = value;
         }
     }
@@ -128,7 +128,7 @@ namespace age::audio::effect
     {
         if (m_reflections_delay != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_REFLECTIONS_DELAY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_REFLECTIONS_DELAY, value));
             m_reflections_delay = value;
         }
     }
@@ -142,7 +142,7 @@ namespace age::audio::effect
     {
         if (m_late_reverb_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_LATE_REVERB_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_LATE_REVERB_GAIN, value));
             m_late_reverb_gain = value;
         }
     }
@@ -156,7 +156,7 @@ namespace age::audio::effect
     {
         if (m_late_reverb_delay != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_LATE_REVERB_DELAY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_LATE_REVERB_DELAY, value));
             m_late_reverb_delay = value;
         }
     }
@@ -170,7 +170,7 @@ namespace age::audio::effect
     {
         if (m_room_rolloff_factor != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_REVERB_ROOM_ROLLOFF_FACTOR, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_REVERB_ROOM_ROLLOFF_FACTOR, value));
             m_room_rolloff_factor = value;
         }
     }
@@ -184,7 +184,7 @@ namespace age::audio::effect
     {
         if (m_decay_hfl_limit != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_REVERB_DECAY_HFLIMIT, value ? 1 : 0));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_REVERB_DECAY_HFLIMIT, value ? 1 : 0));
             m_decay_hfl_limit = value;
         }
     }

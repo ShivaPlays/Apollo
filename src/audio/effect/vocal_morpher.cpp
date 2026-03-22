@@ -99,7 +99,7 @@ namespace age::audio::effect
 
         if (m_phoneme_a != phoneme_a)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEA, phoneme_a));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEA, phoneme_a));
             m_phoneme_a = phoneme_a;
         }
     }
@@ -113,7 +113,7 @@ namespace age::audio::effect
     {
         if (m_phoneme_a_coarse_tuning != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEA_COARSE_TUNING, value));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEA_COARSE_TUNING, value));
             m_phoneme_a_coarse_tuning = value;
         }
     }
@@ -129,7 +129,7 @@ namespace age::audio::effect
 
         if (m_phoneme_b != phoneme_b)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEB, phoneme_b));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEB, phoneme_b));
             m_phoneme_b = phoneme_b;
         }
     }
@@ -143,7 +143,7 @@ namespace age::audio::effect
     {
         if (m_phoneme_b_coarse_tuning != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEB_COARSE_TUNING, value));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_PHONEMEB_COARSE_TUNING, value));
             m_phoneme_b_coarse_tuning = value;
         }
     }
@@ -166,7 +166,7 @@ namespace age::audio::effect
 
         if (m_waveform != waveform)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_WAVEFORM, waveform));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_VOCAL_MORPHER_WAVEFORM, waveform));
             m_waveform = waveform;
         }
     }
@@ -186,7 +186,7 @@ namespace age::audio::effect
     {
         if (m_rate != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_VOCAL_MORPHER_RATE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_VOCAL_MORPHER_RATE, value));
             m_rate = value;
         }
     }

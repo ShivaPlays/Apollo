@@ -123,7 +123,7 @@ namespace age::audio
 		source();
 		source(uint32_t handle);
 
-		bool ensure_handle();
+		bool realize();
 		void enable_source_spatialize();
 
 		static uint32_t gen_handle();

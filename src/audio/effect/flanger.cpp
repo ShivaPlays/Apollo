@@ -22,7 +22,7 @@ namespace age::audio::effect
 
         if (m_waveform != waveform)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_FLANGER_WAVEFORM, waveform));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_FLANGER_WAVEFORM, waveform));
             m_waveform = waveform;
         }
     }
@@ -41,7 +41,7 @@ namespace age::audio::effect
     {
         if (m_phase != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_FLANGER_PHASE, value));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_FLANGER_PHASE, value));
             m_phase = value;
         }
     }
@@ -55,7 +55,7 @@ namespace age::audio::effect
     {
         if (m_rate != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_RATE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_RATE, value));
             m_rate = value;
         }
     }
@@ -69,7 +69,7 @@ namespace age::audio::effect
     {
         if (m_depth != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_DEPTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_DEPTH, value));
             m_depth = value;
         }
     }
@@ -83,7 +83,7 @@ namespace age::audio::effect
     {
         if (m_feedback != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_FEEDBACK, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_FEEDBACK, value));
             m_feedback = value;
         }
     }
@@ -97,7 +97,7 @@ namespace age::audio::effect
     {
         if (m_delay != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_DELAY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_FLANGER_DELAY, value));
             m_delay = value;
         }
     }

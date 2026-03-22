@@ -18,7 +18,7 @@ namespace age::audio::effect
     {
         if (m_frequency != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_RING_MODULATOR_FREQUENCY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_RING_MODULATOR_FREQUENCY, value));
             m_frequency = value;
         }
     }
@@ -32,7 +32,7 @@ namespace age::audio::effect
     {
         if (m_highpass_cutoff != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_RING_MODULATOR_HIGHPASS_CUTOFF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_RING_MODULATOR_HIGHPASS_CUTOFF, value));
             m_highpass_cutoff = value;
         }
     }
@@ -50,7 +50,7 @@ namespace age::audio::effect
 
         if (m_waveform != waveform)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_RING_MODULATOR_WAVEFORM, waveform));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_RING_MODULATOR_WAVEFORM, waveform));
             m_waveform = waveform;
         }
     }

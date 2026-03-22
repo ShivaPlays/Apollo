@@ -18,7 +18,7 @@ namespace age::audio::effect
     {
         if (m_density != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DENSITY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DENSITY, value));
 
             m_density = value;
         }
@@ -33,7 +33,7 @@ namespace age::audio::effect
     {
         if (m_diffusion != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DIFFUSION, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DIFFUSION, value));
 
             m_diffusion = value;
         }
@@ -48,7 +48,7 @@ namespace age::audio::effect
     {
         if (m_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAIN, value));
 
             m_gain = value;
         }
@@ -63,7 +63,7 @@ namespace age::audio::effect
     {
         if (m_gain_hf != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAINHF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAINHF, value));
 
             m_gain_hf = value;
         }
@@ -78,7 +78,7 @@ namespace age::audio::effect
     {
         if (m_gain_lf != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAINLF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_GAINLF, value));
 
             m_gain_lf = value;
         }
@@ -93,7 +93,7 @@ namespace age::audio::effect
     {
         if (m_decay_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_TIME, value));
 
             m_decay_time = value;
         }
@@ -108,7 +108,7 @@ namespace age::audio::effect
     {
         if (m_decay_hf_ratio != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_HFRATIO, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_HFRATIO, value));
 
             m_decay_hf_ratio = value;
         }
@@ -123,7 +123,7 @@ namespace age::audio::effect
     {
         if (m_decay_lf_ratio != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_LFRATIO, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_DECAY_LFRATIO, value));
 
             m_decay_lf_ratio = value;
         }
@@ -138,7 +138,7 @@ namespace age::audio::effect
     {
         if (m_reflections_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_REFLECTIONS_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_REFLECTIONS_GAIN, value));
 
             m_reflections_gain = value;
         }
@@ -153,7 +153,7 @@ namespace age::audio::effect
     {
         if (m_reflections_delay != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_REFLECTIONS_DELAY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_REFLECTIONS_DELAY, value));
 
             m_reflections_delay = value;
         }
@@ -168,7 +168,7 @@ namespace age::audio::effect
     {
         if (m_reflections_pan != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectfv(get_handle(), AL_EAXREVERB_REFLECTIONS_PAN, std::array<ALfloat, 3>{ value.x, value.y, value.z }.data()));
+            if (realize()) AL_CALL(alEffectfv(get_handle(), AL_EAXREVERB_REFLECTIONS_PAN, std::array<ALfloat, 3>{ value.x, value.y, value.z }.data()));
 
             m_reflections_pan = value;
         }
@@ -183,7 +183,7 @@ namespace age::audio::effect
     {
         if (m_late_reverb_gain != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LATE_REVERB_GAIN, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LATE_REVERB_GAIN, value));
 
             m_late_reverb_gain = value;
         }
@@ -198,7 +198,7 @@ namespace age::audio::effect
     {
         if (m_late_reverb_delay != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LATE_REVERB_DELAY, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LATE_REVERB_DELAY, value));
 
             m_late_reverb_delay = value;
         }
@@ -213,7 +213,7 @@ namespace age::audio::effect
     {
         if (m_late_reverb_pan != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectfv(get_handle(), AL_EAXREVERB_LATE_REVERB_PAN, std::array<ALfloat, 3>{ value.x, value.y, value.z }.data()));
+            if (realize()) AL_CALL(alEffectfv(get_handle(), AL_EAXREVERB_LATE_REVERB_PAN, std::array<ALfloat, 3>{ value.x, value.y, value.z }.data()));
 
             m_late_reverb_pan = value;
         }
@@ -228,7 +228,7 @@ namespace age::audio::effect
     {
         if (m_echo_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ECHO_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ECHO_TIME, value));
 
             m_echo_time = value;
         }
@@ -243,7 +243,7 @@ namespace age::audio::effect
     {
         if (m_echo_depth != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ECHO_DEPTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ECHO_DEPTH, value));
 
             m_echo_depth = value;
         }
@@ -258,7 +258,7 @@ namespace age::audio::effect
     {
         if (m_modulation_time != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_MODULATION_TIME, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_MODULATION_TIME, value));
 
             m_modulation_time = value;
         }
@@ -273,7 +273,7 @@ namespace age::audio::effect
     {
         if (m_modulation_depth != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_MODULATION_DEPTH, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_MODULATION_DEPTH, value));
 
             m_modulation_depth = value;
         }
@@ -288,7 +288,7 @@ namespace age::audio::effect
     {
         if (m_air_absorption_gain_hf != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_AIR_ABSORPTION_GAINHF, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_AIR_ABSORPTION_GAINHF, value));
 
             m_air_absorption_gain_hf = value;
         }
@@ -303,7 +303,7 @@ namespace age::audio::effect
     {
         if (m_hf_reference != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_HFREFERENCE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_HFREFERENCE, value));
 
             m_hf_reference = value;
         }
@@ -318,7 +318,7 @@ namespace age::audio::effect
     {
         if (m_lf_reference != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LFREFERENCE, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_LFREFERENCE, value));
 
             m_lf_reference = value;
         }
@@ -333,7 +333,7 @@ namespace age::audio::effect
     {
         if (m_room_rolloff_factor != value)
         {
-            if (ensure_handle()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, value));
+            if (realize()) AL_CALL(alEffectf(get_handle(), AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, value));
 
             m_room_rolloff_factor = value;
         }
@@ -348,7 +348,7 @@ namespace age::audio::effect
     {
         if (m_decay_hf_limit != value)
         {
-            if (ensure_handle()) AL_CALL(alEffecti(get_handle(), AL_EAXREVERB_DECAY_HFLIMIT, value ? AL_TRUE : AL_FALSE));
+            if (realize()) AL_CALL(alEffecti(get_handle(), AL_EAXREVERB_DECAY_HFLIMIT, value ? AL_TRUE : AL_FALSE));
 
             m_decay_hf_limit = value;
         }
