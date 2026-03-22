@@ -18,4 +18,9 @@ namespace age::audio
 
         return handle;
     }
+
+    void filter::delete_handle(uint32_t handle)
+    {
+
+    }
 }
