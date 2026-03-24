@@ -4,6 +4,8 @@
 
 #include "audio/effect/frequency_shifter.h"
 
+#include <array>
+
 #define AL_ALEXT_PROTOTYPES
 #include <AL/al.h>
 #include <AL/alext.h>

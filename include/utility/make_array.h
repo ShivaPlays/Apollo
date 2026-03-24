@@ -6,14 +6,20 @@
 
 namespace age::utility
 {
-    // The factory takes a function/lambda that receives the index
+    namespace priv {
+        // Separate the expansion into a dedicated helper
+        template <typename T, std::size_t N, typename Factory, std::size_t... Is>
+        constexpr std::array<T, N> make_array_helper(Factory&& factory, std::index_sequence<Is...>) {
+            return { { std::forward<Factory>(factory)(Is)... } };
+        }
+    }
+
     template <typename T, std::size_t N, typename Factory>
-    constexpr std::array<T, N> make_array_factory(Factory&& factory)
-    {
-        return []<std::size_t... Is>(Factory&& f, std::index_sequence<Is...>)
-        {
-            // Each element is constructed by calling the factory with the current index
-            return std::array<T, N>{ f(Is)... };
-        }(std::forward<Factory>(factory), std::make_index_sequence<N>{});
+    constexpr std::array<T, N> make_array_factory(Factory&& factory) {
+        return priv::make_array_helper<T, N>(
+            std::forward<Factory>(factory),
+            std::make_index_sequence<N>{}
+        );
     }
 }
+
