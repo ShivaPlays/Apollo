@@ -31,17 +31,19 @@ namespace age::audio
                 AL_FILTER_BANDPASS
             };
 
-            ALint al_mode = AL_FILTER_NULL;
-            if (auto index = static_cast<uint8_t>(value); index < al_filter_types.size())
-                al_mode = al_filter_types[index];
+            if (auto index = static_cast<size_t>(value); index < al_filter_types.size())
+                return al_filter_types[index];
 
-            return al_mode;
+            return AL_FILTER_NULL;
         };
 
         if (forced || m_settings.type != value.type)
         {
-            if (realize()) AL_CALL(alFilteri(m_handle, AL_FILTER_TYPE, mode_to_al_int(value.type)));
-            forced = true;
+            if (realize())
+            {
+                AL_CALL(alFilteri(m_handle, AL_FILTER_TYPE, mode_to_al_int(value.type)));
+                forced = true;
+            }
         }
 
         switch (value.type)
@@ -75,6 +77,11 @@ namespace age::audio
         }
 
         return m_handle != 0;
+    }
+
+    void filter::unload() const
+    {
+        m_handle = 0;
     }
 
     void filter::init_internal() const

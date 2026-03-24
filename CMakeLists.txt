@@ -74,7 +74,6 @@ add_library(${LIB_NAME} STATIC
         include/audio/effect/slot.h src/audio/effect/slot.cpp
         include/audio/effect/vocal_morpher.h src/audio/effect/vocal_morpher.cpp
 
-
         # Audio Private
         include/audio/priv/al_check.h
         include/audio/priv/ogg_stream.h src/audio/priv/ogg_stream.cpp

@@ -40,6 +40,7 @@ namespace age::audio
     public:
         void apply_settings(const settings& value, bool forced = false);
         bool realize() const;
+        void unload() const;
 
     protected:
 
