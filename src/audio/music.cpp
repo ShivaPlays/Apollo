@@ -6,8 +6,8 @@
 
 #include "audio/device.h"
 #include "audio/stream_factory.h"
-#include "system/assetstream.h"
-#include "system/memstream.h"
+#include "system/asset_istream.h"
+#include "system/mem_istream.h"
 
 namespace age::audio
 {
@@ -258,7 +258,8 @@ namespace age::audio
 						if (auto* path_arr = std::get_if<std::array<char, 256>>(&cmd.data))
 						{
 							std::string_view path{path_arr->data()};
-							m_active_istream = std::make_unique<assetistream>(path.data(), std::ios::binary);
+							m_active_istream.reset();
+							m_active_istream = std::make_unique<asset_istream>(path.data(), std::ios::binary);
 							m_requested_stream = nullptr;
 						}
 						else if (auto* stream_ptr = std::get_if<std::istream*>(&cmd.data))
@@ -273,7 +274,8 @@ namespace age::audio
 						}
 						else if (auto* raw = std::get_if<std::pair<std::byte*, size_t>>(&cmd.data))
 						{
-							m_active_istream = std::make_unique<memistream>(raw->first, raw->second);
+							m_active_istream.reset();
+							m_active_istream = std::make_unique<mem_istream>(raw->first, raw->second);
 							m_requested_stream = nullptr;
 						}
 						else
@@ -285,6 +287,7 @@ namespace age::audio
 						if (std::istream* target = m_active_istream ? m_active_istream.get() : m_requested_stream)
 						{
 							m_sound_stream_info = stream::info{};
+							m_sound_stream.reset();
 							m_sound_stream = stream_factory::create_from_stream(*target);
 
 							if (!m_sound_stream) continue;

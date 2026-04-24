@@ -9,7 +9,7 @@
 #include "audio/device.h"
 #include "audio/format.h"
 #include "audio/wave.h"
-#include "system/assetstream.h"
+#include "system/asset_istream.h"
 
 #include "audio/priv/al_check.h"
 
@@ -36,7 +36,7 @@ namespace age::audio
 
 	void buffer::load(std::string_view fn)
 	{
-		assetistream is{ fn.data(), std::ios::binary };
+		asset_istream is{ fn.data(), std::ios::binary };
 		load(is);
 	}
 

@@ -111,9 +111,9 @@ add_library(${LIB_NAME} STATIC
         # Core & System
         include/core/background_worker.h src/core/background_worker.cpp
         include/core/dependency_tracker.h
-        include/system/assetstream.h src/system/assetstream.cpp
+        include/system/asset_istream.h src/system/asset_istream.cpp
         include/system/clock.h src/system/clock.cpp
-        include/system/memstream.h src/system/memstream.cpp
+        include/system/mem_istream.h src/system/mem_istream.cpp
         include/system/platform.h
         include/system/time.h
         include/system/transient_context_lock.h src/system/transient_context_lock.cpp

@@ -24,33 +24,40 @@ namespace age
 
     protected:
         // Called when the internal get area is empty
-        virtual int_type underflow() override;
+        int_type underflow() override;
 
         // Handles seeking (seekg, tellg)
-        virtual pos_type seekoff(off_type off, std::ios_base::seekdir dir,
-                                 std::ios_base::openmode which = std::ios_base::in) override;
+        pos_type seekoff(off_type off, std::ios_base::seekdir dir,
+                         std::ios_base::openmode which = std::ios_base::in) override;
 
-        virtual pos_type seekpos(pos_type pos,
-                                 std::ios_base::openmode which = std::ios_base::in) override;
+        pos_type seekpos(pos_type pos,
+                         std::ios_base::openmode which = std::ios_base::in) override;
+
+        // Handles custom buffer
+        std::streambuf* setbuf(char_type* s, std::streamsize n) override;
 
     private:
-        SDL_IOStream* m_io = nullptr;
-        std::vector<char> m_buffer;
         static constexpr size_t BUFFER_SIZE = 8192; // 8KB is generally better for mobile I/O
+        std::array<char_type, BUFFER_SIZE> m_internal_buffer;
+
+        char_type* m_active_buffer = nullptr;
+        size_t m_active_buffer_size = 0;
+
+        SDL_IOStream* m_io = nullptr;
     };
 
     /**
      * @brief A custom input stream for game assets.
      * On Android, this reads from the APK assets; on Desktop, it reads from the filesystem.
      */
-    class assetistream : public std::istream
+    class asset_istream : public std::istream
     {
     public:
-        assetistream();
-        explicit assetistream(std::string_view fn, std::ios_base::openmode mode = std::ios_base::in);
-        explicit assetistream(const char* fn, std::ios_base::openmode mode = std::ios_base::in);
-        explicit assetistream(const std::string& fn, std::ios_base::openmode mode = std::ios_base::in);
-        virtual ~assetistream() override;
+        asset_istream();
+        explicit asset_istream(std::string_view fn, std::ios_base::openmode mode = std::ios_base::in);
+        explicit asset_istream(const char* fn, std::ios_base::openmode mode = std::ios_base::in);
+        explicit asset_istream(const std::string& fn, std::ios_base::openmode mode = std::ios_base::in);
+        ~asset_istream() override;
 
     public:
 
@@ -70,6 +77,6 @@ namespace age
 #include <fstream>
 namespace age
 {
-	using assetistream = std::ifstream;
+	using asset_istream = std::ifstream;
 }
 #endif

@@ -11,8 +11,8 @@
 #include "graphics/render_states.h"
 #include "graphics/image.h"
 #include "graphics/texture.h"
-#include "system/assetstream.h"
-#include "system/memstream.h"
+#include "system/asset_istream.h"
+#include "system/mem_istream.h"
 
 #include "audio/format.h"
 #include "audio/buffer.h"
@@ -35,7 +35,7 @@ age::engine::app_result test_app::on_user_create()
     age::image test_image;
     test_image.load("./test_data/test.png");
 
-    std::ifstream fs{ "./test_data/test.frag" };
+    std::ifstream fs{ "./test_data/test.frag", std::ios::binary | std::ios::in };
     std::stringstream buffer;
 
     if (fs)
@@ -96,13 +96,13 @@ age::engine::app_result test_app::on_user_create()
 
     //Testing memstream
  
-    age::assetistream is{ "./test_data/laser.wav", std::ios::binary | std::ios::ate };
+    age::asset_istream is{ "./test_data/laser.wav", std::ios::binary | std::ios::ate };
     auto file_size = is.tellg();
     is.seekg(0);
     std::vector<std::byte> file_data{ static_cast<size_t>(file_size) };
     is.read(reinterpret_cast<char*>(&file_data[0]), file_size);
 
-    age::memistream ms{ &file_data[0], file_data.size() };
+    age::mem_istream ms{ &file_data[0], file_data.size() };
 
     m_test_buffer.load(ms);
     

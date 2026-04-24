@@ -1,4 +1,4 @@
-#include "system/assetstream.h"
+#include "system/asset_istream.h"
 
 #include <SDL3/SDL.h>
 
@@ -9,11 +9,10 @@
 namespace age
 {
     asset_streambuf::asset_streambuf()
-            : m_io(nullptr)
-    {
-        // Reserve buffer memory but don't fill it until underflow()
-        m_buffer.resize(BUFFER_SIZE);
-    }
+            : m_active_buffer{ m_internal_buffer.data() }
+            , m_active_buffer_size{ m_internal_buffer.size() }
+            , m_io{ nullptr }
+    {}
 
     asset_streambuf::~asset_streambuf()
     {
@@ -48,24 +47,27 @@ namespace age
 
     std::streambuf::int_type asset_streambuf::underflow()
     {
-        if (!m_io || gptr() < egptr())
-            return (m_io && gptr() < egptr()) ? traits_type::to_int_type(*gptr()) : traits_type::eof();
+        if (!m_io)
+            return traits_type::eof();
+
+        if (gptr() < egptr())
+            return traits_type::to_int_type(*gptr());
 
         // Read from SDL into the internal buffer
-        size_t bytesRead = SDL_ReadIO(m_io, m_buffer.data(), m_buffer.size());
+        size_t bytesRead = SDL_ReadIO(m_io, m_active_buffer, m_active_buffer_size);
 
         if (bytesRead == 0)
             return traits_type::eof();
 
         // Set the streambuf pointers: (beginning, current, end)
-        setg(m_buffer.data(), m_buffer.data(), m_buffer.data() + bytesRead);
+        setg(m_active_buffer, m_active_buffer, m_active_buffer + bytesRead);
 
         return traits_type::to_int_type(*gptr());
     }
 
     std::streambuf::pos_type asset_streambuf::seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which)
     {
-        if (!m_io) return pos_type(off_type(-1));
+        if (!m_io || !(which & std::ios_base::in)) return pos_type(off_type(-1));
 
         SDL_IOWhence whence;
         if (dir == std::ios_base::beg) whence = SDL_IO_SEEK_SET;
@@ -91,34 +93,52 @@ namespace age
         return seekoff(off_type(pos), std::ios_base::beg, which);
     }
 
-    // --- assetistream Implementation ---
+    std::streambuf* asset_streambuf::setbuf(char_type* s, std::streamsize n)
+    {
+        if (s && n > 0)
+        {
+            m_active_buffer = s;
+            m_active_buffer_size = static_cast<size_t>(n);
+        }
+        else
+        {
+            // Reset to internal if input is invalid
+            m_active_buffer = m_internal_buffer.data();
+            m_active_buffer_size = m_internal_buffer.size();
+        }
+        setg(0, 0, 0); // Force underflow to use the new buffer
 
-    assetistream::assetistream()
+        return this;
+    }
+
+    // --- asset_istream Implementation ---
+
+    asset_istream::asset_istream()
             : std::istream(&m_streambuf)
     {}
 
-    assetistream::assetistream(std::string_view fn, std::ios_base::openmode mode)
+    asset_istream::asset_istream(std::string_view fn, std::ios_base::openmode mode)
         : std::istream(&m_streambuf)
     {
         open(fn);
     }
 
-    assetistream::assetistream(const char* fn, std::ios_base::openmode mode)
+    asset_istream::asset_istream(const char* fn, std::ios_base::openmode mode)
             : std::istream(&m_streambuf)
     {
         open(fn);
     }
 
-    assetistream::assetistream(const std::string& fn, std::ios_base::openmode mode)
+    asset_istream::asset_istream(const std::string& fn, std::ios_base::openmode mode)
             : std::istream(&m_streambuf)
     {
         open(fn);
     }
 
-    assetistream::~assetistream()
+    asset_istream::~asset_istream()
     {}
 
-    void assetistream::open(std::string_view fn)
+    void asset_istream::open(std::string_view fn)
     {
         constexpr size_t STRING_SIZE = 256;
 
@@ -134,7 +154,7 @@ namespace age
         }
     }
 
-    void assetistream::open(const char *fn)
+    void asset_istream::open(const char *fn)
     {
         if (!m_streambuf.open(fn))
         {
@@ -146,17 +166,17 @@ namespace age
         }
     }
 
-    void assetistream::open(const std::string& fn)
+    void asset_istream::open(const std::string& fn)
     {
         open(fn.c_str());
     }
 
-    bool assetistream::is_open() const
+    bool asset_istream::is_open() const
     {
         return m_streambuf.is_open();
     }
 
-    void assetistream::close()
+    void asset_istream::close()
     {
         m_streambuf.close();
     }

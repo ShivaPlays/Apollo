@@ -11,7 +11,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "system/assetstream.h"
+#include "system/asset_istream.h"
 #include "utility/utility.h"
 
 namespace
@@ -210,7 +210,7 @@ namespace age
 
 	void image::load(std::string_view fn)
 	{
-		assetistream is{ fn.data(), std::ios::binary };
+		asset_istream is{ fn.data(), std::ios::binary };
 		load(is);
 	}
 

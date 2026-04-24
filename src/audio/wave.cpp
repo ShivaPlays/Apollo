@@ -1,13 +1,13 @@
 #include "audio/wave.h"
 
-#include "system/assetstream.h"
+#include "system/asset_istream.h"
 #include "utility/endian.h"
 
 namespace age::audio::file
 {
 	void wave::load(std::string_view fn)
 	{
-		assetistream is{ fn.data() };
+		asset_istream is{ fn.data(), std::ios::binary };
 		load(is);
 	}
 

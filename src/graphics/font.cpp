@@ -17,7 +17,7 @@
 
 #include "graphics/image.h"
 #include "graphics/rect.h"
-#include "system/assetstream.h"
+#include "system/asset_istream.h"
 #include "utility/utility.h"
 
 //Freetype callbacks
@@ -120,7 +120,7 @@ namespace age
 
 	void font::load(std::string_view fn)
 	{
-		load(std::make_unique<assetistream>(fn.data(), std::ios::binary));
+		load(std::make_unique<asset_istream>(fn.data(), std::ios::binary));
 	}
 
 	void font::load(const std::byte data[], size_t size_in_bytes)
