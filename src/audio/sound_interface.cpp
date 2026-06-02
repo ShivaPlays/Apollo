@@ -7,23 +7,17 @@ namespace age::audio
 {
 	sound_interface::sound_interface(const sound_interface& other)
 		: m_properties{ other.m_properties }
-		, m_attached_channel{ nullptr }
 	{}
 
 	sound_interface::sound_interface(sound_interface&& other) noexcept
 		: m_properties{ other.m_properties }
-		, m_attached_channel{ other.m_attached_channel }
 	{
 		// We lock 'other' to ensure it isn't being updated by the audio thread
 		// while we are stealing its channel.
-		std::lock_guard lock{ other.m_channel_mutex };
+		auto* chan = other.m_attached_channel.exchange(nullptr, std::memory_order_acq_rel);
+		m_attached_channel.store(chan, std::memory_order_release);
 
-		m_attached_channel = other.m_attached_channel;
-		other.m_attached_channel = nullptr;
-
-		if (m_attached_channel) {
-			m_attached_channel->set_owner(this);
-		}
+		if (chan) chan->set_owner(this);
 	}
 
 	sound_interface& sound_interface::operator = (const sound_interface& other)
@@ -37,22 +31,17 @@ namespace age::audio
 	{
 		if (this == &other) return *this;
 
-		// Use scoped_lock to safely lock both mutexes without risk of deadlock
-		std::scoped_lock lock{ m_channel_mutex, other.m_channel_mutex };
-
 		// 1. Clean up our current state
-		detach_channel_locked();
+		detach_channel();
 
 		// 2. Transfer properties
 		m_properties = other.m_properties;
 
 		// 3. Transfer channel ownership
-		m_attached_channel = other.m_attached_channel;
-		other.m_attached_channel = nullptr;
+		auto* chan = other.m_attached_channel.exchange(nullptr, std::memory_order_acq_rel);
+		m_attached_channel.store(chan, std::memory_order_release);
 
-		if (m_attached_channel) {
-			m_attached_channel->set_owner(this);
-		}
+		if (chan) chan->set_owner(this);
 
 		return *this;
 	}
@@ -225,13 +214,13 @@ namespace age::audio
 
 	void sound_interface::attach_channel(channel* value)
 	{
-		std::lock_guard lock{ m_channel_mutex };
-		if (m_attached_channel == value) return;
+		detach_channel();
 
-		detach_channel_locked();
-		m_attached_channel = value;
-		if (m_attached_channel)
-			m_attached_channel->set_owner(this);
+		if (value)
+		{
+			m_attached_channel.store(value, std::memory_order_release);
+			value->set_owner(this);
+		}
 	}
 
 	channel* sound_interface::get_attached_channel() const
@@ -241,17 +230,12 @@ namespace age::audio
 
 	void sound_interface::detach_channel() const
 	{
-		std::lock_guard lock{ m_channel_mutex };
-
-		detach_channel_locked();
-	}
-
-	void sound_interface::detach_channel_locked() const
-	{
-		if (m_attached_channel)
+		// exchange(nullptr) is atomic: it grabs the pointer and sets the member to null
+		// in one single CPU instruction.
+		if (auto* chan = m_attached_channel.exchange(nullptr, std::memory_order_acq_rel))
 		{
-			m_attached_channel->set_owner(nullptr);
-			m_attached_channel = nullptr;
+			// Now only THIS thread is responsible for notifying the channel
+			chan->set_owner(nullptr);
 		}
 	}
 

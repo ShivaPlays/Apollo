@@ -120,13 +120,8 @@ namespace age::audio
         uint8_t get_priority() const { return m_priority; }
 
         std::mutex& get_state_mutex() const { return m_state_mutex; }
-        std::mutex& get_owner_mutex() const { return m_owner_mutex; }
 
-        void set_owner(sound_interface* owner)
-        {
-            std::lock_guard lock{ m_owner_mutex };
-            set_owner_locked(owner);
-        }
+        void set_owner(sound_interface* owner) { m_owner.store(owner, std::memory_order_release); }
         sound_interface* get_owner() const { return m_owner.load(std::memory_order_acquire); }
 
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
@@ -141,12 +136,8 @@ namespace age::audio
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
 
-        void set_owner_locked(sound_interface* owner) { m_owner.store(owner, std::memory_order_release); }
-
         void detach_owner()
         {
-            std::lock_guard lock{ m_owner_mutex };
-
             if (auto owner = m_owner.load(std::memory_order_relaxed))
             {
                 owner->attach_channel(nullptr);
@@ -161,7 +152,6 @@ namespace age::audio
         source m_source;
 
         mutable std::mutex m_state_mutex;
-        mutable std::mutex m_owner_mutex;
         std::atomic<sound_interface*> m_owner{};
 
         std::atomic<bool> m_busy{false};

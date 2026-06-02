@@ -24,8 +24,6 @@ namespace age::audio
 		, m_alcReopenDeviceSOFT_ptr { nullptr }
 		, m_next_pool_index{ 0 }
 		, m_is_initialised{ false }
-		, m_is_direct_channels_available{ false }
-		, m_source_spatialize_available{ false }
 	{}
 
 	device::~device()
@@ -121,12 +119,7 @@ namespace age::audio
 	{
 		return m_is_initialised;
 	}
-
-	bool device::is_direct_channels_available() const
-	{
-		return m_is_direct_channels_available;
-	}
-
+	
 	device& device::get()
 	{
 		static device audio_device_instance;
@@ -295,9 +288,6 @@ namespace age::audio
 		AL_CALL(alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z));
 		AL_CALL(alListenerfv(AL_ORIENTATION, orientation));
 
-		if (alIsExtensionPresent("AL_SOFT_direct_channels")) m_is_direct_channels_available = true;
-		if (alIsExtensionPresent("AL_SOFT_source_spatialize")) m_source_spatialize_available = true;
-
 		if (ALC_CALL(static_cast<ALCdevice*>(m_device), alcIsExtensionPresent(static_cast<ALCdevice*>(m_device), "ALC_SOFT_reopen_device")))
 		{
 			m_alcReopenDeviceSOFT_ptr = alcGetProcAddress(static_cast<ALCdevice*>(m_device), "ALC_SOFT_reopen_device");
@@ -359,9 +349,6 @@ namespace age::audio
 		m_alcReopenDeviceSOFT_ptr = nullptr;
 
 		m_is_initialised = false;
-		m_is_direct_channels_available = false;
-		m_source_spatialize_available = false;
-
 		m_device_name = {};
 	}
 
@@ -372,16 +359,18 @@ namespace age::audio
 		m_channels.clear();
 		m_channels.reserve(config::MAX_SOURCES);
 
+		m_source_to_index.clear();
+		m_source_to_index.reserve(config::MAX_SOURCES);
+
 		AL_CALL(alGenSources(config::MAX_SOURCES, source_names.data()));
 
 		for (auto source_name : source_names)
 		{
-			m_channels.emplace_back(source::constructor_key{}, source_name);
+			auto& ch = m_channels.emplace_back(source::constructor_key{}, source_name);
 
-			if (m_source_spatialize_available)
-			{
-				m_channels.back().get_source().enable_source_spatialize();
-			}
+			m_source_to_index[source_name] = m_channels.size() - 1;
+			ch.get_source().enable_source_spatialize();
+
 		}
 	}
 }

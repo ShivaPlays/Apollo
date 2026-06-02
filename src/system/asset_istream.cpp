@@ -75,9 +75,7 @@ namespace age
         else whence = SDL_IO_SEEK_END;
 
         // If seeking relative to current, we must account for the buffered data
-        if (dir == std::ios_base::cur) {
-            off -= static_cast<off_type>(egptr() - gptr());
-        }
+        if (dir == std::ios_base::cur) off -= static_cast<off_type>(egptr() - gptr());
 
         Sint64 result = SDL_SeekIO(m_io, off, whence);
         if (result < 0) return pos_type(off_type(-1));

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <vector>
+#include <unordered_map>
 #include <list>
 #include <string_view>
 #include <mutex>
@@ -100,9 +101,8 @@ namespace age::audio
 
 		std::atomic<size_t> m_next_pool_index;
 		std::vector<channel> m_channels;
+		std::unordered_map<uint32_t, size_t> m_source_to_index;
 
 		bool m_is_initialised;
-		bool m_is_direct_channels_available;
-		bool m_source_spatialize_available;
 	};
 }
