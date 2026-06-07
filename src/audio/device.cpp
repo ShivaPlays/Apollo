@@ -31,7 +31,7 @@ namespace age::audio
 		destroy_context_and_close_device();
 	}
 
-	channel_guard device::get_free_channel(bool reserved)
+	channel_guard device::request_channel(bool reserved)
 	{
 		const auto pool_size = m_channels.size();
 
@@ -224,7 +224,7 @@ namespace age::audio
 
 	channel_guard device::play_buffer(const buffer &buffer, const properties &properties, uint8_t bus)
 	{
-		auto guard = get_free_channel(properties.looping);
+		auto guard = request_channel(properties.looping);
 
 		if (auto channel = guard.get())
 		{

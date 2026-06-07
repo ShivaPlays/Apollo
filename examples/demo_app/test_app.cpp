@@ -18,8 +18,6 @@
 #include "audio/buffer.h"
 #include "audio/device.h"
 
-#include "../cmake-build-debug/_deps/openal-soft-src/include/AL/al.h"
-
 age::engine::app_result test_app::on_init(int argc, char* argv[])
 {
     static constexpr uint32_t SCREEN_WIDTH = 540;

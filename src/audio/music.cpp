@@ -312,7 +312,7 @@ namespace age::audio
 						auto current_channel = get_attached_channel();
 						if (!current_channel)
 						{
-							auto guard = device::get().get_free_channel(true);
+							auto guard = device::get().request_channel(true);
 							current_channel = guard.get();
 							//If nor source is available, this means there are already many sounds playing and we can just stop here
 							if (!current_channel)

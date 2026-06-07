@@ -152,6 +152,7 @@ namespace age::audio
         source m_source;
 
         mutable std::mutex m_state_mutex;
+        mutable std::mutex m_owner_mutex;
         std::atomic<sound_interface*> m_owner{};
 
         std::atomic<bool> m_busy{false};

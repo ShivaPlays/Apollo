@@ -2,7 +2,7 @@
 
 #include <array>
 
-//#define AL_ALEXT_PROTOTYPES
+#define AL_ALEXT_PROTOTYPES
 #include <AL/al.h>
 #include <AL/alext.h>
 
@@ -54,42 +54,11 @@ namespace age::audio
 	{
 		if (realize())
 		{
-			if (force || m_properties.position != properties.position)
-				AL_CALL(alSource3f(m_handle, AL_POSITION, properties.position.x, properties.position.y, properties.position.z));
-			if (force || m_properties.velocity != properties.velocity)
-				AL_CALL(alSource3f(m_handle, AL_VELOCITY, properties.velocity.x, properties.velocity.y, properties.velocity.z));
-			if (force || m_properties.direction != properties.direction)
-				AL_CALL(alSource3f(m_handle, AL_DIRECTION, properties.direction.x, properties.direction.y, properties.direction.z));
-			if (force || m_properties.source_radius != properties.source_radius)
-				AL_CALL(alSourcef(m_handle, AL_SOURCE_RADIUS, properties.source_radius));
-			if (force || m_properties.cone_inner_angle != properties.cone_inner_angle)
-				AL_CALL(alSourcef(m_handle, AL_CONE_INNER_ANGLE, properties.cone_inner_angle));
-			if (force || m_properties.cone_outer_angle != properties.cone_outer_angle)
-				AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_ANGLE, properties.cone_outer_angle));
-			if (force || m_properties.cone_outer_gain != properties.cone_outer_gain)
-				AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_GAIN, properties.cone_outer_gain));
-			if (force || m_properties.pitch != properties.pitch)
-				AL_CALL(alSourcef(m_handle, AL_PITCH, properties.pitch));
-			if (force || m_properties.volume != properties.volume)
-				AL_CALL(alSourcef(m_handle, AL_GAIN, properties.volume));
-			if (force || m_properties.min_gain != properties.min_gain)
-				AL_CALL(alSourcef(m_handle, AL_MIN_GAIN, properties.min_gain));
-			if (force || m_properties.max_gain != properties.max_gain)
-				AL_CALL(alSourcef(m_handle, AL_MAX_GAIN, properties.max_gain));
-			if (force || m_properties.max_distance != properties.max_distance)
-				AL_CALL(alSourcef(m_handle, AL_MAX_DISTANCE, properties.max_distance));
-			if (force || m_properties.rolloff_factor != properties.rolloff_factor)
-				AL_CALL(alSourcef(m_handle, AL_ROLLOFF_FACTOR, properties.rolloff_factor));
-			if (force || m_properties.reference_distance != properties.reference_distance)
-				AL_CALL(alSourcef(m_handle, AL_REFERENCE_DISTANCE, properties.reference_distance));
-			if (force || m_properties.air_absorption_factor != properties.air_absorption_factor)
-				AL_CALL(alSourcef(m_handle, AL_AIR_ABSORPTION_FACTOR, properties.air_absorption_factor));
-			if (force || m_properties.relative_to_listener != properties.relative_to_listener)
-				AL_CALL(alSourcei(m_handle, AL_SOURCE_RELATIVE, properties.relative_to_listener ? 1 : 0));
-			if (force || m_properties.direct_channels != properties.direct_channels)
-				AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, properties.direct_channels ? 1 : 0));
-			if (force || m_properties.looping != properties.looping)
-				AL_CALL(alSourcei(m_handle, AL_LOOPING, properties.looping ? 1 : 0));
+			alDeferUpdatesSOFT();
+
+			stage_properties(properties, force);
+
+			alProcessUpdatesSOFT();
 
 			m_properties = properties;
 		}
@@ -518,6 +487,46 @@ namespace age::audio
 		default:
 			return state::stopped;
 		}
+	}
+
+	void source::stage_properties(const properties& properties, bool force)
+	{
+		if (force || m_properties.position != properties.position)
+			AL_CALL(alSource3f(m_handle, AL_POSITION, properties.position.x, properties.position.y, properties.position.z));
+		if (force || m_properties.velocity != properties.velocity)
+			AL_CALL(alSource3f(m_handle, AL_VELOCITY, properties.velocity.x, properties.velocity.y, properties.velocity.z));
+		if (force || m_properties.direction != properties.direction)
+			AL_CALL(alSource3f(m_handle, AL_DIRECTION, properties.direction.x, properties.direction.y, properties.direction.z));
+		if (force || m_properties.source_radius != properties.source_radius)
+			AL_CALL(alSourcef(m_handle, AL_SOURCE_RADIUS, properties.source_radius));
+		if (force || m_properties.cone_inner_angle != properties.cone_inner_angle)
+			AL_CALL(alSourcef(m_handle, AL_CONE_INNER_ANGLE, properties.cone_inner_angle));
+		if (force || m_properties.cone_outer_angle != properties.cone_outer_angle)
+			AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_ANGLE, properties.cone_outer_angle));
+		if (force || m_properties.cone_outer_gain != properties.cone_outer_gain)
+			AL_CALL(alSourcef(m_handle, AL_CONE_OUTER_GAIN, properties.cone_outer_gain));
+		if (force || m_properties.pitch != properties.pitch)
+			AL_CALL(alSourcef(m_handle, AL_PITCH, properties.pitch));
+		if (force || m_properties.volume != properties.volume)
+			AL_CALL(alSourcef(m_handle, AL_GAIN, properties.volume));
+		if (force || m_properties.min_gain != properties.min_gain)
+			AL_CALL(alSourcef(m_handle, AL_MIN_GAIN, properties.min_gain));
+		if (force || m_properties.max_gain != properties.max_gain)
+			AL_CALL(alSourcef(m_handle, AL_MAX_GAIN, properties.max_gain));
+		if (force || m_properties.max_distance != properties.max_distance)
+			AL_CALL(alSourcef(m_handle, AL_MAX_DISTANCE, properties.max_distance));
+		if (force || m_properties.rolloff_factor != properties.rolloff_factor)
+			AL_CALL(alSourcef(m_handle, AL_ROLLOFF_FACTOR, properties.rolloff_factor));
+		if (force || m_properties.reference_distance != properties.reference_distance)
+			AL_CALL(alSourcef(m_handle, AL_REFERENCE_DISTANCE, properties.reference_distance));
+		if (force || m_properties.air_absorption_factor != properties.air_absorption_factor)
+			AL_CALL(alSourcef(m_handle, AL_AIR_ABSORPTION_FACTOR, properties.air_absorption_factor));
+		if (force || m_properties.relative_to_listener != properties.relative_to_listener)
+			AL_CALL(alSourcei(m_handle, AL_SOURCE_RELATIVE, properties.relative_to_listener ? 1 : 0));
+		if (force || m_properties.direct_channels != properties.direct_channels)
+			AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, properties.direct_channels ? 1 : 0));
+		if (force || m_properties.looping != properties.looping)
+			AL_CALL(alSourcei(m_handle, AL_LOOPING, properties.looping ? 1 : 0));
 	}
 
 	bool source::realize()

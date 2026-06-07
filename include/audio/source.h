@@ -126,6 +126,8 @@ namespace age::audio
 		source();
 		source(uint32_t handle);
 
+		void stage_properties(const properties& properties, bool force = false);
+
 		bool realize();
 		void enable_source_spatialize();
 
