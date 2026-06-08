@@ -38,7 +38,7 @@ add_library(${LIB_NAME} STATIC
         include/audio/buffer.h src/audio/buffer.cpp
         include/audio/channel.h src/audio/channel.cpp
         include/audio/channel_guard.h
-        include/audio/channel_link.h
+        include/audio/channel_link.h src/audio/channel_link.cpp
         include/audio/config.h
         include/audio/device.h src/audio/device.cpp
         include/audio/filter.h src/audio/filter.cpp

@@ -25,45 +25,27 @@ namespace age::audio
             : m_owner(owner)
         {}
 
-        channel_link(channel_link&& other) noexcept
-            : m_owner(other.m_owner)
+        ~channel_link()
+        {
+            detach();
+        }
+
+        channel_link(channel_link&& other) noexcept = delete;
+        channel_link& operator=(channel_link&& other) noexcept = delete;
+
+        channel_link(sound_interface* owner, channel_link&& other)
+            : m_owner(owner)
             , m_is_valid{ other.m_is_valid.load(std::memory_order_relaxed) }
         {
             // Lock both instances safely to move the hardware tracking state
             std::scoped_lock lock{ m_mutex, other.m_mutex };
 
-            m_state = std::move(other.m_state);
+            m_channel = std::move(other.m_channel);
 
-            other.m_state = nullptr; // Reset the old one back to an idle state
+            other.m_channel = std::monostate{}; // Reset the old one back to an idle state
             other.m_is_valid.store(false, std::memory_order_relaxed);
 
-            // If the moved state was actively holding a channel, update its back-pointer
             if (auto chan = get_raw_pointer()) chan->set_owner(this);
-        }
-
-        channel_link& operator=(channel_link&& other) noexcept
-        {
-            if (this == &other) return *this;
-
-            // Lock both instances safely
-            std::scoped_lock lock{ m_mutex, other.m_mutex };
-
-            if (auto chan = get_raw_pointer()) chan->release_owner(*this);
-
-            m_state = std::move(other.m_state);
-            m_is_valid.store(other.m_is_valid.load(std::memory_order_relaxed), std::memory_order_relaxed);
-
-            other.m_state = nullptr;
-            other.m_is_valid.store(false, std::memory_order_relaxed);
-
-            if (channel* chan = get_raw_pointer()) chan->set_owner(this);
-
-            return *this;
-        }
-
-        ~channel_link()
-        {
-            detach();
         }
 
     public:
@@ -228,7 +210,7 @@ namespace age::audio
             auto new_channel = chan.get();
             auto old_channel = get_raw_pointer();
 
-            m_state = new_channel;
+            m_channel = new_channel;
             m_is_valid.store(new_channel != nullptr, std::memory_order_relaxed);
 
             release_assign_owner(old_channel, new_channel);
@@ -241,7 +223,7 @@ namespace age::audio
             auto new_channel = chan.get();
             auto old_channel = get_raw_pointer();
 
-            m_state = std::move(chan);
+            m_channel = std::move(chan);
             m_is_valid.store(new_channel != nullptr, std::memory_order_relaxed);
 
             release_assign_owner(old_channel, new_channel);
@@ -252,10 +234,10 @@ namespace age::audio
             std::scoped_lock lock{m_mutex };
 
             auto current_channel = get_raw_pointer();
-            m_state = nullptr;
+            m_channel = std::monostate{};
             m_is_valid.store(false, std::memory_order_relaxed);
 
-            if (current_channel) current_channel->release_owner(*this);
+            if (current_channel) current_channel->release_owner(this);
         }
 
         [[nodiscard]] bool is_valid() const
@@ -263,31 +245,46 @@ namespace age::audio
             return m_is_valid.load(std::memory_order_relaxed);
         }
 
+        void notify_owner()
+        {
+            trigger_channel_loss();
+        }
+
     protected:
 
     private:
-        channel *get_raw_pointer() const
+
+        void trigger_channel_loss();
+
+        [[nodiscard]] channel *get_raw_pointer() const
         {
             return std::visit([](auto&& arg) -> channel* {
                 using T = std::decay_t<decltype(arg)>;
-                if constexpr (std::is_same_v<T, channel*>) {
+                if constexpr (std::is_same_v<T, std::monostate>)
+                {
+                    return nullptr;
+                }
+                else if constexpr (std::is_same_v<T, channel*>)
+                {
                     return arg;
-                } else {
+                }
+                else
+                {
                     return arg.get(); // reserved_channel handles extraction
                 }
-            }, m_state);
+            }, m_channel);
         }
 
         void release_assign_owner(channel* old_channel, channel* new_channel)
         {
             if (old_channel == new_channel) return;
 
-            if (old_channel) old_channel->release_owner(*this);
+            if (old_channel) old_channel->release_owner(this);
             if (new_channel) new_channel->set_owner(this);
         }
 
         std::mutex m_mutex;
-        std::variant<channel*, reserved_channel> m_state{ nullptr };
+        std::variant<std::monostate, channel*, reserved_channel> m_channel{ std::monostate{} };
         sound_interface* m_owner{};
 
         std::atomic<bool> m_is_valid{ false };

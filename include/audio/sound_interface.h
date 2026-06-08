@@ -152,15 +152,15 @@ namespace age::audio
 			return m_properties.looping;
 		}
 
+	protected:
 		[[nodiscard]] const channel_link& get_channel_link() const { return m_channel_link; }
 		channel_link& get_channel_link() { return m_channel_link; }
 
-	protected:
-		void attach_channel(channel* value);
-		channel* get_attached_channel() const;
-		void detach_channel() const;
+		void attach_channel(const channel_guard& value) { m_channel_link.attach(value); }
+		void attach_channel(reserved_channel&& chan) { m_channel_link.attach(std::move(chan)); }
+		void detach_channel() { m_channel_link.detach(); }
 
-		const properties& get_properties() const;
+		const properties& get_properties() const { return m_properties; }
 
 	private:
 		properties m_properties;

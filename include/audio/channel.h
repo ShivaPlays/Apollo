@@ -28,10 +28,10 @@ namespace age::audio
         // We must manually define how to move this class
         channel(channel&& other) noexcept
             : m_source{ std::move(other.m_source) }
-            , m_owner{ other.m_owner }
-            , m_busy{ other.m_busy.load() }
-            , m_priority{ other.m_priority }
-            , m_is_reserved{ other.m_is_reserved }
+            , m_owner{ other.m_owner.exchange(nullptr, std::memory_order_relaxed) }
+            , m_busy{ other.m_busy.exchange(false, std::memory_order_relaxed) }
+            , m_priority{ std::exchange(other.m_priority, 0) }
+            , m_is_reserved{ std::exchange(other.m_is_reserved, false) }
         {}
 
         channel& operator=(channel&&) = delete;
@@ -125,8 +125,8 @@ namespace age::audio
 
         void set_owner(channel_link* owner)
         {
-            std::scoped_lock lock{ m_owner_mutex };
-            m_owner = owner;
+            //std::scoped_lock lock{ m_owner_mutex };
+            m_owner.store(owner, std::memory_order_release);
         }
 
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
@@ -141,14 +141,12 @@ namespace age::audio
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
 
-        void release_owner(const channel_link& expected_owner)
+        void release_owner(channel_link* expected_owner)
         {
-            std::scoped_lock lock{ m_owner_mutex };
+            //std::scoped_lock lock{ m_owner_mutex };
 
-            if (m_owner == &expected_owner)
-            {
-                m_owner = nullptr;
-            }
+            m_owner.compare_exchange_strong(expected_owner, nullptr, std::memory_order_acq_rel, std::memory_order_relaxed);
+            //if (m_owner == expected_owner) m_owner = nullptr;
         }
 
         bool try_acquire() { return !m_busy.exchange(true); }
@@ -158,8 +156,8 @@ namespace age::audio
         source m_source;
 
         mutable std::mutex m_state_mutex;
-        mutable std::mutex m_owner_mutex;
-        channel_link* m_owner{};
+        //mutable std::mutex m_owner_mutex;
+        std::atomic<channel_link*> m_owner{ nullptr };
 
         std::atomic<bool> m_busy{false};
 

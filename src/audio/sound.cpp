@@ -56,7 +56,7 @@ namespace age::audio
 		properties.looping = looped;
 
 		auto guard = device::get().play_buffer(*m_buffer, properties);
-		if (guard) attach_channel(guard.get());
+		if (guard) attach_channel(guard);
 	}
 
 	void sound::stop()
