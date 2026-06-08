@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "channel.h"
-
 #include <mutex>
+
+#include "channel.h"
 
 namespace age::audio
 {

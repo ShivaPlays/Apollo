@@ -49,6 +49,7 @@ namespace age::audio
 		void play(bool looped = false) override;
 		void stop() override;
 		void pause() override;
+		void on_channel_lost() override;
 
 		void open(std::string_view fn);
 		void open(std::istream& is);
@@ -56,13 +57,6 @@ namespace age::audio
 		void open(std::byte data[], size_t size);
 
 		state get_state() const;
-
-		void update_position(const glm::vec3& value) override;
-		void update_pitch(float value) override;
-		void update_volume(float value) override;
-		void update_reference_distance(float value) override;
-		void update_rolloff_factor(float value) override;
-		void update_relative_to_listener(bool value) override;
 
 	protected:
 
@@ -75,7 +69,6 @@ namespace age::audio
 		void worker_loop();
 
 		mutable std::mutex m_command_mutex;
-		mutable std::mutex m_source_mutex;
 
 		std::condition_variable m_command_cv;
 

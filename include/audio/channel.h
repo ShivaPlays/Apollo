@@ -7,16 +7,18 @@
 #include <atomic>
 
 #include "source.h"
-#include "sound_interface.h"
+//#include "channel_link.h"
 #include "properties.h"
 
 namespace age::audio
 {
+    class channel_link;
+
     class channel
     {
         friend class device;
-        friend class sound_interface;
         friend class channel_guard;
+        friend class channel_link;
 
     public:
         channel(source::constructor_key key, uint32_t handle)
@@ -26,7 +28,7 @@ namespace age::audio
         // We must manually define how to move this class
         channel(channel&& other) noexcept
             : m_source{ std::move(other.m_source) }
-            , m_owner{ other.m_owner.load() }
+            , m_owner{ other.m_owner }
             , m_busy{ other.m_busy.load() }
             , m_priority{ other.m_priority }
             , m_is_reserved{ other.m_is_reserved }
@@ -121,8 +123,11 @@ namespace age::audio
 
         std::mutex& get_state_mutex() const { return m_state_mutex; }
 
-        void set_owner(sound_interface* owner) { m_owner.store(owner, std::memory_order_release); }
-        sound_interface* get_owner() const { return m_owner.load(std::memory_order_acquire); }
+        void set_owner(channel_link* owner)
+        {
+            std::scoped_lock lock{ m_owner_mutex };
+            m_owner = owner;
+        }
 
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
         uint8_t get_auxiliary_bus() const { return m_auxiliary_bus; }
@@ -136,12 +141,13 @@ namespace age::audio
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
 
-        void detach_owner()
+        void release_owner(const channel_link& expected_owner)
         {
-            if (auto owner = m_owner.load(std::memory_order_relaxed))
+            std::scoped_lock lock{ m_owner_mutex };
+
+            if (m_owner == &expected_owner)
             {
-                owner->attach_channel(nullptr);
-                m_owner.store(nullptr, std::memory_order_release);
+                m_owner = nullptr;
             }
         }
 
@@ -153,7 +159,7 @@ namespace age::audio
 
         mutable std::mutex m_state_mutex;
         mutable std::mutex m_owner_mutex;
-        std::atomic<sound_interface*> m_owner{};
+        channel_link* m_owner{};
 
         std::atomic<bool> m_busy{false};
 

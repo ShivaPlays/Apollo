@@ -5,6 +5,7 @@
 
 #include <glm/vec3.hpp>
 #include "properties.h"
+#include "channel_link.h"
 
 namespace age::audio
 {
@@ -32,42 +33,127 @@ namespace age::audio
 		virtual void play(bool looped = false) = 0;
 		virtual void stop() = 0;
 		virtual void pause() = 0;
+		virtual void on_channel_lost() {}
 
-		virtual void set_position(const glm::vec3& value);
-		virtual void update_position(const glm::vec3& value);
-		virtual const glm::vec3& get_position() const;
+		void set_position(const glm::vec3 value)
+		{
+			m_properties.position = value;
+		}
+		void update_position(const glm::vec3 value)
+		{
+			set_position(value);
+			m_channel_link.set_position(value);
+		}
+		[[nodiscard]] glm::vec3 get_position() const
+		{
+			return m_properties.position;
+		}
 
-		virtual void set_pitch(float value);
-		virtual void update_pitch(float value);
-		virtual float get_pitch() const;
+		void set_pitch(float value)
+		{
+			m_properties.pitch = value;
+		}
+		void update_pitch(float value)
+		{
+			set_pitch(value);
+			m_channel_link.set_pitch(value);
+		}
+		[[nodiscard]] float get_pitch() const
+		{
+			return m_properties.pitch;
+		}
 
-		virtual void set_volume(float value);
-		virtual void update_volume(float value);
-		virtual float get_volume() const;
+		void set_volume(float value)
+		{
+			m_properties.volume = value;
+		}
+		void update_volume(float value)
+		{
+			set_volume(value);
+			m_channel_link.set_volume(value);
+		}
+		[[nodiscard]] float get_volume() const
+		{
+			return m_properties.volume;
+		}
 
-		virtual void set_reference_distance(float value);
-		virtual void update_reference_distance(float value);
-		virtual float get_reference_distance() const;
+		void set_reference_distance(float value)
+		{
+			m_properties.reference_distance = value;
+		}
+		void update_reference_distance(float value)
+		{
+			set_reference_distance(value);
+			m_channel_link.set_reference_distance(value);
+		}
+		[[nodiscard]] float get_reference_distance() const
+		{
+			return m_properties.reference_distance;
+		}
 
-		virtual void set_rolloff_factor(float value);
-		virtual void update_rolloff_factor(float value);
-		virtual float get_rolloff_factor() const;
+		void set_rolloff_factor(float value)
+		{
+			m_properties.rolloff_factor = value;
+		}
+		void update_rolloff_factor(float value)
+		{
+			set_rolloff_factor(value);
+			m_channel_link.set_rolloff_factor(value);
+		}
+		[[nodiscard]] float get_rolloff_factor() const
+		{
+			return m_properties.rolloff_factor;
+		}
 
-		virtual void set_relative_to_listener(bool value);
-		virtual void update_relative_to_listener(bool value);
-		virtual bool get_relative_to_listener() const;
+		void set_relative_to_listener(bool value)
+		{
+			m_properties.relative_to_listener = value;
+		}
+		void update_relative_to_listener(bool value)
+		{
+			set_relative_to_listener(value);
+			m_channel_link.set_relative_to_listener(value);
+		}
+		bool get_relative_to_listener() const
+		{
+			return m_properties.relative_to_listener;
+		}
 
-		virtual void set_direct_channels(bool value);
-		virtual void update_direct_channels(bool value);
-		virtual bool get_direct_channels() const;
+		void set_direct_channels(bool value)
+		{
+			m_properties.direct_channels = value;
+		}
+		void update_direct_channels(bool value)
+		{
+			set_direct_channels(value);
+			m_channel_link.set_direct_channels(value);
+		}
+		bool get_direct_channels() const
+		{
+			return m_properties.direct_channels;
+		}
 
-		virtual void set_auxiliary_bus(uint8_t value);
-		virtual void update_auxiliary_bus(uint8_t value);
-		virtual uint8_t get_auxiliary_bus() const;
+		void set_auxiliary_bus(uint8_t value)
+		{
+			m_auxiliary_bus = value;
+		}
+		void update_auxiliary_bus(uint8_t value)
+		{
+			set_auxiliary_bus(value);
+			m_channel_link.set_auxiliary_bus(value);
+		}
+		[[nodiscard]] uint8_t get_auxiliary_bus() const
+		{
+			return m_auxiliary_bus;
+		}
 
-		//virtual void set_looping(bool value);
+		[[nodiscard]] bool get_looping() const
+		{
+			return m_properties.looping;
+		}
 
-		virtual bool get_looping() const;
+		[[nodiscard]] const channel_link& get_channel_link() const { return m_channel_link; }
+		channel_link& get_channel_link() { return m_channel_link; }
 
 	protected:
 		void attach_channel(channel* value);
@@ -76,13 +162,10 @@ namespace age::audio
 
 		const properties& get_properties() const;
 
-		std::mutex& get_channel_mutex() const { return m_channel_mutex; }
-
 	private:
 		properties m_properties;
 
-		mutable std::mutex m_channel_mutex;
-		mutable std::atomic<channel*> m_attached_channel{ nullptr };
+		channel_link m_channel_link{ this };
 
 		uint8_t m_auxiliary_bus{};
 	};

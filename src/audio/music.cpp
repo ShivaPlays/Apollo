@@ -41,14 +41,8 @@ namespace age::audio
 
 	void music::stop()
 	{
-		{
-			std::lock_guard lock{ m_source_mutex };
-			if (auto current_channel = get_attached_channel())
-			{
-				m_internal_state = state::stopped;
-				current_channel->stop();
-			}
-		}
+		m_internal_state = state::stopped;
+		get_channel_link().stop();
 
 		std::lock_guard lock{ m_command_mutex };
 		m_command_queue.emplace_back(music_command{music_command::type::stop});
@@ -57,14 +51,8 @@ namespace age::audio
 
 	void music::pause()
 	{
-		{
-			std::lock_guard lock{ m_source_mutex };
-			if (auto current_channel = get_attached_channel())
-			{
-				m_internal_state = state::paused;
-				current_channel->pause();
-			}
-		}
+		m_internal_state = state::paused;
+		get_channel_link().pause();
 
 		std::lock_guard lock{ m_command_mutex };
 		m_command_queue.emplace_back(music_command{music_command::type::pause});
@@ -119,84 +107,6 @@ namespace age::audio
 	state music::get_state() const
 	{
 		return m_internal_state;
-	}
-
-	void music::update_position(const glm::vec3& value)
-	{
-		sound_interface::set_position(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_position(value);
-	}
-
-	void music::update_pitch(float value)
-	{
-		sound_interface::set_pitch(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_pitch(value);
-	}
-
-	void music::update_volume(float value)
-	{
-		sound_interface::set_volume(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_volume(value);
-	}
-
-	void music::update_reference_distance(float value)
-	{
-		sound_interface::set_reference_distance(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_reference_distance(value);
-	}
-
-	void music::update_rolloff_factor(float value)
-	{
-		sound_interface::set_rolloff_factor(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_rolloff_factor(value);
-	}
-
-	void music::update_relative_to_listener(bool value)
-	{
-		sound_interface::set_relative_to_listener(value);
-
-		std::lock_guard source_lock{ m_source_mutex };
-
-		auto current_channel = get_attached_channel();
-		if (!current_channel)
-			return;
-
-		current_channel->set_relative_to_listener(value);
 	}
 
 	void music::open_from_stream(std::istream& is)
@@ -357,7 +267,12 @@ namespace age::audio
 						m_internal_state = state::stopped;
 						//If we have a source it was already stopped in the stop function, so all we need to here is to clean up and free the source
 
-						std::unique_lock lock{ m_source_mutex };
+						get_channel_link().execute_on_channel([](channel& chan) -> void
+						{
+							chan.clear_buffers();
+						});
+
+
 						auto current_channel = get_attached_channel();
 						if (!current_channel) continue;
 

@@ -38,6 +38,7 @@ add_library(${LIB_NAME} STATIC
         include/audio/buffer.h src/audio/buffer.cpp
         include/audio/channel.h src/audio/channel.cpp
         include/audio/channel_guard.h
+        include/audio/channel_link.h
         include/audio/config.h
         include/audio/device.h src/audio/device.cpp
         include/audio/filter.h src/audio/filter.cpp
@@ -46,6 +47,7 @@ add_library(${LIB_NAME} STATIC
         include/audio/music.h src/audio/music.cpp
         include/audio/properties.h
         include/audio/queue_buffer.h src/audio/queue_buffer.cpp
+        include/audio/reserved_channel.h
         include/audio/resource.h src/audio/resource.cpp
         include/audio/sound.h src/audio/sound.cpp
         include/audio/sound_interface.h src/audio/sound_interface.cpp
