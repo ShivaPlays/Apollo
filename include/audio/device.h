@@ -48,8 +48,7 @@ namespace age::audio
 		static const glm::vec3& get_listener_up_vector();
 
 		channel_guard play_buffer(const buffer& buffer, const properties& properties, uint8_t bus = 0);
-		channel_guard request_channel(bool reserved = false);
-		//reserved_channel request_reserved_channel();
+		channel_guard request_channel();
 
 		void pause();
 		void resume();

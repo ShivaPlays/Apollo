@@ -7,8 +7,6 @@
 #include <atomic>
 
 #include "source.h"
-//#include "channel_link.h"
-#include "channel_link.h"
 #include "properties.h"
 
 namespace age::audio
@@ -27,13 +25,7 @@ namespace age::audio
         {}
 
         // We must manually define how to move this class
-        channel(channel&& other) noexcept
-            : m_source{ std::move(other.m_source) }
-            , m_owner{ other.m_owner.exchange(nullptr, std::memory_order_relaxed) }
-            , m_busy{ other.m_busy.exchange(false, std::memory_order_relaxed) }
-            , m_priority{ std::exchange(other.m_priority, 0) }
-            , m_is_reserved{ std::exchange(other.m_is_reserved, false) }
-        {}
+        channel(channel&& other) noexcept;
 
         channel& operator=(channel&&) = delete;
         channel(const channel&) = delete;
@@ -41,6 +33,8 @@ namespace age::audio
 
     public:
         void play() { m_source.play(); }
+        void play(const properties& properties) { m_source.play(properties); }
+        void play(const buffer& buffer, const properties& properties) { m_source.play(buffer, properties); }
         void stop() { m_source.stop(); }
         void pause() { m_source.pause(); }
         void rewind() { m_source.rewind(); }
@@ -124,14 +118,6 @@ namespace age::audio
 
         std::mutex& get_state_mutex() const { return m_state_mutex; }
 
-        void set_owner(channel_link* owner)
-        {
-            std::scoped_lock lock{ m_owner_mutex };
-
-            if (m_owner && m_owner != owner) m_owner->notify_channel_lost();
-            m_owner = owner;
-        }
-
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
         uint8_t get_auxiliary_bus() const { return m_auxiliary_bus; }
         void apply_auxiliary_bus();
@@ -143,6 +129,9 @@ namespace age::audio
     private:
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
+
+        void set_owner(channel_link* owner);
+        void stop_and_release();
 
         void release_owner(channel_link* expected_owner)
         {

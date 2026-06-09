@@ -46,10 +46,12 @@ namespace age::audio
 
 		~music() override;
 	public:
-		void play(bool looped = false) override;
+		void play() override;
 		void stop() override;
 		void pause() override;
 		void on_channel_lost() override;
+
+		void update_looping(bool value) override;
 
 		void open(std::string_view fn);
 		void open(std::istream& is);
@@ -85,6 +87,8 @@ namespace age::audio
 
 		std::unique_ptr<stream> m_sound_stream;
 		std::atomic<state> m_internal_state;
+
+		std::atomic<bool> m_looping{ false };
 
 		bool m_alive;
 	};

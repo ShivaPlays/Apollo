@@ -26,7 +26,7 @@ namespace age::audio
 		virtual ~sound() override;
 
 	public:
-		void play(bool looped = false) override;
+		void play() override;
 		void stop() override;
 		void pause() override;
 

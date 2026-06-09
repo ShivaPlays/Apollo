@@ -21,6 +21,8 @@ namespace age::audio
     class channel_link
     {
     public:
+        friend class channel;
+
         channel_link(sound_interface* owner)
             : m_owner(owner)
         {}
@@ -81,6 +83,14 @@ namespace age::audio
         {
             std::scoped_lock lock{ m_mutex };
             if (auto chan = get_raw_pointer()) chan->rewind();
+        }
+
+        state get_state() const
+        {
+            std::scoped_lock lock{ m_mutex };
+            if (auto chan = get_raw_pointer()) return chan->get_state();
+
+            return state::stopped;
         }
 
         void apply_properties(const properties& properties)
@@ -203,6 +213,12 @@ namespace age::audio
             if (auto chan = get_raw_pointer()) chan->set_auxiliary_bus(value);
         }
 
+        void clear_buffers()
+        {
+            std::scoped_lock lock{ m_mutex };
+            if (auto chan = get_raw_pointer()) chan->clear_buffers();
+        }
+
         void attach(const channel_guard& chan)
         {
             std::scoped_lock lock{m_mutex };
@@ -256,6 +272,24 @@ namespace age::audio
 
         void trigger_channel_loss();
 
+        void update_moved_channel(channel* value)
+        {
+            std::scoped_lock lock{m_mutex};
+
+            std::visit([value](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                if constexpr (std::is_same_v<T, channel*>)
+                {
+                    arg = value; // Directly overwrite the old pointer
+                }
+                else if constexpr (std::is_same_v<T, reserved_channel>)
+                {
+                    arg.update_channel_pointer(value); // Pass it down to the wrapper
+                }
+            }, m_channel);
+        }
+
         [[nodiscard]] channel *get_raw_pointer() const
         {
             return std::visit([](auto&& arg) -> channel* {
@@ -283,7 +317,7 @@ namespace age::audio
             if (new_channel) new_channel->set_owner(this);
         }
 
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
         std::variant<std::monostate, channel*, reserved_channel> m_channel{ std::monostate{} };
         sound_interface* m_owner{};
 

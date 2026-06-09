@@ -12,6 +12,8 @@ namespace age::audio
     class reserved_channel
     {
     public:
+        friend class channel_link;
+
         explicit reserved_channel(const channel_guard &chan)
             : m_channel(chan.get())
         {
@@ -45,6 +47,8 @@ namespace age::audio
     protected:
 
     private:
+        void update_channel_pointer(channel* value) { m_channel = value; }
+
         channel* m_channel{};
     };
 }

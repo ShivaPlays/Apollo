@@ -30,10 +30,24 @@ namespace age::audio
 		virtual ~sound_interface() = default;
 
 	public:
-		virtual void play(bool looped = false) = 0;
+		virtual void play() = 0;
 		virtual void stop() = 0;
 		virtual void pause() = 0;
 		virtual void on_channel_lost() {}
+
+		void set_looping(bool value)
+		{
+			m_properties.looping = value;
+		}
+		virtual void update_looping(bool value)
+		{
+			set_looping(value);
+			m_channel_link.set_looping(value);
+		}
+		[[nodiscard]] bool get_looping() const
+		{
+			return m_properties.looping;
+		}
 
 		void set_position(const glm::vec3 value)
 		{
@@ -147,11 +161,6 @@ namespace age::audio
 			return m_auxiliary_bus;
 		}
 
-		[[nodiscard]] bool get_looping() const
-		{
-			return m_properties.looping;
-		}
-
 	protected:
 		[[nodiscard]] const channel_link& get_channel_link() const { return m_channel_link; }
 		channel_link& get_channel_link() { return m_channel_link; }
@@ -159,6 +168,7 @@ namespace age::audio
 		void attach_channel(const channel_guard& value) { m_channel_link.attach(value); }
 		void attach_channel(reserved_channel&& chan) { m_channel_link.attach(std::move(chan)); }
 		void detach_channel() { m_channel_link.detach(); }
+		bool has_channel() const { return m_channel_link.is_valid(); }
 
 		const properties& get_properties() const { return m_properties; }
 

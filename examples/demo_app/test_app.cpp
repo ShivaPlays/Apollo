@@ -136,8 +136,9 @@ age::engine::app_result test_app::on_user_create()
     m_test_music.set_volume(0.25f);
     m_test_music.set_auxiliary_bus(1);
     m_test_music.set_direct_channels(false);
+    m_test_music.set_looping(true);
 
-    m_test_music.play(true);
+    m_test_music.play();
 
     m_clock.start();
 
@@ -274,7 +275,7 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                         break;
                     case age::audio::state::paused:
                         {
-                            m_test_music.play(true);
+                            m_test_music.play();
                         }
                         break;
                     }
@@ -296,7 +297,7 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
 
                     m_test_music.open("./test_data/track1.ogg");
                     m_test_music.set_volume(1.0f);
-                    m_test_music.play(true);
+                    m_test_music.play();
 
                 }
                 break;

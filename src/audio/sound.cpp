@@ -11,85 +11,42 @@ namespace age::audio
 
 	sound::~sound()
 	{
-		auto current_attached_channel = get_attached_channel();
-
-		if (current_attached_channel)
-		{
-			current_attached_channel->set_owner(nullptr);
-
-			auto source_looping = current_attached_channel->get_looping();
-
-			//Our source is in the unavailable container. Make it available again
-			if (source_looping || current_attached_channel->get_state() == state::paused)
-			{
-				current_attached_channel->stop();
-				current_attached_channel->set_reserved(false);
-			}
-		}
+		sound::stop();
 	}
 
-	void sound::play(bool looped)
+	void sound::play()
 	{
 		if (!m_buffer) return;
 
-		auto current_attached_channel = get_attached_channel();
-		if (current_attached_channel)
-		{
-			if (current_attached_channel->get_state() == state::paused)
+		bool done = false;
+
+		get_channel_link().execute_on_channel([&done](channel& chan) {
+			if (chan.get_state() == state::paused)
 			{
-				current_attached_channel->play();
-				return;
+				chan.play();
+				done = true;
 			}
+		});
 
-			if (current_attached_channel->get_looping())
-			{
-				current_attached_channel->stop();
-				current_attached_channel->attach_buffer(*m_buffer);
-				current_attached_channel->set_looping(looped);
-				current_attached_channel->play();
+		if (done) return;
 
-				return;
-			}
-		}
-
-		auto properties = get_properties();
-		properties.looping = looped;
-
-		auto guard = device::get().play_buffer(*m_buffer, properties);
+		auto guard = device::get().play_buffer(*m_buffer, get_properties());
 		if (guard) attach_channel(guard);
 	}
 
 	void sound::stop()
 	{
-		auto current_attached_channel = get_attached_channel();
-
-		if (current_attached_channel)
-		{
-			if (current_attached_channel->get_looping())
-			{
-				current_attached_channel->set_reserved(false);
-			}
-
-			current_attached_channel->stop();
-		}
+		get_channel_link().stop();
 	}
 
 	void sound::pause()
 	{
-		auto current_attached_channel = get_attached_channel();
-
-		if (current_attached_channel)
-			current_attached_channel->pause();
+		get_channel_link().pause();
 	}
 
 	state sound::get_state() const
 	{
-		auto current_attached_channel = get_attached_channel();
-
-		if (current_attached_channel)
-			return current_attached_channel->get_state();
-
-		return state::stopped;
+		return get_channel_link().get_state();
 	}
 
 	void sound::set_buffer(const buffer* value)

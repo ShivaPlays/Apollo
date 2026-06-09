@@ -31,7 +31,7 @@ namespace age::audio
 		destroy_context_and_close_device();
 	}
 
-	channel_guard device::request_channel(bool reserved)
+	channel_guard device::request_channel()
 	{
 		const auto pool_size = m_channels.size();
 
@@ -47,7 +47,6 @@ namespace age::audio
 				auto guard = channel_guard{ &channel };
 				if (channel.is_free() && !channel.is_reserved())
 				{
-					channel.set_reserved(reserved);
 					m_next_pool_index.store((idx + 1) % pool_size);
 					return guard;
 				}
@@ -95,18 +94,8 @@ namespace age::audio
 
 	void device::stop_all_sounds()
 	{
-		auto stop_source_sound = [](channel& ch) -> void
-		{
-			auto lock = std::lock_guard{ ch.get_owner_mutex() };
-
-			if (auto sound = ch.get_owner())
-				sound->stop();
-
-			ch.get_source().stop();
-		};
-
 		for (auto& channel : m_channels)
-			stop_source_sound(channel);
+			channel.stop_and_release();
 	}
 
 	void device::remove_buffer_from_active_sources(const buffer& buffer)
@@ -224,15 +213,13 @@ namespace age::audio
 
 	channel_guard device::play_buffer(const buffer &buffer, const properties &properties, uint8_t bus)
 	{
-		auto guard = request_channel(properties.looping);
+		auto guard = request_channel();
 
 		if (auto channel = guard.get())
 		{
 			channel->set_auxiliary_bus(bus);
-			channel->attach_buffer(buffer);
-			channel->apply_properties(properties);
 
-			channel->play();
+			channel->play(buffer, properties);
 		}
 
 		return guard;
@@ -326,7 +313,7 @@ namespace age::audio
 		{
 			{
 				for (auto& channel : m_channels)
-					channel.detach_owner();
+					channel.stop_and_release();
 
 				m_channels.clear();
 			}

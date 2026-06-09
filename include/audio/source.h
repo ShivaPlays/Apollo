@@ -24,8 +24,7 @@ namespace age::audio
 	class buffer;
 	class group;
 
-	class source
-	{
+	class source {
 	public:
 		friend class device;
 
@@ -41,6 +40,8 @@ namespace age::audio
 
 	public:
 		void play();
+		void play(const properties& properties);
+		void play(const buffer& buffer, const properties& properties);
 		void stop();
 		void pause();
 		void rewind();
@@ -126,7 +127,9 @@ namespace age::audio
 		source();
 		source(uint32_t handle);
 
+		void stage_play();
 		void stage_properties(const properties& properties, bool force = false);
+		void stage_buffer(const buffer& value);
 
 		bool realize();
 		void enable_source_spatialize();

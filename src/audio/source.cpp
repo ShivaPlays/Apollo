@@ -32,7 +32,34 @@ namespace age::audio
 
 	void source::play()
 	{
-		if (realize()) AL_CALL(alSourcePlay(m_handle));
+		if (realize()) stage_play();
+	}
+
+	void source::play(const properties& properties)
+	{
+		if (realize())
+		{
+			alDeferUpdatesSOFT();
+
+			stage_properties(properties);
+			stage_play();
+
+			alProcessUpdatesSOFT();
+		}
+	}
+
+	void source::play(const buffer &buffer, const properties &properties)
+	{
+		if (realize())
+		{
+			alDeferUpdatesSOFT();
+
+			stage_properties(properties);
+			stage_buffer(buffer);
+			stage_play();
+
+			alProcessUpdatesSOFT();
+		}
 	}
 
 	void source::stop()
@@ -59,8 +86,6 @@ namespace age::audio
 			stage_properties(properties, force);
 
 			alProcessUpdatesSOFT();
-
-			m_properties = properties;
 		}
 	}
 
@@ -489,6 +514,11 @@ namespace age::audio
 		}
 	}
 
+	void source::stage_play()
+	{
+		AL_CALL(alSourcePlay(m_handle));
+	}
+
 	void source::stage_properties(const properties& properties, bool force)
 	{
 		if (force || m_properties.position != properties.position)
@@ -527,6 +557,19 @@ namespace age::audio
 			AL_CALL(alSourcei(m_handle, AL_DIRECT_CHANNELS_SOFT, properties.direct_channels ? 1 : 0));
 		if (force || m_properties.looping != properties.looping)
 			AL_CALL(alSourcei(m_handle, AL_LOOPING, properties.looping ? 1 : 0));
+
+		m_properties = properties;
+	}
+
+	void source::stage_buffer(const buffer& value)
+	{
+		auto new_buffer = value.get_handle();
+
+		if (m_attached_buffer != new_buffer)
+		{
+			AL_CALL(alSourcei(m_handle, AL_BUFFER, new_buffer));
+			m_attached_buffer = new_buffer;
+		}
 	}
 
 	bool source::realize()
