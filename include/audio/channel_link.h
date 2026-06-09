@@ -245,7 +245,7 @@ namespace age::audio
             return m_is_valid.load(std::memory_order_relaxed);
         }
 
-        void notify_owner()
+        void notify_channel_lost()
         {
             trigger_channel_loss();
         }

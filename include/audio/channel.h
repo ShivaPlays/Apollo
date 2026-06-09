@@ -8,6 +8,7 @@
 
 #include "source.h"
 //#include "channel_link.h"
+#include "channel_link.h"
 #include "properties.h"
 
 namespace age::audio
@@ -125,8 +126,10 @@ namespace age::audio
 
         void set_owner(channel_link* owner)
         {
-            //std::scoped_lock lock{ m_owner_mutex };
-            m_owner.store(owner, std::memory_order_release);
+            std::scoped_lock lock{ m_owner_mutex };
+
+            if (m_owner && m_owner != owner) m_owner->notify_channel_lost();
+            m_owner = owner;
         }
 
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
@@ -143,10 +146,9 @@ namespace age::audio
 
         void release_owner(channel_link* expected_owner)
         {
-            //std::scoped_lock lock{ m_owner_mutex };
+            std::scoped_lock lock{ m_owner_mutex };
 
-            m_owner.compare_exchange_strong(expected_owner, nullptr, std::memory_order_acq_rel, std::memory_order_relaxed);
-            //if (m_owner == expected_owner) m_owner = nullptr;
+            if (m_owner == expected_owner) m_owner = nullptr;
         }
 
         bool try_acquire() { return !m_busy.exchange(true); }
@@ -156,8 +158,8 @@ namespace age::audio
         source m_source;
 
         mutable std::mutex m_state_mutex;
-        //mutable std::mutex m_owner_mutex;
-        std::atomic<channel_link*> m_owner{ nullptr };
+        mutable std::mutex m_owner_mutex;
+        channel_link* m_owner{ nullptr };
 
         std::atomic<bool> m_busy{false};
 
