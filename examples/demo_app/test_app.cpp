@@ -314,7 +314,7 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                         m_test_text.set_string("Hello my Name\nis Jimmy Pop");
                         break;
                     case 1:
-                        m_test_text.set_string("And I'm a dump\nwhite guy");
+                        m_test_text.set_string("And I'm a dumb\nwhite guy");
                         break;
                     case 2:
                         m_test_text.set_string("The roof,\nthe roof");
