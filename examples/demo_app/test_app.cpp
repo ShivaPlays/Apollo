@@ -126,7 +126,7 @@ age::engine::app_result test_app::on_user_create()
     //m_test_filter.set_gain_hf(0.1f);
 
     age::audio::device::get().get_auxiliary_send_group(1).set_enabled(true);
-    age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_effect(&m_test_effect);
+    //age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_effect(&m_test_effect);
     //age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).attach_filter(&m_test_filter);
     age::audio::device::get().get_auxiliary_send_group(1).get_slot(0).set_volume(1.0f);
 
