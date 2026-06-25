@@ -35,10 +35,21 @@ namespace age::audio
     {
         std::scoped_lock lock{ m_state_mutex, m_owner_mutex };
 
-        if (m_owner) m_owner->notify_channel_lost();
+        if (m_owner)
+        {
+            m_owner->notify_channel_lost();
+        }
+
         m_owner = nullptr;
 
         stop();
+    }
+
+    void channel::queued_buffers_processed(size_t num_buffers)
+    {
+        std::scoped_lock lock{ m_owner_mutex };
+
+        if (m_owner) m_owner->tirgger_queued_buffers_processed(num_buffers);
     }
 
     void channel::apply_auxiliary_bus()

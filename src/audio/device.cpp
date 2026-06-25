@@ -280,31 +280,47 @@ namespace age::audio
 			m_alcReopenDeviceSOFT_ptr = alcGetProcAddress(static_cast<ALCdevice*>(m_device), "ALC_SOFT_reopen_device");
 		}
 
-		ALenum types[] = { AL_EVENT_TYPE_DISCONNECTED_SOFT };
-		alEventControlSOFT(1, types, AL_TRUE);
+		auto types = std::array{ AL_EVENT_TYPE_DISCONNECTED_SOFT, AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT };
+		alEventControlSOFT(types.size(), types.data(), AL_TRUE);
 
-		auto callback = [](ALenum  event_type, ALuint  object, ALuint  param, ALsizei length, const ALchar* message, void* user_ptr) noexcept
+		auto callback = [](ALenum event_type, ALuint object, ALuint param, ALsizei length, const ALchar* message, void* user_ptr) noexcept
 		{
-			if (event_type == AL_EVENT_TYPE_DISCONNECTED_SOFT)
+			auto* self = static_cast<device*>(user_ptr);
+
+			switch (event_type)
 			{
-				auto* self = static_cast<device*>(user_ptr);
-				try
+			case AL_EVENT_TYPE_DISCONNECTED_SOFT:
 				{
-					self->m_maintenance_worker.add_job([self](){self->reopen();});
+					try
+					{
+						self->m_maintenance_worker.add_job([self](){self->reopen();});
+					}
+					catch (...)
+					{}
 				}
-				catch (...)
-				{}
+				break;
+
+			case AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT:
+				{
+					auto source_name = object;
+					auto cmp = [](const auto& pair, auto key) -> bool { return pair.first < key; };
+
+					if (auto it = std::lower_bound(self->m_source_to_channel.begin(), self->m_source_to_channel.end(), source_name, cmp);
+						it != self->m_source_to_channel.end() && it->first == source_name)
+					{
+						auto& chan = it->second.get();
+						auto buffers_processed = param;
+
+						chan.queued_buffers_processed(buffers_processed);
+					}
+				}
+				break;
+
+			default: break;
 			}
 		};
 
 		alEventCallbackSOFT(callback, this);
-
-		//For testing the ALC_MAX_AUXILIARY_SENDS number
-		/*
-		ALint actual_sends = 0;
-		alcGetIntegerv(static_cast<ALCdevice*>(m_device), ALC_MAX_AUXILIARY_SENDS, 1, &actual_sends);
-		std::cout << actual_sends;
-		*/
 	}
 
 	void device::destroy_context_and_close_device()
@@ -346,8 +362,8 @@ namespace age::audio
 		m_channels.clear();
 		m_channels.reserve(config::MAX_SOURCES);
 
-		m_source_to_index.clear();
-		m_source_to_index.reserve(config::MAX_SOURCES);
+		m_source_to_channel.clear();
+		m_source_to_channel.reserve(config::MAX_SOURCES);
 
 		AL_CALL(alGenSources(config::MAX_SOURCES, source_names.data()));
 
@@ -355,9 +371,10 @@ namespace age::audio
 		{
 			auto& ch = m_channels.emplace_back(source::constructor_key{}, source_name);
 
-			m_source_to_index[source_name] = m_channels.size() - 1;
+			m_source_to_channel.emplace_back(source_name, ch);
 			ch.get_source().enable_source_spatialize();
-
 		}
+
+		std::sort(m_source_to_channel.begin(), m_source_to_channel.end(), [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
 	}
 }

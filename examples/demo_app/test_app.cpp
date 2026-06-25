@@ -265,7 +265,6 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                 break;
             case SDLK_P:
                 {
-
                     switch (m_test_music.get_state())
                     {
                     case age::audio::state::playing:
@@ -273,13 +272,12 @@ age::engine::app_result test_app::on_process_event(SDL_Event& e)
                             m_test_music.pause();
                         }
                         break;
-                    case age::audio::state::paused:
+                    default:
                         {
                             m_test_music.play();
                         }
                         break;
                     }
-
                 }
                 break;
             case SDLK_T:

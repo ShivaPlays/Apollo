@@ -250,8 +250,8 @@ namespace age::audio
             std::scoped_lock lock{m_mutex };
 
             auto current_channel = get_raw_pointer();
-            m_channel = std::monostate{};
-            m_is_valid.store(false, std::memory_order_relaxed);
+
+           reset();
 
             if (current_channel) current_channel->release_owner(this);
         }
@@ -261,16 +261,29 @@ namespace age::audio
             return m_is_valid.load(std::memory_order_relaxed);
         }
 
-        void notify_channel_lost()
-        {
-            trigger_channel_loss();
-        }
-
     protected:
 
     private:
 
-        void trigger_channel_loss();
+        void notify_channel_lost()
+        {
+            std::scoped_lock lock{m_mutex};
+
+            if (auto chan = get_raw_pointer())
+            {
+                trigger_channel_loss(*chan);
+
+                reset();
+            }
+        }
+
+        void notify_queued_buffers_processed(size_t num_buffers)
+        {
+            tirgger_queued_buffers_processed(num_buffers);
+        }
+
+        void trigger_channel_loss(channel& channel);
+        void tirgger_queued_buffers_processed(size_t num_buffers);
 
         void update_moved_channel(channel* value)
         {
@@ -315,6 +328,12 @@ namespace age::audio
 
             if (old_channel) old_channel->release_owner(this);
             if (new_channel) new_channel->set_owner(this);
+        }
+
+        void reset()
+        {
+            m_channel = std::monostate{};
+            m_is_valid.store(false, std::memory_order_relaxed);
         }
 
         mutable std::mutex m_mutex;

@@ -8,7 +8,8 @@
 #ifndef NDEBUG
 
 // --- AL Error Mapping ---
-inline const char* al_error_string(ALenum err) {
+inline const char* al_error_string(ALenum err)
+{
     switch (err) {
         case AL_NO_ERROR:          return "AL_NO_ERROR";
         case AL_INVALID_NAME:      return "AL_INVALID_NAME";
@@ -21,7 +22,8 @@ inline const char* al_error_string(ALenum err) {
 }
 
 // --- ALC Error Mapping ---
-inline const char* alc_error_string(ALCenum err) {
+inline const char* alc_error_string(ALCenum err)
+{
     switch (err) {
         case ALC_NO_ERROR:        return "ALC_NO_ERROR";
         case ALC_INVALID_DEVICE:  return "ALC_INVALID_DEVICE";
@@ -34,33 +36,54 @@ inline const char* alc_error_string(ALCenum err) {
 }
 
 // --- Internal Checkers ---
-inline void al_check_errors(const char* expr, const char* file, int line) {
+inline void al_check_errors(const char* expr, const char* file, int line)
+{
     ALenum err = alGetError();
-    if (err != AL_NO_ERROR) {
+    if (err != AL_NO_ERROR)
+    {
         std::cerr << "[OpenAL Error] " << al_error_string(err)
                   << " at " << file << ":" << line
                   << " | Expr: " << expr << std::endl;
     }
 }
 
-inline void alc_check_errors(ALCdevice* device, const char* expr, const char* file, int line) {
+inline void alc_check_errors(ALCdevice* device, const char* expr, const char* file, int line)
+{
     ALCenum err = alcGetError(device);
-    if (err != ALC_NO_ERROR) {
+    if (err != ALC_NO_ERROR)
+    {
         std::cerr << "[ALC Error] " << alc_error_string(err)
                   << " at " << file << ":" << line
                   << " | Expr: " << expr << std::endl;
     }
 }
 
+inline bool al_check_success(const char* expr, const char* file, int line)
+{
+    ALenum err = alGetError();
+    if (err != AL_NO_ERROR)
+    {
+        std::cerr << "[OpenAL Error] " << al_error_string(err)
+                  << " at " << file << ":" << line
+                  << " | Expr: " << expr << std::endl;
+        return false;
+    }
+    return true;
+}
+
 // --- Templates ---
 
 // Standard AL_CALL wrapper
 template <typename Func>
-auto al_checked(Func&& func, const char* expr, const char* file, int line) -> decltype(func()) {
-    if constexpr (std::is_void_v<decltype(func())>) {
+auto al_checked(Func&& func, const char* expr, const char* file, int line) -> decltype(func())
+{
+    if constexpr (std::is_void_v<decltype(func())>)
+    {
         func();
         al_check_errors(expr, file, line);
-    } else {
+    }
+    else
+    {
         auto result = func();
         al_check_errors(expr, file, line);
         return result;
@@ -69,11 +92,15 @@ auto al_checked(Func&& func, const char* expr, const char* file, int line) -> de
 
 // New ALC_CALL wrapper (requires device)
 template <typename Func>
-auto alc_checked(ALCdevice* device, Func&& func, const char* expr, const char* file, int line) -> decltype(func()) {
-    if constexpr (std::is_void_v<decltype(func())>) {
+auto alc_checked(ALCdevice* device, Func&& func, const char* expr, const char* file, int line) -> decltype(func())
+{
+    if constexpr (std::is_void_v<decltype(func())>)
+    {
         func();
         alc_check_errors(device, expr, file, line);
-    } else {
+    }
+    else
+    {
         auto result = func();
         alc_check_errors(device, expr, file, line);
         return result;

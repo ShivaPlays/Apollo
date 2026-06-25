@@ -33,7 +33,8 @@ namespace age::audio
 		virtual void play() = 0;
 		virtual void stop() = 0;
 		virtual void pause() = 0;
-		virtual void on_channel_lost() {}
+		virtual void on_channel_lost(channel& channel) { (void)channel; }
+		virtual void on_queued_buffers_processed(size_t num_buffers) { (void)num_buffers; };
 
 		void set_looping(bool value)
 		{

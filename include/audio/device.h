@@ -2,12 +2,11 @@
 
 #include <array>
 #include <vector>
-#include <unordered_map>
-#include <list>
 #include <string_view>
 #include <mutex>
 #include <atomic>
 #include <glm/vec3.hpp>
+#include <functional>
 
 #include "../core/background_worker.h"
 
@@ -101,7 +100,7 @@ namespace age::audio
 
 		std::atomic<size_t> m_next_pool_index;
 		std::vector<channel> m_channels;
-		std::unordered_map<uint32_t, size_t> m_source_to_index;
+		std::vector<std::pair<uint32_t, std::reference_wrapper<channel>>> m_source_to_channel;
 
 		bool m_is_initialised;
 	};

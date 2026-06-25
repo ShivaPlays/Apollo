@@ -52,7 +52,7 @@ add_library(${LIB_NAME} STATIC
         include/audio/sound.h src/audio/sound.cpp
         include/audio/sound_interface.h src/audio/sound_interface.cpp
         include/audio/source.h src/audio/source.cpp
-        include/audio/state.h
+        include/audio/state.h src/audio/state.cpp
         include/audio/stream.h src/audio/stream.cpp
         include/audio/stream_factory.h src/audio/stream_factory.cpp
         include/audio/wave.h src/audio/wave.cpp

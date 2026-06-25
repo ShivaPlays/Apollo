@@ -127,11 +127,16 @@ namespace age::audio
     protected:
 
     private:
+
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
 
         void set_owner(channel_link* owner);
         void stop_and_release();
+
+        //This function is called from a callback in device which sets how many queued buffers have been processed.
+        //We need to notify the soundinterface about that, so that we can trigger buffering
+        void queued_buffers_processed(size_t num_buffers);
 
         void release_owner(channel_link* expected_owner)
         {
