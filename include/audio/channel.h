@@ -145,17 +145,11 @@ namespace age::audio
             if (m_owner == expected_owner) m_owner = nullptr;
         }
 
-        bool try_acquire() { return !m_busy.exchange(true); }
-        void release() { m_busy.store(false); }
-        bool is_busy() const { return m_busy.load(); }
-
         source m_source;
 
         mutable std::mutex m_state_mutex;
         mutable std::mutex m_owner_mutex;
         channel_link* m_owner{ nullptr };
-
-        std::atomic<bool> m_busy{false};
 
         uint8_t m_auxiliary_bus{};
 

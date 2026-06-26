@@ -42,10 +42,12 @@ namespace age::audio
 			size_t idx = (start_index + i) % pool_size;
 			auto& channel = m_channels[idx];
 
-			if (channel.try_acquire())
+			std::unique_lock lock{ channel.get_state_mutex(), std::try_to_lock} ;
+
+			if (lock.owns_lock())
 			{
-				auto guard = channel_guard{ &channel };
-				if (channel.is_free() && !channel.is_reserved())
+				auto guard = channel_guard{ std::move(lock), channel };
+				if (channel.is_free())
 				{
 					m_next_pool_index.store((idx + 1) % pool_size);
 					return guard;

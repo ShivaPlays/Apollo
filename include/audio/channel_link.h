@@ -51,13 +51,17 @@ namespace age::audio
         }
 
     public:
-        template <typename F>
-        void execute_on_channel(F&& func)
+        //ToDo: Replace with std::invocable<channel&> as soon as using C++23
+        template <typename callback>
+        void execute_on_channel(callback&& func)
         {
+            static_assert(std::is_invocable_v<callback, channel&>,
+            "The lambda passed to execute_on must accept a channel& parameter!");
+
             std::scoped_lock lock{ m_mutex };
             if (channel* chan = get_raw_pointer())
             {
-                std::forward<F>(func)(*chan);
+                std::forward<callback>(func)(*chan);
             }
         }
 

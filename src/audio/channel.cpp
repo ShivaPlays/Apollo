@@ -12,7 +12,6 @@ namespace age::audio
     channel::channel(channel&& other) noexcept
         : m_source{ std::move(other.m_source) }
         //, m_owner{ std::exchange(other.m_owner, nullptr) }
-        , m_busy{ other.m_busy.exchange(false, std::memory_order_relaxed) }
         , m_priority{ std::exchange(other.m_priority, 0) }
         , m_is_reserved{ std::exchange(other.m_is_reserved, false) }
     {

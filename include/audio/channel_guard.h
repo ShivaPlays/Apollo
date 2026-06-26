@@ -52,9 +52,14 @@ namespace age::audio
             return std::unique_lock<std::mutex>{};
         }
 
-        channel_guard(channel* channel)
+        channel_guard(channel* channel) noexcept
             : m_channel_lock{ create_lock(channel) }
             , m_channel{ channel }
+        {}
+
+        channel_guard(std::unique_lock<std::mutex>&& lock, channel& channel) noexcept
+            : m_channel_lock{ std::move(lock) }
+            , m_channel{ &channel }
         {}
 
         void release()
@@ -62,7 +67,6 @@ namespace age::audio
             if (m_channel)
             {
                 if (m_channel_lock.owns_lock()) m_channel_lock.unlock();
-                m_channel->release();
                 m_channel = nullptr;
             }
         }
