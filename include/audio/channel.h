@@ -16,8 +16,40 @@ namespace age::audio
     class channel
     {
         friend class device;
-        friend class channel_guard;
         friend class channel_link;
+
+        class protected_owner
+        {
+        public:
+            protected_owner() = default;
+        public:
+
+            // Fulfill the basic Lockable concept requirements
+            void lock() const { m_mutex.lock(); }
+            void unlock() const { m_mutex.unlock(); }
+            bool try_lock() const { return m_mutex.try_lock(); }
+
+            // Accessors (only safe to invoke when this component is actively locked!)
+            void set(channel_link* owner) { m_ptr = owner; }
+            channel_link* get() const { return m_ptr; }
+
+            bool clear_if_matches(channel_link* expected)
+            {
+                if (m_ptr == expected)
+                {
+                    m_ptr = nullptr;
+                    return true;
+                }
+
+                return false;
+            }
+
+        protected:
+
+        private:
+            mutable std::mutex m_mutex;
+            channel_link* m_ptr { nullptr };
+        };
 
     public:
         channel(source::constructor_key key, uint32_t handle)
@@ -116,18 +148,19 @@ namespace age::audio
         void set_priority(uint8_t value) { m_priority = value; }
         uint8_t get_priority() const { return m_priority; }
 
-        std::mutex& get_state_mutex() const { return m_state_mutex; }
-
         void set_auxiliary_bus(uint8_t value) { m_auxiliary_bus = value; apply_auxiliary_bus(); }
         uint8_t get_auxiliary_bus() const { return m_auxiliary_bus; }
         void apply_auxiliary_bus();
 
         bool is_free() const { return !m_is_reserved && m_source.get_state() == state::stopped; }
 
+        void lock() const { m_state_mutex.lock(); }
+        void unlock() const { m_state_mutex.unlock(); }
+        bool try_lock() const { return m_state_mutex.try_lock(); }
+
     protected:
 
     private:
-
         source& get_source () { return m_source; }
         const source& get_source() const { return m_source; }
 
@@ -140,16 +173,15 @@ namespace age::audio
 
         void release_owner(channel_link* expected_owner)
         {
-            std::scoped_lock lock{ m_owner_mutex };
+            std::scoped_lock lock{ m_owner };
 
-            if (m_owner == expected_owner) m_owner = nullptr;
+            m_owner.clear_if_matches(expected_owner);
         }
 
         source m_source;
+        protected_owner m_owner;
 
         mutable std::mutex m_state_mutex;
-        mutable std::mutex m_owner_mutex;
-        channel_link* m_owner{ nullptr };
 
         uint8_t m_auxiliary_bus{};
 

@@ -15,7 +15,6 @@
 
 #include "audio/priv/al_check.h"
 
-
 namespace age::audio
 {
 	device::device()
@@ -42,7 +41,7 @@ namespace age::audio
 			size_t idx = (start_index + i) % pool_size;
 			auto& channel = m_channels[idx];
 
-			std::unique_lock lock{ channel.get_state_mutex(), std::try_to_lock} ;
+			std::unique_lock lock{ channel, std::try_to_lock} ;
 
 			if (lock.owns_lock())
 			{

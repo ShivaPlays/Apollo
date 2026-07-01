@@ -46,10 +46,10 @@ namespace age::audio
     protected:
 
     private:
-        static std::unique_lock<std::mutex> create_lock(channel* c)
+        static std::unique_lock<channel> create_lock(channel* c)
         {
-            if (c) return std::unique_lock{ c->get_state_mutex() };
-            return std::unique_lock<std::mutex>{};
+            if (c) return std::unique_lock{ *c };
+            return std::unique_lock<channel>{};
         }
 
         channel_guard(channel* channel) noexcept
@@ -57,7 +57,7 @@ namespace age::audio
             , m_channel{ channel }
         {}
 
-        channel_guard(std::unique_lock<std::mutex>&& lock, channel& channel) noexcept
+        channel_guard(std::unique_lock<channel>&& lock, channel& channel) noexcept
             : m_channel_lock{ std::move(lock) }
             , m_channel{ &channel }
         {}
@@ -71,7 +71,7 @@ namespace age::audio
             }
         }
 
-        std::unique_lock<std::mutex> m_channel_lock;
+        std::unique_lock<channel> m_channel_lock;
         channel* m_channel;
     };
 }

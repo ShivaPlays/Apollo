@@ -16,39 +16,41 @@ namespace age::audio
         , m_is_reserved{ std::exchange(other.m_is_reserved, false) }
     {
         // 1. Lock BOTH mutexes on the source channel before touching its pointers
-        std::scoped_lock lock{ other.m_state_mutex, other.m_owner_mutex };
+        std::scoped_lock lock{ other.m_state_mutex, other.m_owner };
 
-        m_owner = std::exchange(other.m_owner, nullptr);
-        if (m_owner) m_owner->update_moved_channel(this);
+        m_owner.set(other.m_owner.get());
+        other.m_owner.set(nullptr);
+
+        if (m_owner.get()) m_owner.get()->update_moved_channel(this);
     }
 
     void channel::set_owner(channel_link* owner)
     {
-        std::scoped_lock lock{ m_owner_mutex };
+        std::scoped_lock lock{ m_owner };
 
-        if (m_owner && m_owner != owner) m_owner->notify_channel_lost();
-        m_owner = owner;
+        if (m_owner.get() && m_owner.get() != owner) m_owner.get()->notify_channel_lost();
+        m_owner.set(owner);
     }
 
     void channel::stop_and_release()
     {
-        std::scoped_lock lock{ m_state_mutex, m_owner_mutex };
+        std::scoped_lock lock{ m_state_mutex, m_owner };
 
-        if (m_owner)
+        if (m_owner.get())
         {
-            m_owner->notify_channel_lost();
+            m_owner.get()->notify_channel_lost();
         }
 
-        m_owner = nullptr;
+        m_owner.set(nullptr);
 
         stop();
     }
 
     void channel::queued_buffers_processed(size_t num_buffers)
     {
-        std::scoped_lock lock{ m_owner_mutex };
+        std::scoped_lock lock{ m_owner };
 
-        if (m_owner) m_owner->tirgger_queued_buffers_processed(num_buffers);
+        if (m_owner.get()) m_owner.get()->tirgger_queued_buffers_processed(num_buffers);
     }
 
     void channel::apply_auxiliary_bus()
