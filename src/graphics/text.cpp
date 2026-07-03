@@ -317,7 +317,7 @@ namespace age
 			return;
 
 		const auto& font_texture = m_font->get_texture(m_character_size);
-		const auto& font_texture_size = font_texture.get_size();
+		const auto font_texture_size = font_texture.get_size();
 
 		if (!m_geometry_needs_update && font_texture.get_id() == m_last_texture_id && font_texture_size == m_last_texture_size)
 			return;

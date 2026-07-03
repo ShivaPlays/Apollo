@@ -13,6 +13,9 @@
 #include "audio/effect/slot.h"
 #include "audio/effect/auxiliary_send_group.h"
 
+using impl_int	= decltype(std::declval<ALint>());
+using impl_uint = decltype(std::declval<ALuint>());
+
 namespace age::audio
 {
 	source::source()
@@ -405,7 +408,7 @@ namespace age::audio
 
 	void source::enqueue_buffer(queue_buffer value)
 	{
-		ALuint handle = value.get_handle();
+		impl_uint handle = value.get_handle();
 
 		if (realize())
 		{
@@ -416,7 +419,7 @@ namespace age::audio
 
 	uint32_t source::get_num_queued_buffers() const
 	{
-		ALint result = 0;
+		impl_int result = 0;
 
 		if (m_handle) AL_CALL(alGetSourcei(m_handle, AL_BUFFERS_QUEUED, &result));
 
@@ -425,7 +428,7 @@ namespace age::audio
 
 	uint32_t source::get_num_processed_buffers() const
 	{
-		ALint result = 0;
+		impl_int result = 0;
 
 		if (m_handle) AL_CALL(alGetSourcei(m_handle, AL_BUFFERS_PROCESSED, &result));
 
@@ -434,7 +437,7 @@ namespace age::audio
 
 	queue_buffer source::unqueue_buffer()
 	{
-		ALuint buffer = 0;
+		impl_uint buffer = 0;
 
 		if (realize())
 		{
@@ -496,7 +499,7 @@ namespace age::audio
 
 	state source::get_state() const
 	{
-		ALint state = AL_INITIAL;
+		impl_int state = AL_INITIAL;
 
 		if (m_handle) AL_CALL(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
 
@@ -593,7 +596,7 @@ namespace age::audio
 
 	uint32_t source::gen_handle()
 	{
-		ALuint name = 0;
+		impl_uint name = 0;
 		AL_CALL(alGenSources(1, &name));
 
 		return name;

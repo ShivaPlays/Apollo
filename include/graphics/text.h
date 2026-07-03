@@ -90,7 +90,7 @@ namespace age
 		color m_outline_color;
 		float m_outline_thickness;
 
-		mutable glm::u32vec2 m_last_texture_size;
+		mutable glm::uvec3 m_last_texture_size;
 		mutable uint32_t m_last_texture_id;
 
 		mutable std::vector<vertex_2d> m_vertices;

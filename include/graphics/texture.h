@@ -1,9 +1,11 @@
 #pragma once
 
+#include "texture_interface.h"
+
 #include <string_view>
 #include <istream>
 
-#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "rect.h"
 #include "image.h"
 #include "render_window.h"
@@ -11,24 +13,22 @@
 
 namespace age
 {
-	class texture
+	class texture : public texture_interface
 	{
 	public:
 		friend class render_target;
 
-		texture() = default;
+		texture();
 
 		texture(const texture& other);
-		texture(texture&& other) = default;
+		texture(texture&& other) noexcept = default;
 
 		texture& operator = (const texture& other);
-		texture& operator = (texture&& other) = default;
+		texture& operator = (texture&& other) noexcept = default;
 
-		~texture() = default;
+		~texture() override = default;
 
 	public:
-		bool bind() const;
-		
 		void create(const glm::u32vec2& size);
 
 		void load(std::string_view filename, const int_rect& area = int_rect{});
@@ -45,7 +45,6 @@ namespace age
 		void update(const render_window& window);
 		void update(const render_window& window, const glm::u32vec2& dest);
 
-		const glm::uvec2& get_size() const;
 		image copy_to_image() const;
 
 		void set_smooth(bool value);
@@ -60,26 +59,11 @@ namespace age
 		void generate_mipmap();
 		void invalidate_mipmap();
 
-		uint32_t get_id() const;
-
-		void invalidate();
-
-		static bool bind(const texture* tex);
 		static uint32_t get_maximum_size();
-
-		static void reset_cache();
-
 	protected:
 
 	private:
-		static uint32_t gen_handle();
-		static void delete_handle(uint32_t handle);
 
-		uint32_t get_handle() const { return m_handle; }
-
-		glm::uvec2 m_size{1, 1}; //We use 1, 1 as standard size so that math calculations work
-
-		unique_handle<uint32_t, delete_handle> m_handle;
 		bool m_smooth = false;
 		bool m_srgb = false;
 		bool m_repeat = false;

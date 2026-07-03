@@ -47,19 +47,19 @@ namespace age
 		{}
 
 	public:
-		inline void set_texture(const texture& value) { m_texture = &value; }
-		inline const texture& get_texture() const { return *m_texture; }
+		void set_texture(const texture& value) { m_texture = &value; }
+		const texture& get_texture() const { return *m_texture; }
 
-		inline void set_shader_program(const shader_program& value) { m_shader_program = &value; }
-		inline const shader_program& get_shader_program() const{ return *m_shader_program; }
+		void set_shader_program(const shader_program& value) { m_shader_program = &value; }
+		const shader_program& get_shader_program() const{ return *m_shader_program; }
 
-		inline void set_blend_mode(const blend_mode& value) { m_blend_mode = value; }
-		inline const blend_mode& get_blend_mode() const { return m_blend_mode; }
-		inline blend_mode& get_blend_mode() { return m_blend_mode; }
+		void set_blend_mode(const blend_mode& value) { m_blend_mode = value; }
+		const blend_mode& get_blend_mode() const { return m_blend_mode; }
+		blend_mode& get_blend_mode() { return m_blend_mode; }
 
-		inline void set_transform(const glm::mat4x4& value) { m_transform = value; }
-		inline const glm::mat4& get_transform() const { return m_transform; }
-		inline glm::mat4& get_transform() { return m_transform; }
+		void set_transform(const glm::mat4x4& value) { m_transform = value; }
+		const glm::mat4& get_transform() const { return m_transform; }
+		glm::mat4& get_transform() { return m_transform; }
 
 		inline static const render_states& get_default();
 

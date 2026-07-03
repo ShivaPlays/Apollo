@@ -125,7 +125,7 @@ namespace age
 
 	void engine::reset_render_cache()
 	{
-		texture::reset_cache();
+		texture_interface::reset_cache();
 		shader_program::reset_cache();
 	}
 

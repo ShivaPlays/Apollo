@@ -593,7 +593,7 @@ namespace age
 			uint32_t y = static_cast<unsigned int>(result.texture_rect.top) - padding;
 			uint32_t w = static_cast<unsigned int>(result.texture_rect.width) + 2 * padding;
 			uint32_t h = static_cast<unsigned int>(result.texture_rect.height) + 2 * padding;
-			cur_page.page_texture.update(m_pixel_buffer.data(), uint_rect{ glm::u32vec2{x,y}, glm::u32vec2{w,h} });
+			cur_page.page_texture.update(m_pixel_buffer.data(), uint_rect{ glm::u32vec2{ x ,y }, glm::u32vec2{w, h} });
 		}
 
 		// Delete the FT glyph is done by glyph_handle
@@ -640,7 +640,8 @@ namespace age
 			{
 				// Not enough space: resize the texture if possible
 				// Make the texture 2 times bigger
-				texture_size *= 2u;
+				texture_size.x *= 2u;
+				texture_size.y *= 2u;
 				texture_needs_resizing = true;
 				uint32_t max_tex_size = texture::get_maximum_size();
 
@@ -656,7 +657,7 @@ namespace age
 				texture new_texture;
 				try
 				{
-					new_texture.create(texture_size);
+					new_texture.create(glm::uvec2{ texture_size.x, texture_size.y });
 				}
 				catch (const std::exception& e)
 				{

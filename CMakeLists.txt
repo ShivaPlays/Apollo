@@ -102,6 +102,8 @@ add_library(${LIB_NAME} STATIC
         include/graphics/sprite.h src/graphics/sprite.cpp
         include/graphics/text.h src/graphics/text.cpp
         include/graphics/texture.h src/graphics/texture.cpp
+        include/graphics/texture_array.h src/graphics/texture_array.cpp
+        include/graphics/texture_interface.h src/graphics/texture_interface.cpp
         include/graphics/transformable_2d.h src/graphics/transformable_2d.cpp
         include/graphics/uniform_buffer_object.h src/graphics/uniform_buffer_object.cpp
         include/graphics/vertex_2d.h
