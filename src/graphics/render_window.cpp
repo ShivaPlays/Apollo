@@ -88,12 +88,7 @@ namespace age
 
 	void render_window::prepare_draw()
 	{
-		if (g_render_state.framebuffer != 0)
-		{
-			GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-			g_render_state.framebuffer = 0;
-			restore_view();
-		}
+
 	}
 
 	const context& render_window::get_context() const

@@ -9,7 +9,7 @@
 
 namespace age
 {
-	class texture;
+	class texture_interface;
 
 	class rectangle_shape
 		: public shape_2d
@@ -22,7 +22,7 @@ namespace age
 		void set_size(const glm::vec2& value);
 		const glm::vec2& get_size() const;
 
-		void set_texture(const texture& value, bool reset_texture_rect = false);
+		void set_texture(const texture_interface& value, bool reset_texture_rect = false);
 		void set_texture_rect(const uint_rect& value);
 		
 		const uint_rect& get_texture_rect() const;
@@ -61,7 +61,7 @@ namespace age
 		uint_rect m_texture_rect;
 		glm::vec2 m_size;
 
-		const texture* m_texture;
+		const texture_interface* m_texture;
 
 		float m_outline_thickness;
 	};

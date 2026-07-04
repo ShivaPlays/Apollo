@@ -60,7 +60,7 @@ namespace age
 		m_vertices[1].position.x = size.x;
 		m_vertices[1].tex_coords.x = size.x;
 		m_vertices[2].position = size;
-		m_vertices[2].tex_coords = size;
+		m_vertices[2].tex_coords = glm::vec3(size, 0.0f);
 		m_vertices[3].position.y = size.y;
 		m_vertices[3].tex_coords.y = size.y;
 	}

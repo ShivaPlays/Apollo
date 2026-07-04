@@ -22,6 +22,9 @@ namespace age
         texture_interface(texture_interface&&) noexcept = default;
         texture_interface& operator=(texture_interface&&) noexcept = default;
 
+        texture_interface(const texture_interface& other);
+        texture_interface& operator=(const texture_interface& other);
+
         virtual ~texture_interface() = default;
 
     public:

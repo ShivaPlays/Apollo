@@ -113,6 +113,37 @@ namespace age
 		return SDL_GetHintBoolean(SDL_HINT_TOUCH_MOUSE_EVENTS, true);
 	}
 
+	glm::uvec2 engine::get_screen_resolution(uint32_t display_id)
+	{
+		//Get the current global mouse coordinates
+		float mouse_x = 0.0f;
+		float mouse_y = 0.0f;
+		SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+
+		//Find which display ID contains those coordinates
+		//(SDL3 uses simple integer IDs starting at 1 for displays)
+
+		if (display_id == 0)
+		{
+			auto mouse_point = SDL_Point{ static_cast<int>(mouse_x), static_cast<int>(mouse_y) };
+			SDL_DisplayID current_display = SDL_GetDisplayForPoint(&mouse_point);
+
+			display_id = current_display;
+		}
+
+		if (display_id == 0)
+		{
+			//Failed here. Shall an exception be thrown?
+			return {};
+		}
+
+		//Get the desktop display mode for that specific monitor
+		const SDL_DisplayMode* mode = SDL_GetDesktopDisplayMode(display_id);
+		if (mode) return glm::uvec2{mode->w, mode->h};
+
+		return {};
+	}
+
 	int32_t engine::init_lib(uint32_t flags)
 	{
 		return SDL_Init(flags);
@@ -148,14 +179,14 @@ namespace age
 			"};\n"
 			"in vec2 a_position;\n"
 			"in vec4 a_color;\n"
-			"in vec2 a_uv;\n"
+			"in vec3 a_uv;\n"
 			"out vec4 v_color;\n"
 			"out vec2 v_uv;\n"
 			"void main()\n"
 			"{\n"
 			"	gl_Position = vp_m * model_m * vec4(a_position, 0.0, 1.0);\n"
 			"	v_color = a_color;\n"
-			"	vec4 t_coords = tex_m * vec4(a_uv, 0.0, 1.0);\n"
+			"	vec4 t_coords = tex_m * vec4(a_uv.xy, 0.0, 1.0);\n"
 			"	v_uv = t_coords.xy;\n"
 			"}";
 
@@ -226,9 +257,9 @@ namespace age
 		GL_CALL(glEnableVertexAttribArray(get_a_color_index()));
 		GL_CALL(glEnableVertexAttribArray(get_a_tex_coords_index()));
 
-		GL_CALL(glVertexAttribPointer(get_a_position_index(), 2, GL_FLOAT, GL_FALSE, sizeof(vertex_2d), reinterpret_cast<void*>(0)));
-		GL_CALL(glVertexAttribPointer(get_a_color_index(), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vertex_2d), reinterpret_cast<void*>(8)));
-		GL_CALL(glVertexAttribPointer(get_a_tex_coords_index(), 2, GL_FLOAT, GL_FALSE, sizeof(vertex_2d), reinterpret_cast<void*>(12)));
+		GL_CALL(glVertexAttribPointer(get_a_position_index(), 2, GL_FLOAT, GL_FALSE, sizeof(vertex_2d), reinterpret_cast<void*>(offsetof(vertex_2d, position))));
+		GL_CALL(glVertexAttribPointer(get_a_color_index(), 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vertex_2d), reinterpret_cast<void*>(offsetof(vertex_2d, vertex_color))));
+		GL_CALL(glVertexAttribPointer(get_a_tex_coords_index(), 3, GL_FLOAT, GL_FALSE, sizeof(vertex_2d), reinterpret_cast<void*>(offsetof(vertex_2d, tex_coords))));
 		
 		//m_default_vertex_array_object.release();
 	}

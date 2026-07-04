@@ -100,6 +100,8 @@ namespace age
 
 		static bool is_device_reset() { return m_device_reset; }
 
+		static glm::uvec2 get_screen_resolution(uint32_t display_id = 0);
+
 	protected:
 
 	private:

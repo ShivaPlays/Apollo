@@ -11,14 +11,14 @@
 namespace age
 {
     class frame_buffer
-        : public render_target
     {
     public:
         frame_buffer() = default;
 
     public:
-        bool bind();
-        void clear();
+        void draw(render_target& target, texture& tex, const drawable& drawable_object, const render_states& states);
+        void draw(render_target& target, texture& tex, const vertex_2d vertices[], size_t num_vertices, const uint32_t indices[], size_t num_indices, const render_states& states);
+        void draw(render_target& target, texture& tex, const vertex_2d vertices[], size_t num_vertices, primitive_type type, const render_states& states);
 
         void invalidate();
 
@@ -26,10 +26,14 @@ namespace age
     protected:
 
     private:
+        bool realize();
+
+        bool bind();
+        void reset();
+
+        uint32_t get_handle() const { return m_handle;}
+
         static void delete_handle(uint32_t handle);
-
-        texture m_color_attachment;
-
         unique_handle <uint32_t, delete_handle> m_handle;
     };
 }

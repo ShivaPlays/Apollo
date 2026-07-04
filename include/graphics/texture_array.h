@@ -26,6 +26,8 @@ namespace age
 
         ~texture_array() override = default;
 
+        void create(glm::uvec2 size, size_t layers);
+        void create(glm::uvec2 size, size_t layers, uint8_t* data_ptr);
         void create(texture textures[], size_t num_textures);
         void create(image images[], size_t num_images);
 
@@ -34,6 +36,7 @@ namespace age
     protected:
 
     private:
+        void create_internal(glm::uvec2 size, size_t layers, uint8_t* data_ptr);
 
     };
 }

@@ -14,6 +14,20 @@
 
 namespace age
 {
+    texture_interface::texture_interface(const texture_interface& other)
+        : m_size( other.m_size )
+    {}
+
+    texture_interface& texture_interface::operator=(const texture_interface& other)
+    {
+        if (&other == this) return *this;
+
+        texture_interface temp{ other };
+        *this = std::move(temp);
+
+        return *this;
+    }
+
     bool texture_interface::bind() const
     {
         auto handle = get_handle();
@@ -24,7 +38,7 @@ namespace age
 
             const glm::uvec3 size = get_size();
 
-            glm::mat4 tex_matrix = glm::scale(glm::mat4{ 1.0f }, glm::vec3(1.0f / static_cast<float>(size.x), 1.0f / static_cast<float>(size.y), 1.0f / static_cast<float>(size.z)));
+            glm::mat4 tex_matrix = glm::scale(glm::mat4{ 1.0f }, glm::vec3(1.0f / static_cast<float>(size.x), 1.0f / static_cast<float>(size.y), 1.0f));
             engine::get_instance()->get_texture_matrix_ubo().buffer_data(sizeof(glm::mat4), &tex_matrix);
 
             g_render_state.texture = handle;
@@ -72,7 +86,7 @@ namespace age
 
     void texture_interface::delete_handle(uint32_t handle)
     {
-        if (handle && !engine::is_device_reset()) GL_CALL(glDeleteTextures(1, &handle));
+        if (!engine::is_device_reset()) GL_CALL(glDeleteTextures(1, &handle));
         if (handle == g_render_state.texture) g_render_state.texture = 0;
     }
 }

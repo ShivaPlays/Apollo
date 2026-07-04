@@ -6,7 +6,7 @@
 
 namespace age
 {
-	class texture;
+	class texture_interface;
 	class shader_program;
 
 	class render_states
@@ -27,7 +27,7 @@ namespace age
 			, m_transform{ the_transform }
 		{}
 
-		render_states(const shader_program& shader_program, const texture& the_texture, const glm::mat4x4& the_transform)
+		render_states(const shader_program& shader_program, const texture_interface& the_texture, const glm::mat4x4& the_transform)
 			: m_texture{ &the_texture }
 			, m_shader_program{ &shader_program }
 			, m_transform{ the_transform }
@@ -47,8 +47,8 @@ namespace age
 		{}
 
 	public:
-		void set_texture(const texture& value) { m_texture = &value; }
-		const texture& get_texture() const { return *m_texture; }
+		void set_texture(const texture_interface& value) { m_texture = &value; }
+		const texture_interface& get_texture() const { return *m_texture; }
 
 		void set_shader_program(const shader_program& value) { m_shader_program = &value; }
 		const shader_program& get_shader_program() const{ return *m_shader_program; }
@@ -66,7 +66,7 @@ namespace age
 	protected:
 
 	private:
-		const texture* m_texture = &engine::get_instance()->get_default_texture();
+		const texture_interface* m_texture = &engine::get_instance()->get_default_texture();
 		const shader_program* m_shader_program = &engine::get_instance()->get_default_shader_program();
 
 		blend_mode m_blend_mode = blend_mode::blend_alpha;

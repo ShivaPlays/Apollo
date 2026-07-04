@@ -13,6 +13,12 @@
 
 namespace age
 {
+	//Helper function for my unique_handle
+	inline void delete_framebuffer(GLuint handle) noexcept
+	{
+		GL_CALL(glDeleteFramebuffers(1, &handle));
+	}
+
 	texture::texture()
 		: texture_interface{ GL_TEXTURE_2D }
 	{}
@@ -20,23 +26,59 @@ namespace age
 	texture::texture(const texture& other)
 		: texture_interface{ GL_TEXTURE_2D }
 	{
-		if (realize())
-		{
-			//ToDo: Copy content from other texture here
-		}
-	}
-/*
-	texture::texture(texture&& other) noexcept
-		: texture_interface{ std::move(other) }
-	{
+		if (!other.get_handle()) return;
+		if (!realize()) return;
 
+		//Create a texture with a proper size
+		create(other.get_size());
+
+		//Create two temporary Framebuffer Objects
+		GLuint ids[2] = { 0, 0 };
+		GL_CALL(glGenFramebuffers(2, ids));
+
+		//Wrap them immediately into your RAII unique_handles
+		unique_handle<GLuint, delete_framebuffer> src_fbo = ids[0];
+		unique_handle<GLuint, delete_framebuffer> dst_fbo = ids[1];
+
+		//Safety check in case driver handle allocation failed
+		if (src_fbo.get() == 0 || dst_fbo.get() == 0) return;
+
+		//Bind and attach the source texture to the READ framebuffer
+		GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo.get()));
+		GL_CALL(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, other.get_handle(), 0));
+
+		//Bind and attach the destination texture to the DRAW framebuffer
+		GL_CALL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo.get()));
+		GL_CALL(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, get_handle(), 0));
+
+		//Create a little guard which unbinds the framebuffer
+		std::unique_ptr<int, void(*)(int*)> unbind_guard(reinterpret_cast<int*>(1), [](int*) { GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); });
+
+		//Verify both attachments are complete and valid
+		GLenum src_status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
+		GLenum dst_status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+
+		if (src_status != GL_FRAMEBUFFER_COMPLETE || dst_status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			//Error happened. Shall we throw an exception here?
+			throw std::runtime_error("Failed to copy texture: OpenGL Framebuffer incomplete.");
+		}
+
+		//Perform the hardware-accelerated VRAM blit
+		GL_CALL(glBlitFramebuffer(
+			0, 0, other.get_size().x, other.get_size().y,  // Source bounds (x0, y0, x1, y1)
+			0, 0, other.get_size().x, other.get_size().y,  // Destination bounds (x0, y0, x1, y1)
+			GL_COLOR_BUFFER_BIT,  // Channel mask
+			GL_NEAREST            // Required filtering for exact-match blits
+		));
 	}
-*/
+
 	texture& texture::operator = (const texture& other)
 	{
 		if (&other == this) return *this;
 
-		//ToDo: Copy content from other texture here
+		texture temp(other);
+		*this = std::move(temp);
 
 		return *this;
 	}
@@ -71,7 +113,7 @@ namespace age
 				GL_CALL(glTexImage2D(
 					GL_TEXTURE_2D,
 					0,
-					GL_RGBA,
+					GL_RGBA8,
 					static_cast<GLsizei>(tex_size.x),
 					static_cast<GLsizei>(tex_size.y),
 					0,
