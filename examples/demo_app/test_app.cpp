@@ -156,7 +156,8 @@ age::engine::app_result test_app::on_update()
     m_fps_text.set_string(m_fps_stringstream.str());
 
     m_elapsed_time += m_delta_time;
-    m_background_program.set_uniform(m_background_program_time_location, m_elapsed_time);
+    //m_background_program.set_uniform(m_background_program_time_location, m_elapsed_time);
+    m_background_program.set_uniform(m_background_program_time_location, m_elapsed_time * 15.0f);
 
     if (m_key_left)
     {

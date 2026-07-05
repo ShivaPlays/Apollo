@@ -23,9 +23,12 @@ namespace age
 		const glm::vec2& get_size() const;
 
 		void set_texture(const texture_interface& value, bool reset_texture_rect = false);
+
 		void set_texture_rect(const uint_rect& value);
-		
 		const uint_rect& get_texture_rect() const;
+
+		void set_texture_layer(int16_t value);
+		int16_t get_texture_layer() const;
 
 		void set_outline_thickness(float value);
 		float get_outline_thickness() const;

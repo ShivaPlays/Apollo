@@ -78,6 +78,16 @@ namespace age
 		return m_texture_rect;
 	}
 
+	void rectangle_shape::set_texture_layer(int16_t value)
+	{
+		for (auto& vert : m_vertices) vert.tex_coords.z = static_cast<float>(value);
+	}
+
+	int16_t rectangle_shape::get_texture_layer() const
+	{
+		return static_cast<int16_t>(m_vertices[0].tex_coords.z);
+	}
+
 	void rectangle_shape::set_outline_thickness(float value)
 	{
 		m_outline_thickness = value;
@@ -168,8 +178,6 @@ namespace age
 
 	void rectangle_shape::update_tex_coords()
 	{
-		auto texture_size = m_texture->get_size();
-
 		m_vertices[0].tex_coords = glm::vec3{ static_cast<float>(m_texture_rect.left), static_cast<float>(m_texture_rect.top), 0.0f };
 		m_vertices[1].tex_coords = glm::vec3{ static_cast<float>(m_texture_rect.left + m_texture_rect.width), static_cast<float>(m_texture_rect.top), 0.0f };
 		m_vertices[2].tex_coords = glm::vec3{ static_cast<float>(m_texture_rect.left + m_texture_rect.width), static_cast<float>(m_texture_rect.top + m_texture_rect.height), 0.0f };
