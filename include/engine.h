@@ -89,6 +89,8 @@ namespace age
 
 		static constexpr uint32_t get_vp_matrix_binding() { return 0; }
 
+		static constexpr std::string_view get_model_matrix_uniform_name() { return "model_m"; }
+
 		static void set_mouse_touch_events(bool value);
 		static bool get_mouse_touch_events();
 

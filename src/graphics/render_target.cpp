@@ -182,7 +182,7 @@ namespace age
 	{
 		auto& program = states.get_shader_program();
 
-		if (program.bind()) program.set_uniform("model_m", states.get_transform());
+		if (program.bind()) program.set_uniform(engine::get_model_matrix_uniform_name(), states.get_transform());
 
 		states.get_texture().bind();
 
