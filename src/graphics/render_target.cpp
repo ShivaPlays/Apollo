@@ -182,9 +182,7 @@ namespace age
 	{
 		auto& program = states.get_shader_program();
 
-		program.bind();
-
-		engine::get_instance()->get_model_matrix_ubo().buffer_sub_data(0, sizeof(glm::mat4), &states.get_transform());
+		if (program.bind()) program.set_uniform("model_m", states.get_transform());
 
 		states.get_texture().bind();
 

@@ -169,10 +169,7 @@ namespace age
 			"{\n"
 			"	mat4 vp_m;\n"
 			"};\n"
-			"layout (std140) uniform model_matrix\n"
-			"{\n"
-			"	mat4 model_m;\n"
-			"};\n"
+			"uniform mat4 model_m;\n"
 			"uniform sampler2D u_texture;\n"
 			"in vec2 a_position;\n"
 			"in vec4 a_color;\n"
@@ -210,26 +207,8 @@ namespace age
 		m_default_shader_program.bind_attrib_location(get_a_tex_coords_index(), "a_uv");
 		m_default_shader_program.link();
 
-		/*
-		ToDo: later on gon with this approach. Have all the matrices separated and have 3 UBOs
-		layout(std140) uniform MVP {
-		mat4 model;
-		mat4 view;
-		mat4 projection;
-		};
-
-		layout(std140) uniform TexMatrix {
-		mat4 textureMatrix;
-		};
-
-		layout(std140) uniform Viewport {
-		vec4 viewport;
-		};
-		*/
-
 		m_default_shader_program.set_uniform("u_texture", 0);
 		m_default_shader_program.set_uniform_block_binding("viewprojection_matrix", get_vp_matrix_binding());
-		m_default_shader_program.set_uniform_block_binding("model_matrix", get_model_matrix_binding());
 
 		m_default_texture.create(glm::u32vec2{ 1, 1 });
 		m_default_texture.update(std::array<uint8_t, 4>{255, 255, 255, 255}.data());
@@ -239,13 +218,8 @@ namespace age
 		m_default_element_buffer_object.bind();
 
 		m_vp_matrix_ubo.buffer_data(sizeof(glm::mat4x4), glm::value_ptr(glm::mat4{ 1.0f }));
-		m_model_matrix_ubo.buffer_data(sizeof(glm::mat4x4), glm::value_ptr(glm::mat4{ 1.0f }));
-		m_texture_matrix_ubo.buffer_data(sizeof(glm::mat4x4), glm::value_ptr(glm::mat4{ 1.0f }));
-		
 		m_viewport_ubo.buffer_data(sizeof(uint32_t) * 2, std::array<uint32_t, 2>{0, 0}.data());
-
 		m_vp_matrix_ubo.bind_buffer_base(get_vp_matrix_binding());
-		m_model_matrix_ubo.bind_buffer_base(get_model_matrix_binding());
 
 		GL_CALL(glEnableVertexAttribArray(get_a_position_index()));
 		GL_CALL(glEnableVertexAttribArray(get_a_color_index()));

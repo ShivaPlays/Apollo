@@ -57,7 +57,6 @@ age::engine::app_result test_app::on_user_create()
     m_background_program_time_location = m_background_program.get_uniform_location("iTime");
 
     m_background_program.set_uniform_block_binding("viewprojection_matrix", get_vp_matrix_binding());
-    m_background_program.set_uniform_block_binding("model_matrix", get_model_matrix_binding());
 
     m_test_texture.load("./test_data/test.png");
     m_test_font_texture.load("./test_data/font_texture.png");
