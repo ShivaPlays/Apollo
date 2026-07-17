@@ -93,7 +93,6 @@ namespace age
 
 		static constexpr uint32_t get_vp_matrix_binding() { return 0; }
 		static constexpr uint32_t get_model_matrix_binding() { return 1; }
-		static constexpr uint32_t get_texture_matrix_binding() { return 2; }
 
 		static void set_mouse_touch_events(bool value);
 		static bool get_mouse_touch_events();

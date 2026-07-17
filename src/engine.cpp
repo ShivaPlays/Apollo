@@ -173,10 +173,7 @@ namespace age
 			"{\n"
 			"	mat4 model_m;\n"
 			"};\n"
-			"layout (std140) uniform texture_matrices\n"
-			"{\n"
-			"	mat4 tex_m;\n"
-			"};\n"
+			"uniform sampler2D u_texture;\n"
 			"in vec2 a_position;\n"
 			"in vec4 a_color;\n"
 			"in vec3 a_uv;\n"
@@ -184,10 +181,10 @@ namespace age
 			"out vec2 v_uv;\n"
 			"void main()\n"
 			"{\n"
-			"	gl_Position = vp_m * model_m * vec4(a_position, 0.0, 1.0);\n"
+			"	gl_Position = vp_m * (model_m * vec4(a_position, 0.0, 1.0));\n"
 			"	v_color = a_color;\n"
-			"	vec4 t_coords = tex_m * vec4(a_uv.xy, 0.0, 1.0);\n"
-			"	v_uv = t_coords.xy;\n"
+			"	vec2 tex_size = vec2(textureSize(u_texture, 0));"
+			"	v_uv= a_uv.xy / tex_size;\n"
 			"}";
 
 		std::string_view fragment_shader_source =
@@ -200,7 +197,6 @@ namespace age
 			"void main()\n"
 			"{\n"
 			"	vec4 texel = texture(u_texture, v_uv);\n"
-			"	//if(texel.a == 0.0) discard;\n"
 			"	frag_color = v_color * texel;\n"
 			"}";
 
@@ -234,7 +230,6 @@ namespace age
 		m_default_shader_program.set_uniform("u_texture", 0);
 		m_default_shader_program.set_uniform_block_binding("viewprojection_matrix", get_vp_matrix_binding());
 		m_default_shader_program.set_uniform_block_binding("model_matrix", get_model_matrix_binding());
-		m_default_shader_program.set_uniform_block_binding("texture_matrices", get_texture_matrix_binding());
 
 		m_default_texture.create(glm::u32vec2{ 1, 1 });
 		m_default_texture.update(std::array<uint8_t, 4>{255, 255, 255, 255}.data());
@@ -251,7 +246,6 @@ namespace age
 
 		m_vp_matrix_ubo.bind_buffer_base(get_vp_matrix_binding());
 		m_model_matrix_ubo.bind_buffer_base(get_model_matrix_binding());
-		m_texture_matrix_ubo.bind_buffer_base(get_texture_matrix_binding());
 
 		GL_CALL(glEnableVertexAttribArray(get_a_position_index()));
 		GL_CALL(glEnableVertexAttribArray(get_a_color_index()));

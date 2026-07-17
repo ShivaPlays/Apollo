@@ -35,12 +35,6 @@ namespace age
         if (handle != g_render_state.texture)
         {
             GL_CALL(glBindTexture(m_type, handle));
-
-            const glm::uvec3 size = get_size();
-
-            glm::mat4 tex_matrix = glm::scale(glm::mat4{ 1.0f }, glm::vec3(1.0f / static_cast<float>(size.x), 1.0f / static_cast<float>(size.y), 1.0f));
-            engine::get_instance()->get_texture_matrix_ubo().buffer_data(sizeof(glm::mat4), &tex_matrix);
-
             g_render_state.texture = handle;
         }
 

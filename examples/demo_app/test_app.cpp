@@ -58,8 +58,7 @@ age::engine::app_result test_app::on_user_create()
 
     m_background_program.set_uniform_block_binding("viewprojection_matrix", get_vp_matrix_binding());
     m_background_program.set_uniform_block_binding("model_matrix", get_model_matrix_binding());
-    m_background_program.set_uniform_block_binding("texture_matrices", get_texture_matrix_binding());
-    
+
     m_test_texture.load("./test_data/test.png");
     m_test_font_texture.load("./test_data/font_texture.png");
     m_rect_matrix = glm::translate(m_rect_matrix, glm::vec3{ 0.5f, 1.5f, 0.0f });
