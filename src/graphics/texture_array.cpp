@@ -168,6 +168,22 @@ namespace age
         }
     }
 
+    uint32_t texture_array::get_maximum_size()
+    {
+        GLint size = 0;
+        GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size));
+
+        return size;
+    }
+
+    uint32_t texture_array::get_maximum_layers()
+    {
+        GLint layers = 0;
+        GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &layers));
+
+        return layers;
+    }
+
     void texture_array::create_internal(glm::uvec2 size, size_t layers, uint8_t* data_ptr)
     {
         GL_CALL(glTexImage3D(
