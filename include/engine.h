@@ -47,6 +47,7 @@ namespace age
 		friend void engine_quit(engine& engine);
 
 		engine();
+		engine(const char* app_name, const char* app_version, const char* app_identifier);
 		virtual ~engine();
 
 		engine(const engine& other) = delete;
@@ -107,7 +108,7 @@ namespace age
 		virtual void on_user_destroy() = 0;
 		virtual app_result on_process_event(SDL_Event& e);
 
-		static int32_t init_lib(uint32_t flags);
+		static int32_t init_lib(uint32_t flags, const char* app_name, const char* app_version, const char* app_identifier);
 		static void quit_lib();
 
 		static void set_device_reset(bool value) { m_device_reset = value; }
@@ -124,7 +125,7 @@ namespace age
 		inline static engine* m_instance = nullptr;
 		inline static bool m_device_reset = false;
 
-		initializer<init_lib, quit_lib, uint32_t> m_initializer;
+		initializer<init_lib, quit_lib, uint32_t, const char*, const char*, const char*> m_initializer;
 		render_window m_render_window;
 
 		vertex_array_object m_default_vertex_array_object;

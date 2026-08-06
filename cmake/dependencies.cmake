@@ -184,18 +184,18 @@ endif()
 # ------------------------------
 # SDL3
 # ------------------------------
+# Define your platform-specific flags
+if(ANDROID)
+    set(SDL_SHARED ON)
+    set(SDL_STATIC OFF)
+    set(SDL_PCH OFF CACHE BOOL "Disable precompiled headers for SDL3" FORCE)
+else()
+    set(SDL_SHARED OFF)
+    set(SDL_STATIC ON)
+endif()
 find_package(SDL3 QUIET)
 if(NOT SDL3_FOUND)
     message(STATUS "SDL3 not found, fetching with FetchContent...")
-
-    # Define your platform-specific flags
-    if(ANDROID)
-        set(SDL_SHARED ON)
-        set(SDL_STATIC OFF)
-    else()
-        set(SDL_SHARED OFF)
-        set(SDL_STATIC ON)
-    endif()
 
     fetch_hide_from_ide(
             sdl3

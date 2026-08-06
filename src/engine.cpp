@@ -16,21 +16,15 @@
 namespace age
 {
 	engine::engine()
-		: m_initializer{ SDL_INIT_VIDEO }
+		: engine { nullptr, nullptr, nullptr}
+	{}
+
+	engine::engine(const char* name, const char* version, const char* identifier)
+		: m_initializer{ SDL_INIT_VIDEO, name, version, identifier }
 		, m_started{ false }
 		, m_exit_requested{ false }
 	{
-		static bool engine_instanced;
-
-		if (engine_instanced)
-		{
-			throw std::runtime_error{ "Only one instance of engine is allowed!" };
-		}
-
-		m_instance = this;
 		init_defaults();
-
-		engine_instanced = true;
 	}
 
 	engine::~engine()
@@ -144,8 +138,10 @@ namespace age
 		return {};
 	}
 
-	int32_t engine::init_lib(uint32_t flags)
+	int32_t engine::init_lib(uint32_t flags, const char* app_name, const char* app_version, const char* app_identifier)
 	{
+		SDL_SetAppMetadata(app_name, app_version, app_identifier);
+
 		return SDL_Init(flags);
 	}
 
@@ -162,6 +158,15 @@ namespace age
 
 	void engine::init_defaults()
 	{
+		static bool engine_instanced;
+
+		if (engine_instanced)
+		{
+			throw std::runtime_error{ "Only one instance of engine is allowed!" };
+		}
+
+		m_instance = this;
+
 		std::string_view vertex_shader_source =
 			"#auto_version\n"
 			"precision highp float;\n"
@@ -230,6 +235,8 @@ namespace age
 		GL_CALL(glVertexAttribPointer(get_a_tex_coords_index(), 3, GL_FLOAT, GL_FALSE, sizeof(vertex_2d), reinterpret_cast<void*>(offsetof(vertex_2d, tex_coords))));
 		
 		//m_default_vertex_array_object.release();
+
+		engine_instanced = true;
 	}
 
 	engine::app_result engine::user_create()

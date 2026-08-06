@@ -10,7 +10,7 @@
 
 namespace age
 {
-    //Helper function for my unique_handle
+    // Helper function for my unique_handle
     inline void delete_framebuffer(GLuint handle) noexcept
     {
         GL_CALL(glDeleteFramebuffers(1, &handle));
@@ -34,7 +34,7 @@ namespace age
             GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo));
             std::unique_ptr<int, void(*)(int*)> unbind_guard(reinterpret_cast<int*>(1), [](int*) { GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0)); });
 
-            //Loop through every layer and copy it over
+            // Loop through every layer and copy it over
             for (size_t layer = 0; layer < other.get_size().z; ++layer)
             {
                 // Attach layer 'layer' of the SOURCE texture array to the Read Framebuffer
@@ -43,17 +43,17 @@ namespace age
                     GL_READ_FRAMEBUFFER,
                     GL_COLOR_ATTACHMENT0,
                     other.get_id(),
-                    0,      // Mipmap level
-                    layer        // The specific source layer index
+                    0,              // Mipmap level
+                    layer           // The specific source layer index
                 ));
 
                 // Copy from the bound FBO layer directly into destination layer 'layer'
                 GL_CALL(glCopyTexSubImage3D(
                     GL_TEXTURE_2D_ARRAY,
                     0,                      // Mipmap level
-                    0, 0,            // Destination x, y offsets
-                    layer,                 // Destination zoffset (the layer index!)
-                    0, 0,                    // Source x, y coordinates from FBO
+                    0, 0,                   // Destination x, y offsets
+                    layer,                  // Destination zoffset (the layer index!)
+                    0, 0,                   // Source x, y coordinates from FBO
                     other.get_size().x, other.get_size().y
                 ));
             }
@@ -118,17 +118,17 @@ namespace age
                 GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo));
                 std::unique_ptr<int, void(*)(int*)> unbind_guard(reinterpret_cast<int*>(1), [](int*) { GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0)); });
 
-                //Attach your existing 2D source texture to the Read Framebuffer
+                // Attach your existing 2D source texture to the Read Framebuffer
                 GL_CALL(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex.get_id(), 0));
 
                 // 3. Copy the screen/FBO pixels directly into the specified layer of your array
                 // Note: 'layer' is passed as the zoffset (5th parameter)
                 GL_CALL(glCopyTexSubImage3D(
                     GL_TEXTURE_2D_ARRAY,
-                    0,              // Mipmap level
-                    0, 0,    // xoffset, yoffset (destination offsets)
-                    i,             // zoffset (This is the target layer index!)
-                    0, 0,            // x, y (source coordinates from the FBO)
+                    0,                  // Mipmap level
+                    0, 0,        // xoffset, yoffset (destination offsets)
+                    i,                 // zoffset (This is the target layer index!)
+                    0, 0,                // x, y (source coordinates from the FBO)
                     tex_size.x, tex_size.y
                 ));
             }
@@ -137,7 +137,7 @@ namespace age
 
     void texture_array::create(image images[], size_t num_images)
     {
-        //Sanity check first
+        // Sanity check first
         if (num_images == 0) return;
 
         auto tex_size= images[0].get_size();
@@ -188,11 +188,11 @@ namespace age
     {
         GL_CALL(glTexImage3D(
             GL_TEXTURE_2D_ARRAY,
-            0,                                   // Mipmap level
-            GL_RGBA8,                                 // Internal format
+            0,                                             // Mipmap level
+            GL_RGBA8,                                           // Internal format
             size.x, size.y, layers,
-            0,                                  // Border
-            GL_RGBA, GL_UNSIGNED_BYTE, data_ptr       // No initial data pointer
+            0,                                            // Border
+            GL_RGBA, GL_UNSIGNED_BYTE, data_ptr                 // No initial data pointer
         ));
 
         GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

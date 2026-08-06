@@ -18,10 +18,10 @@ namespace age
 	class  initializer
 	{
 	public:
-		initializer(init_params&&... params)
-		{
-			m_result = fn_init(std::forward<init_params>(params)...);
-		}
+		template <typename... Args>
+		initializer(Args&&... params)
+		: m_result(fn_init(std::forward<Args>(params)...))
+		{}
 
 		~initializer()
 		{
@@ -36,14 +36,14 @@ namespace age
 		initializer& operator = (const initializer& other) = delete;
 		initializer& operator = (initializer&& other) noexcept
   		{
-			if (this == other) return *this;
+			if (this == &other) return *this;
 
 			m_result = std::exchange(other.m_result, init_return_type{});
 			return *this;
 		}
 
 	public:
-		using init_return_type = decltype(fn_init(std::declval<init_params...>()));
+		using init_return_type = decltype(fn_init(std::declval<init_params>()...));
 
 		inline const init_return_type& get_result() const { return m_result; }
 
@@ -53,6 +53,12 @@ namespace age
 
 		init_return_type m_result{};
 	};
+
+	template <auto fn_init, auto fn_uninit, typename... Args>
+	constexpr auto make_initializer(Args&&... args)
+	{
+		return initializer<fn_init, fn_uninit, std::decay_t<Args>...>(std::forward<Args>(args)...);
+	}
 
 	template <typename T, auto delete_func, T invalid_value = T{}>
 	class unique_handle
