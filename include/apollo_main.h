@@ -2,6 +2,7 @@
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
+#include "SDL3/SDL_messagebox.h"
 
 #include <iostream>
 #include <memory>
@@ -37,12 +38,14 @@ namespace age
         }
         catch (const std::exception& e)
         {
-            std::cout << "Unhandled exception: " << e.what() << std::endl;
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unhandled exception", e.what(), nullptr);
+
             return SDL_APP_FAILURE;
         }
         catch (...)
         {
-            std::cout << "Unhandled exception" << std::endl;
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unhandled exception", "Unknown error", nullptr);
+
             return SDL_APP_FAILURE;
         }
     }
