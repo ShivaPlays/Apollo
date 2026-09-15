@@ -18,7 +18,7 @@ namespace age::core
 		background_worker& operator = (const background_worker& other) = delete;
 
 	public:
-		void add_job(const std::function<void()>& value);
+		void add_job(std::function<void()> value);
 
 		size_t get_num_pending_jobs() const;
 

@@ -14,24 +14,27 @@ namespace age::core
 	background_worker::~background_worker()
 	{
 		{
-			std::lock_guard lock{ m_queue_mutex };
+			std::scoped_lock lock{ m_queue_mutex };
 			m_exit = true;
-			m_queue_pending.notify_one();
 		}
 
-		m_thread.join();
+		m_queue_pending.notify_one();
+
+		if (m_thread.joinable()) m_thread.join();
 	}
 
-	void background_worker::add_job(const std::function<void()>& value)
+	void background_worker::add_job(std::function<void()> value)
 	{
-		std::lock_guard lock{ m_queue_mutex };
-		m_job_queue.push(value);
+		{
+			std::scoped_lock lock{ m_queue_mutex };
+			m_job_queue.push(std::move(value));
+		}
 		m_queue_pending.notify_one();
 	}
 
 	size_t background_worker::get_num_pending_jobs() const
 	{
-		std::lock_guard lock{ m_queue_mutex };
+		std::scoped_lock lock{ m_queue_mutex };
 
 		return m_job_queue.size();
 	}
@@ -48,7 +51,7 @@ namespace age::core
 
 				if (m_exit) break;
 
-				job = m_job_queue.front();
+				job = std::move(m_job_queue.front());
 				m_job_queue.pop();
 			}
 
